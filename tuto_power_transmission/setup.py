@@ -7,9 +7,7 @@ tag_re = re.compile(r'\btag: %s([0-9][^,]*)\b')
 version_re = re.compile('^Version: (.+)$', re.M)
 
 
-def readme():
-    with open('README.md') as f:
-        return f.read()
+
 
 def version_from_git_describe(version):
     if version[0]=='v':
@@ -66,42 +64,20 @@ assert version_from_git_describe('v0.1-15-zsdgaz') == '0.1.1.dev15'
 assert version_from_git_describe('v1') == '1'
 assert version_from_git_describe('v1-3-aqsfjbo') == '1.0.1.dev3'
 
-def get_version():
-    # Return the version if it has been injected into the file by git-archive
-    version = tag_re.search('$Format:%D$')
-    if version:
-        return version.group(1)
 
-    d = dirname(__file__)
-
-    if isdir(join(d, '.git')):
-        cmd = 'git describe --tags'
-        try:
-            version = check_output(cmd.split()).decode().strip()[:]
-
-        except CalledProcessError:
-            raise RuntimeError('Unable to get version number from git tags')
-
-        return version_from_git_describe(version)
-    else:
-        # Extract the version from the PKG-INFO file.
-        with open(join(d, 'PKG-INFO')) as f:
-            version = version_re.search(f.read()).group(1)
-
-    return version
 
 
 
 
 
 setup(
-	version=get_version(),
+	version=0.1,
 	name='tuto_power_transmission',
 	description='tutorial for power transmission',
-	long_description=readme(),
+	long_description='',
 	author='Lucas',
 	author_email='launay@dessia.tech',
 	install_requires=['dessia_common'],
 	python_requires='>=3.8',
-	packages=find_packages(),
+	packages=['tuto_power_transmission'],
 )

@@ -6,7 +6,7 @@ Created on Mon Nov 23 11:05:57 2020
 @author: launay
 """
 
-import tuto_power_transmission as objects
+import tuto_power_transmission.core as objects
 
 
 motor = objects.Motor(diameter=0.1, length=0.2, speed=120)
