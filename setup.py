@@ -72,12 +72,12 @@ assert version_from_git_describe('v1-3-aqsfjbo') == '1.0.1.dev3'
 
 setup(
 	version=0.1,
-	name='tuto_power_transmission',
-	description='tutorial for power transmission',
+	name='tutorials',
+	description='tutorials for DessIA platform',
 	long_description='',
 	author='Lucas',
 	author_email='launay@dessia.tech',
 	install_requires=['dessia_common'],
-	python_requires='>=3.8',
-	packages=['tuto_power_transmission'],
+	python_requires='>=3.7',
+	packages=['tutorials'],
 )
