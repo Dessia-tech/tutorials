@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 import math
 import volmdlr as vm
-import volmdlr.primitives3D as p3d
+import volmdlr.primitives3d as p3d
 from dessia_common import DessiaObject
 from typing import List,Tuple
 import numpy as npy
@@ -36,8 +36,8 @@ class Shaft(DessiaObject):
 
     def volmdlr_primitives(self):
         primitives = []
-        pos = vm.Point3D((self.pos_x, self.pos_y, self.z_position))
-        axis = vm.Vector3D((0,0,1))
+        pos = vm.Point3D(self.pos_x, self.pos_y, self.z_position)
+        axis = vm.Vector3D(0,0,1)
         cylinder = p3d.Cylinder(pos, axis, self.diameter/2, self.length)
         primitives.append(cylinder)
         return primitives
@@ -71,8 +71,8 @@ class Motor(DessiaObject):
 
     def volmdlr_primitives(self):
         primitives = []
-        pos = vm.Point3D((self.pos_x, self.pos_y, self.z_position))
-        axis = vm.Vector3D((0,0,1))
+        pos = vm.Point3D(self.pos_x, self.pos_y, self.z_position)
+        axis = vm.Vector3D(0,0,1)
         cylinder = p3d.Cylinder(pos, axis, self.diameter/2, self.length)
         primitives.append(cylinder)
         return primitives
@@ -101,8 +101,8 @@ class Gear(DessiaObject):
 
     def volmdlr_primitives(self):
         primitives = []
-        pos = vm.Point3D((self.shaft.pos_x,self.shaft.pos_y, self.z_position))
-        axis = vm.Vector3D((0,0,1))
+        pos = vm.Point3D(self.shaft.pos_x,self.shaft.pos_y, self.z_position)
+        axis = vm.Vector3D(0,0,1)
         cylinder = p3d.Cylinder(pos, axis, self.diameter/2, self.length)
         primitives.append(cylinder)
         return primitives
