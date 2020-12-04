@@ -14,7 +14,7 @@ generator=objects.Generator(motor=motor,speed_output=600,z_min_max=[4,30])
 list_reductor=generator.generate()
 for reductor in list_reductor:
     print(1)
-    optimizer = objects.Optimizer(reductor=reductor, x_min_max=[-1,1], y_min_max=[-1,1],module_min_max=[0,1])
+    optimizer = objects.Optimizer(reductor=reductor, x_min_max=[-1,1], y_min_max=[-1,1])
     
     optimizer.optimize()
 

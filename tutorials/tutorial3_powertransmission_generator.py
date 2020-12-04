@@ -24,7 +24,7 @@ class Shaft(DessiaObject):
     def __init__(self, pos_x: float, pos_y: float,length: float, name: str=''):
         self.pos_x = pos_x
         self.pos_y = pos_y
-        self.name = name
+        
         self.length=length
         self.diameter=0.04
         self.z_position=self.length/2
@@ -55,7 +55,7 @@ class Motor(DessiaObject):
         self.diameter = diameter
         self.length = length
         self.speed = speed
-        self.name = name
+        
         DessiaObject.__init__(self,name=name)
         self.z_position=self.length/2
         self.pos_x=0
@@ -85,7 +85,6 @@ class Gear(DessiaObject):
     def __init__(self, z: int, length: float, shaft: Shaft,module: float = 0.01,name: str=''):
         self.z = z
         self.length = length
-        self.name = name
         self.shaft=shaft
         self.module=module
         self.diameter=z*module
@@ -125,7 +124,6 @@ class Mesh(DessiaObject):
         self.gear1 = gear1
         self.gear2 = gear2
         self.gears = [gear1, gear2]
-        self.name = name
         DessiaObject.__init__(self,name=name)
 
 
@@ -139,7 +137,6 @@ class Reductor(DessiaObject):
     def __init__(self, motor: Motor, shafts:List[Shaft], meshes: List[Mesh], number_solution: int = 0,name: str = ''):
         self.shafts = shafts
         self.meshes = meshes
-        self.name = name
         self.motor = motor
         self.offset = 0.02
         self.number_solution=number_solution
@@ -235,11 +232,10 @@ class Reductor(DessiaObject):
 
 
 class Optimizer(DessiaObject):
-    def __init__(self, reductor: Reductor, x_min_max: Tuple[float, float], y_min_max: Tuple[float, float],module_min_max: Tuple[float,float], name: str =''):
+    def __init__(self, reductor: Reductor, x_min_max: Tuple[float, float], y_min_max: Tuple[float, float], name: str =''):
         self.reductor = reductor
         self.x_min_max = x_min_max
         self.y_min_max= y_min_max
-        self.module_min_max=module_min_max
         
         DessiaObject.__init__(self,name=name)
 
@@ -333,7 +329,7 @@ class Optimizer(DessiaObject):
             self.reductor.update(x0)
             res = minimize(self.objective, x0, bounds=self.bounds)
             count += 1
-            if  res.fun<10 and res.success:
+            if  res.fun < 10 and res.success:
                 print(count)
                 self.reductor.update(res.x)
                 
@@ -369,45 +365,38 @@ class Generator(DessiaObject):
         reductor = Reductor(self.motor, shafts, meshes)
         return reductor
     
-    def test_GCD(self, Z_1, Z_2):
-
-        if math.gcd(Z_1, Z_2) != 1:
-
-                     return False
-
-        return True
     
     def generate(self):
-        list_tree=[]
-        list_gear=[]
-        reductor=self.instanciate()
+        list_node = []
+        list_gear = []
+        reductor = self.instanciate()
         for meshe in reductor.meshes:
-            for gear in  [meshe.gear1,meshe.gear2]:
-                list_tree.append(self.z_min_max[1]-self.z_min_max[0])
+            for gear in  [meshe.gear1, meshe.gear2]:
+                list_node.append(self.z_min_max[1]-self.z_min_max[0])
                 list_gear.append(gear)
-        tree=dt.RegularDecisionTree(list_tree)
-        list_reductor=[]
+        tree=dt.RegularDecisionTree(list_node)
+        list_reductor = []
         
         while not tree.finished:
-             valid=True
+             valid = True
              node = tree.current_node
-             list_gear[len(node)-1].z=node[-1]+self.z_min_max[0]
-             if len(node)==2 or len(node)==4:
-                if self.speed_input<self.speed_output:
-                     if node[-2]<=node[-1]:
-                         valid=False
-                else:
-                    if node[-2]>=node[-1]:
-                        valid=False
+             list_gear[len(node)-1].z = node[-1]+self.z_min_max[0]
+             if len(node) == 2 or len(node) == 4:
+                 if self.speed_input < self.speed_output:
+                      if node[-2] <= node[-1]:
+                          valid = False
+                 else:
+                     if node[-2] >= node[-1]:
+                         valid = False
                         
-                if not self.test_GCD(list_gear[len(node)-1].z,list_gear[len(node)-2].z):
-                    valid=False
-             # if len(node)
+                 if math.gcd(list_gear[len(node)-1].z,list_gear[len(node)-2].z) != 1:
+                     valid = False
+             
              if len(node)==len(list_gear) and valid:
-                 if reductor.speed_output()>self.speed_output*(1-self.precision) and reductor.speed_output()<self.speed_output*(1+self.precision):
+                 if reductor.speed_output() > self.speed_output*(1-self.precision) and reductor.speed_output() < self.speed_output*(1+self.precision):
                      list_reductor.append(copy.deepcopy(reductor))
                  else:
-                     valid=False
+                     valid = False
                      
              tree.NextNode(valid)
                      
