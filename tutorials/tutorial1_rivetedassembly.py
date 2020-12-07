@@ -38,7 +38,8 @@ class Panel(DessiaObject):
         hatching = plot_data.HatchingSet(1)
         plot_data_state = plot_data.Settings(name='name', hatching=hatching, stroke_width=1)
         contour = self.contour()
-        return contour.plot_data(plot_data_states=[plot_data_state])
+        plot_datas = contour.plot_data(plot_data_states=[plot_data_state])
+        return plot_data.PrimitiveGroup(contours=[plot_datas])
 
 
 class PanelCombination(DessiaObject):
@@ -121,7 +122,8 @@ class Rivet(DessiaObject):
         hatching = plot_data.HatchingSet(1)
         plot_data_state = plot_data.Settings(name='name', hatching=hatching, stroke_width=1)
         contour = self.contour(full_contour=full_contour)
-        return contour.plot_data(plot_data_states=[plot_data_state])
+        plot_datas = contour.plot_data(plot_data_states=[plot_data_state])
+        return plot_data.PrimitiveGroup(contours=[plot_datas])
 
 
 class Rule(DessiaObject):
@@ -187,7 +189,7 @@ class PanelAssembly(DessiaObject):
         plot_data_state = plot_data.Settings(name='name', color_line='red', stroke_width=1)
         circles = self.contour()
         plot_datas.extend([c.plot_data(plot_data_states=[plot_data_state]) for c in circles])
-        return plot_datas
+        return plot_data.PrimitiveGroup(contours=plot_datas)
 
 
 class Generator(DessiaObject):
