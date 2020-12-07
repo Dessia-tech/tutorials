@@ -101,7 +101,7 @@ class ScatterPlot(DessiaObject):
                                     tp_radius=tp_radius,
                                     to_plot_list=to_display_att_names, opacity=opacity)
 
-        plot_datas = []
+        # plot_datas = []
         point_list = []
         color_fills = [VIOLET, BLUE, GREEN, RED, YELLOW, CYAN, ROSE]
         for i in range(500):
