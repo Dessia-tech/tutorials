@@ -12,6 +12,6 @@ s1 = tuto.ScatterPlot()
 plot_data.plot_canvas(plot_data_object=s1.plot_data(), canvas_id='canvas',
                       debug_mode=True)
 
-# from dessia_api_client import Client
-# c = Client(api_url='https://api.safran-es.dessia.tech')
-# r = c.create_object_from_python_object(g1)
+from dessia_api_client import Client
+c = Client(api_url='https://api.demo.dessia.tech')
+r = c.create_object_from_python_object(g1)
