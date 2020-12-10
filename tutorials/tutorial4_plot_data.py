@@ -199,4 +199,4 @@ class SimpleShape(DessiaObject):
             contours.append(c2)
 
         plot_datas = [c.plot_data(plot_data_states=[plot_data_state]) for c in contours]
-        return plot_data.PrimitiveGroup(contours=plot_datas)
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
