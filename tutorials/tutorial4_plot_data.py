@@ -3,6 +3,7 @@ import volmdlr.primitives2d as p2d
 import volmdlr.primitives3d as p3d
 import plot_data.core as plot_data
 import math
+import numpy as np
 from itertools import product
 from plot_data.colors import *
 
@@ -52,72 +53,150 @@ class Graph(DessiaObject):
 class ScatterPlot(DessiaObject):
     _standalone_in_db = True
 
-    def __init__(self, name: str = ''):
+    def __init__(self, maximum_x:float, maximum_y: float, name: str = ''):
         DessiaObject.__init__(self, name=name)
+        self.maximum_x = maximum_x
+        self.maximum_y = maximum_y
+
+        points = []
+        for i in range(500):
+            x = random.uniform(0, self.maximum_x)
+            y = random.uniform(0, self.maximum_y)
+            points.append({'x': x, 'y': y})
+        self.points = points
 
     def plot_data(self):
-        width = 2
-        height = 1
+        axis = plot_data.Axis(nb_points_x=10, nb_points_y=10,
+                              font_size=12, graduation_color=GREY,
+                              axis_color=GREY, arrow_on=False,
+                              axis_width=0.5, grid_on=True)
 
-        # Shape set (circle, square, crux)
-        shape = 'circle'
+        tooltip = plot_data.Tooltip(colorfill=GREY, text_color=WHITE,
+                                    fontsize=12, fontstyle='sans-serif',
+                                    tp_radius=5,
+                                    to_plot_list=['x', 'y'], opacity=0.75)
 
-        # Point size (1 to 4)
-        size = 2
-
-        # Points' color
-        colorfill = LIGHTBLUE
-        colorstroke = GREY
-
-        strokewidth = 0.5
-        # Scatter plot
-        nb_points_x = 10
-        nb_points_y = 10
-        font_size = 12
-        graduation_color = GREY
-        axis_color = GREY
-        axis_width = 0.5
-        arrow_on = False
-        grid_on = True
-
-        # Tooltip
-        tp_colorfill = GREY
-        text_color = WHITE
-        # Font family : Arial, Helvetica, serif, sans-serif,
-        # Verdana, Times New Roman, Courier New
-        tl_fontsize = 12
-        tl_fontstyle = 'sans-serif'
-        tp_radius = 5
-        to_display_att_names = ['cx', 'cy']
-        opacity = 0.75
-
-        axis = plot_data.Axis(nb_points_x=nb_points_x, nb_points_y=nb_points_y,
-                              font_size=font_size, graduation_color=graduation_color,
-                              axis_color=axis_color, arrow_on=arrow_on,
-                              axis_width=axis_width, grid_on=grid_on)
-
-        tooltip = plot_data.Tooltip(colorfill=tp_colorfill, text_color=text_color,
-                                    fontsize=tl_fontsize, fontstyle=tl_fontstyle,
-                                    tp_radius=tp_radius,
-                                    to_plot_list=to_display_att_names, opacity=opacity)
-
-        plot_datas = []
-        point_list = []
-        color_fills = [VIOLET, BLUE, GREEN, RED, YELLOW, CYAN, ROSE]
-        for i in range(500):
-            cx = random.uniform(0, 2)
-            cy = random.uniform(0, 1)
-            random_color_fill = color_fills[random.randint(0, len(color_fills) - 1)]
-            point = plot_data.Point2D(cx=cx, cy=cy, size=size, shape=shape,
-                                      color_fill=random_color_fill,
-                                      color_stroke=colorstroke,
-                                      stroke_width=strokewidth)
-            point_list += [point]
-
-        return plot_data.Scatter(elements=point_list, axis=axis,
+        return plot_data.Scatter(elements=self.points, axis=axis,
                                          tooltip=tooltip,
-                                         to_display_att_names=to_display_att_names,
-                                         point_shape=shape, point_size=size,
-                                         color_fill=colorfill,
-                                         color_stroke=colorstroke,
-                                         stroke_width=strokewidth)
+                                         to_display_att_names=['x', 'y'],
+                                         point_shape='circle', point_size=2,
+                                         color_fill=LIGHTBLUE,
+                                         color_stroke=GREY,
+                                         stroke_width=0.5)
+
+class ParallelPlot(DessiaObject):
+    _standalone_in_db = True
+
+    def __init__(self, maximum_x: float, maximum_y: float, name: str = ''):
+        DessiaObject.__init__(self, name=name)
+        self.maximum_x = maximum_x
+        self.maximum_y = maximum_y
+
+        points = []
+        for i in range(500):
+            x = random.uniform(0, self.maximum_x)
+            y = random.uniform(0, self.maximum_y)
+            z = random.uniform(0, self.maximum_y)
+            m = random.uniform(0, self.maximum_y)
+            points.append({'x': x, 'y': y, 'z': z, 'm': m})
+        self.points = points
+
+    def plot_data(self):
+        axis = plot_data.Axis(nb_points_x=10, nb_points_y=10,
+                              font_size=12, graduation_color=GREY,
+                              axis_color=GREY, arrow_on=False,
+                              axis_width=0.5, grid_on=True)
+
+        tooltip = plot_data.Tooltip(colorfill=GREY, text_color=WHITE,
+                                    fontsize=12, fontstyle='sans-serif',
+                                    tp_radius=5,
+                                    to_plot_list=['x', 'y'], opacity=0.75)
+
+        rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
+        return plot_data.ParallelPlot(elements=self.points,
+                                               line_color=BLACK,
+                                               line_width=0.5,
+                                               disposition='vertical',
+                                               to_disp_attributes=['x', 'y', 'z', 'm'],
+                                               rgbs=rgbs)
+
+
+class MultiPlot(DessiaObject):
+    _standalone_in_db = True
+
+    def __init__(self, maximum_x: float, maximum_y: float, name: str = ''):
+        DessiaObject.__init__(self, name=name)
+        self.maximum_x = maximum_x
+        self.maximum_y = maximum_y
+
+        points = []
+        for i in range(500):
+            x = random.uniform(0, self.maximum_x)
+            y = random.uniform(0, self.maximum_y)
+            z = random.uniform(0, self.maximum_y)
+            m = random.uniform(0, self.maximum_y)
+            points.append({'x': x, 'y': y, 'z': z, 'm': m})
+        self.points = points
+
+    def plot_data(self):
+        axis = plot_data.Axis(nb_points_x=10, nb_points_y=10,
+                              font_size=12, graduation_color=GREY,
+                              axis_color=GREY, arrow_on=False,
+                              axis_width=0.5, grid_on=True)
+
+        tooltip = plot_data.Tooltip(colorfill=GREY, text_color=WHITE,
+                                    fontsize=12, fontstyle='sans-serif',
+                                    tp_radius=5,
+                                    to_plot_list=['x', 'y'], opacity=0.75)
+        objects = [plot_data.Scatter(elements=self.points, axis=axis,
+                          tooltip=tooltip,
+                          to_display_att_names=['x', 'y'],
+                          point_shape='circle', point_size=2,
+                          color_fill=LIGHTBLUE,
+                          color_stroke=GREY,
+                          stroke_width=0.5)]
+
+        rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
+        objects.append(plot_data.ParallelPlot(elements=self.points,
+                                               line_color=BLACK,
+                                               line_width=0.5,
+                                               disposition='vertical',
+                                               to_disp_attributes=['x', 'y', 'z', 'm'],
+                                               rgbs=rgbs))
+
+        coords = [(0, 0), (300, 0)]
+        sizes = [plot_data.Window(width=560, height=300),
+                 plot_data.Window(width=560, height=300)]
+
+        return plot_data.MultiplePlots(points=self.points, objects=objects,
+                                                sizes=sizes, coords=coords)
+
+
+class SimpleShape(DessiaObject):
+    _standalone_in_db = True
+
+    def __init__(self, lx: float, ly: float, name: str = ''):
+        DessiaObject.__init__(self, name=name)
+        self.lx = lx
+        self.ly = ly
+
+    def plot_data(self):
+        hatching = plot_data.HatchingSet(1)
+        plot_data_state = plot_data.Settings(name='name', hatching=hatching,
+                                             stroke_width=1)
+
+        pt1 = vm.Point2D(0, 0)
+        pt2 = vm.Point2D(0, self.ly)
+        pt3 = vm.Point2D(self.lx, self.ly)
+        pt4 = vm.Point2D(self.lx, 0)
+        c1 = vm.wires.Contour2D([vm.edges.LineSegment2D(pt1, pt2),
+                                 vm.edges.LineSegment2D(pt2, pt3),
+                                 vm.edges.LineSegment2D(pt3, pt4),
+                                 vm.edges.LineSegment2D(pt4, pt1)])
+        contours = [c1]
+        for i in range(5):
+            c2 = c1.translation(vm.Vector2D(random.uniform(0,2), random.uniform(0,2)), copy=True)
+            contours.append(c2)
+
+        plot_datas = [c.plot_data(plot_data_states=[plot_data_state]) for c in contours]
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
