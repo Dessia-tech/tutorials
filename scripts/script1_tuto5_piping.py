@@ -9,8 +9,9 @@ s1 = vm.faces.Surface2D(outer_contour=vm.wires.ClosedPolygon2D([vm.Point2D(-0.05
                                                                 vm.Point2D(0.05, 0.1),
                                                                 vm.Point2D(-0.05, 0.1)]),
                         inner_contours=[])
-face1 = vm.faces.PlaneFace3D(surface3d=p1, surface2d=s1)
-
+face1 = vm.faces.OpenShell3D([vm.faces.PlaneFace3D(surface3d=p1, surface2d=s1)])
+face1.color = (92/255, 124/255, 172/255)
+face1.alpha = 1
 
 f2 = vm.Frame3D(vm.Point3D(0.05, 0.1, 0.005), vm.Vector3D(1, 0, 0), vm.Vector3D(0, 0, 1), vm.Vector3D(0, 1, 0))
 p2 = vm.faces.Plane3D(f2)
@@ -19,7 +20,9 @@ s2 = vm.faces.Surface2D(outer_contour=vm.wires.ClosedPolygon2D([vm.Point2D(-0.05
                                                                 vm.Point2D(0.05, 0.005),
                                                                 vm.Point2D(-0.05, 0.005)]),
                         inner_contours=[])
-face2 = vm.faces.PlaneFace3D(surface3d=p2, surface2d=s2)
+face2 = vm.faces.OpenShell3D([vm.faces.PlaneFace3D(surface3d=p2, surface2d=s2)])
+face2.color = (92/255, 124/255, 172/255)
+face2.alpha = 1
 
 vol = vm.core.VolumeModel([face1, face2])
 # vol.babylonjs()
@@ -60,8 +63,16 @@ opti1 = tuto.Optimizer()
 solutions = opti1.optimize(assemblies=[assembly1, assembly2], number_solution_per_assembly=2)
 
 for solution in solutions:
+    # for prim in solution.volmdlr_primitives():
+    #     prim.color = color
+    #     if prim.__class__.__name__ == 'volmdlr.primitives3d.Sweep':
+    #         for face in prim.faces:
+    #             face.color = color
     solution.babylonjs()
+
+
 
 primitives = solutions[0].volmdlr_primitives()
 model = vm.core.VolumeModel(primitives)
-model.to_step()
+model.to_step('export.stp')
+

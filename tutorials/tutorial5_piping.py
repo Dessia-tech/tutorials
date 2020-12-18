@@ -81,11 +81,11 @@ class Piping(DessiaObject):
         rl = p3d.OpenRoundedLineSegments3D(points, radius, adapt_radius=True, name='wire')
         return rl
 
-    def generate_sweep(self, points:List[vm.Point3D]):
-        c = vm.wires.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
+    def generate_sweep(self, points:List[vm.Point3D], color=(248/255, 205/255, 70/255), alpha=0.8):
+        contour = vm.wires.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
         rl = self.genere_neutral_fiber(points)
-        contour = vm.wires.Contour2D([c])
-        sweep = p3d.Sweep(contour, rl, color='black', name='piping')
+        # contour = vm.wires.Contour2D([c])
+        sweep = p3d.Sweep(contour, rl, color=color, alpha=alpha, name='piping')
         return [sweep]
 
 
