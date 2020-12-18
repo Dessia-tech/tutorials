@@ -62,3 +62,6 @@ solutions = opti1.optimize(assemblies=[assembly1, assembly2], number_solution_pe
 for solution in solutions:
     solution.babylonjs()
 
+primitives = solutions[0].volmdlr_primitives()
+model = vm.core.VolumeModel(primitives)
+model.to_step()
