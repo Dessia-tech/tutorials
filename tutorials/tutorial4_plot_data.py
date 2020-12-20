@@ -15,45 +15,77 @@ import random
 class Graph(DessiaObject):
     _standalone_in_db = True
 
-    def __init__(self, amplitude: float, number:int, name: str = ''):
+    def __init__(self, amplitude: float, number: int, name: str = ''):
         DessiaObject.__init__(self, name=name)
         self.number = number
         self.amplitude = amplitude
 
-        self.x = [i/(2*math.pi) for i in range(number)]
-        self.y = [self.amplitude*math.sin(i) for i in self.x]
+        self.x = [i / (2 * math.pi) for i in range(number)]
+        self.y = [self.amplitude * math.sin(i) for i in self.x]
+
+    def data_set(self):
+        to_disp_attribute_names = ['x', 'y']
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
+        point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK)
+        edge_style = plot_data.EdgeStyle(color_stroke=BLUE, dashline=[10, 5])
+        elements = []
+        for x, y in zip(self.x, self.y):
+            elements.append({'x': x, 'y': y})
+        return plot_data.Dataset(elements=elements, name='y = sin(x)', tooltip=tooltip, point_style=point_style,
+                                 edge_style=edge_style)
 
     def plot_data(self):
-        points = []
-        for x, y in zip(self.x, self.y):
-            points.append(plot_data.Point2D(x, y, size=2,
-                              shape='square', color_fill=BROWN,
-                              color_stroke=BLACK,
-                              stroke_width=0.5))
+        to_disp_attribute_names = ['x', 'y']
+        data_sets = [self.data_set()]
+        graphs2d = plot_data.Graph2D(graphs=data_sets, to_disp_attribute_names=to_disp_attribute_names)
+        return graphs2d
 
-        # Tooltip
-        colorfill = BLACK
-        text_color = WHITE
-        tl_fontsize = 12  # Font family : Arial, Helvetica, serif, sans-serif, Verdana, Times New Roman, Courier New
-        tl_fontstyle = 'sans-serif'
-        tp_radius = 5
-        to_plot_list = ['cx', 'cy']
-        opacity = 0.75
-        tooltip = plot_data.Tooltip(colorfill=colorfill, text_color=text_color,
-                                    fontsize=tl_fontsize, fontstyle=tl_fontstyle,
-                                    tp_radius=tp_radius, to_plot_list=to_plot_list,
-                                    opacity=opacity)
 
-        graph = plot_data.Dataset(points=points, dashline=[5, 3, 1, 3],
-                                   graph_colorstroke=BLUE, graph_linewidth=0.5,
-                                   display_step=2, tooltip=tooltip, name='Graph')
+class Graphs(DessiaObject):
+    _standalone_in_db = True
 
-        return plot_data.Graph2D(graphs=[graph])
+    def __init__(self, amplitude: float, number: int, name: str = ''):
+        DessiaObject.__init__(self, name=name)
+        self.number = number
+        self.amplitude = amplitude
+
+        self.x = [i / (2 * math.pi) for i in range(number)]
+        self.y1 = [self.amplitude * math.sin(i) for i in self.x]
+        self.y2 = [self.amplitude * math.cos(i) for i in self.x]
+
+    def data_set1(self):
+        to_disp_attribute_names = ['x', 'y']
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
+        point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK)
+        edge_style = plot_data.EdgeStyle(color_stroke=BLUE, dashline=[10, 5])
+        elements = []
+        for x, y in zip(self.x, self.y1):
+            elements.append({'x': x, 'y': y})
+        return plot_data.Dataset(elements=elements, name='y = sin(x)', tooltip=tooltip, point_style=point_style,
+                                 edge_style=edge_style)
+
+    def data_set2(self):
+        to_disp_attribute_names = ['x', 'y']
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
+        point_style = plot_data.PointStyle(color_fill=GREEN, color_stroke=BLACK)
+        edge_style = plot_data.EdgeStyle(color_stroke=BLUE, dashline=[10, 5])
+        elements = []
+        for x, y in zip(self.x, self.y2):
+            elements.append({'x': x, 'y': y})
+        return plot_data.Dataset(elements=elements, name='y = cos(x)', tooltip=tooltip, point_style=point_style,
+                                 edge_style=edge_style)
+
+    def plot_data(self):
+        to_disp_attribute_names = ['x', 'y']
+        data_sets = [self.data_set1(), self.data_set2()]
+        graphs2d = plot_data.Graph2D(graphs=data_sets, to_disp_attribute_names=to_disp_attribute_names)
+        return graphs2d
+
 
 class ScatterPlot(DessiaObject):
     _standalone_in_db = True
 
-    def __init__(self, maximum_x:float, maximum_y: float, name: str = ''):
+    def __init__(self, maximum_x: float, maximum_y: float, name: str = ''):
         DessiaObject.__init__(self, name=name)
         self.maximum_x = maximum_x
         self.maximum_y = maximum_y
@@ -66,23 +98,16 @@ class ScatterPlot(DessiaObject):
         self.points = points
 
     def plot_data(self):
-        axis = plot_data.Axis(nb_points_x=10, nb_points_y=10,
-                              font_size=12, graduation_color=GREY,
-                              axis_color=GREY, arrow_on=False,
-                              axis_width=0.5, grid_on=True)
+        color_fill = LIGHTBLUE
+        color_stroke = GREY
+        point_style = plot_data.PointStyle(color_fill=color_fill, color_stroke=color_stroke)
+        axis = plot_data.Axis()
+        to_disp_attribute_names = ['x', 'y']
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
+        return plot_data.Scatter(tooltip=tooltip, to_disp_attribute_names=to_disp_attribute_names,
+                                 point_style=point_style,
+                                 elements=self.points, axis=axis)
 
-        tooltip = plot_data.Tooltip(colorfill=GREY, text_color=WHITE,
-                                    fontsize=12, fontstyle='sans-serif',
-                                    tp_radius=5,
-                                    to_plot_list=['x', 'y'], opacity=0.75)
-
-        return plot_data.Scatter(elements=self.points, axis=axis,
-                                         tooltip=tooltip,
-                                         to_display_att_names=['x', 'y'],
-                                         point_shape='circle', point_size=2,
-                                         color_fill=LIGHTBLUE,
-                                         color_stroke=GREY,
-                                         stroke_width=0.5)
 
 class ParallelPlot(DessiaObject):
     _standalone_in_db = True
@@ -102,23 +127,13 @@ class ParallelPlot(DessiaObject):
         self.points = points
 
     def plot_data(self):
-        axis = plot_data.Axis(nb_points_x=10, nb_points_y=10,
-                              font_size=12, graduation_color=GREY,
-                              axis_color=GREY, arrow_on=False,
-                              axis_width=0.5, grid_on=True)
-
-        tooltip = plot_data.Tooltip(colorfill=GREY, text_color=WHITE,
-                                    fontsize=12, fontstyle='sans-serif',
-                                    tp_radius=5,
-                                    to_plot_list=['x', 'y'], opacity=0.75)
-
+        edge_style = plot_data.EdgeStyle()
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
         return plot_data.ParallelPlot(elements=self.points,
-                                               line_color=BLACK,
-                                               line_width=0.5,
-                                               disposition='vertical',
-                                               to_disp_attributes=['x', 'y', 'z', 'm'],
-                                               rgbs=rgbs)
+                                      edge_style=edge_style,
+                                      disposition='vertical',
+                                      to_disp_attribute_names=['x', 'y', 'z', 'm'],
+                                      rgbs=rgbs)
 
 
 class MultiPlot(DessiaObject):
@@ -139,37 +154,30 @@ class MultiPlot(DessiaObject):
         self.points = points
 
     def plot_data(self):
-        axis = plot_data.Axis(nb_points_x=10, nb_points_y=10,
-                              font_size=12, graduation_color=GREY,
-                              axis_color=GREY, arrow_on=False,
-                              axis_width=0.5, grid_on=True)
+        color_fill = LIGHTBLUE
+        color_stroke = GREY
+        point_style = plot_data.PointStyle(color_fill=color_fill, color_stroke=color_stroke)
+        axis = plot_data.Axis()
+        to_disp_attribute_names = ['x', 'y']
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
+        objects = [plot_data.Scatter(tooltip=tooltip, to_disp_attribute_names=to_disp_attribute_names,
+                                     point_style=point_style,
+                                     elements=self.points, axis=axis)]
 
-        tooltip = plot_data.Tooltip(colorfill=GREY, text_color=WHITE,
-                                    fontsize=12, fontstyle='sans-serif',
-                                    tp_radius=5,
-                                    to_plot_list=['x', 'y'], opacity=0.75)
-        objects = [plot_data.Scatter(elements=self.points, axis=axis,
-                          tooltip=tooltip,
-                          to_display_att_names=['x', 'y'],
-                          point_shape='circle', point_size=2,
-                          color_fill=LIGHTBLUE,
-                          color_stroke=GREY,
-                          stroke_width=0.5)]
-
+        edge_style = plot_data.EdgeStyle()
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
         objects.append(plot_data.ParallelPlot(elements=self.points,
-                                               line_color=BLACK,
-                                               line_width=0.5,
-                                               disposition='vertical',
-                                               to_disp_attributes=['x', 'y', 'z', 'm'],
-                                               rgbs=rgbs))
+                                              edge_style=edge_style,
+                                              disposition='vertical',
+                                              to_disp_attribute_names=['x', 'y', 'z', 'm'],
+                                              rgbs=rgbs))
 
-        coords = [(0, 0), (300, 0)]
-        sizes = [plot_data.Window(width=560, height=300),
-                 plot_data.Window(width=560, height=300)]
+        coords = [(0, 0), (500, 0)]
+        sizes = [plot_data.Window(width=500, height=500),
+                 plot_data.Window(width=500, height=500)]
 
-        return plot_data.MultiplePlots(points=self.points, objects=objects,
-                                                sizes=sizes, coords=coords)
+        return plot_data.MultiplePlots(elements=self.points, objects=objects,
+                                       sizes=sizes, coords=coords)
 
 
 class SimpleShape(DessiaObject):
@@ -181,9 +189,9 @@ class SimpleShape(DessiaObject):
         self.ly = ly
 
     def plot_data(self):
-        hatching = plot_data.HatchingSet(1)
-        plot_data_state = plot_data.Settings(name='name', hatching=hatching,
-                                             stroke_width=1)
+        hatching = plot_data.HatchingSet(0.5, 3)
+        edge_style = plot_data.EdgeStyle(line_width=1, color_stroke=BLUE, dashline=[])
+        surface_style = plot_data.SurfaceStyle(color_fill=WHITE, opacity=1, hatching=hatching)
 
         pt1 = vm.Point2D(0, 0)
         pt2 = vm.Point2D(0, self.ly)
@@ -195,8 +203,8 @@ class SimpleShape(DessiaObject):
                                  vm.edges.LineSegment2D(pt4, pt1)])
         contours = [c1]
         for i in range(5):
-            c2 = c1.translation(vm.Vector2D(random.uniform(0,2), random.uniform(0,2)), copy=True)
+            c2 = c1.translation(vm.Vector2D(random.uniform(0, 2), random.uniform(0, 2)), copy=True)
             contours.append(c2)
 
-        plot_datas = [c.plot_data(plot_data_states=[plot_data_state]) for c in contours]
+        plot_datas = [c.plot_data(edge_style=edge_style, surface_style=surface_style) for c in contours]
         return plot_data.PrimitiveGroup(primitives=plot_datas)

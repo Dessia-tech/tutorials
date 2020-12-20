@@ -93,6 +93,7 @@ class Assembly(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, frames: List[Frame], piping: Piping, housing: Housing,
+                 length: float=None, min_radius: float=None,
                  name: str = ''):
 
         DessiaObject.__init__(self, name=name)
@@ -100,8 +101,20 @@ class Assembly(DessiaObject):
         self.piping = piping
         self.frames = frames
 
-        self.waypoints = self.update_waypoints([0.5]*len(self.frames))
+        self.waypoints = self.update_waypoints([0.5] * len(self.frames))
         self.routes = self.update_route(self.waypoints)
+
+        if length is None:
+            self.length = self.piping.length(self.routes)
+        else:
+            self.length = length
+        if min_radius is None:
+            radius = self.piping.genere_neutral_fiber(self.waypoints).radius
+            min_radius = min(list(radius.values()))
+            self.min_radius = min_radius
+        else:
+            self.min_radius = min_radius
+
 
     def update_waypoints(self, pourcentages: List[float]):
         abs_points = []
@@ -124,11 +137,12 @@ class Assembly(DessiaObject):
 
 class Optimizer(DessiaObject):
     _standalone_in_db = True
+    _dessia_methods = ['optimize']
 
     def __init__(self, name: str = ''):
         DessiaObject.__init__(self, name=name)
 
-    def optimize(self, assemblies: List[Assembly], number_solution_per_assembly:int):
+    def optimize(self, assemblies: List[Assembly], number_solution_per_assembly:int)->List[Assembly]:
         solutions = []
         for assembly in assemblies:
             self.assembly = assembly

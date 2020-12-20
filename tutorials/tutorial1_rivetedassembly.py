@@ -7,6 +7,7 @@ from itertools import product
 
 from dessia_common import DessiaObject
 from typing import List
+from plot_data.colors import *
 
 
 class Panel(DessiaObject):
@@ -35,10 +36,11 @@ class Panel(DessiaObject):
         return [profile]
 
     def plot_data(self):
-        hatching = plot_data.HatchingSet(1)
-        plot_data_state = plot_data.Settings(name='name', hatching=hatching, stroke_width=1)
+        hatching = plot_data.HatchingSet(0.1)
+        edge_style = plot_data.EdgeStyle(line_width=1)
+        surface_style = plot_data.SurfaceStyle(hatching=hatching)
         contour = self.contour()
-        plot_datas = contour.plot_data(plot_data_states=[plot_data_state])
+        plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
         return plot_data.PrimitiveGroup(primitives=[plot_datas])
 
 
@@ -52,14 +54,16 @@ class PanelCombination(DessiaObject):
 
     def plot_data(self):
         plot_datas = []
-        hatching = plot_data.HatchingSet(1)
-        plot_data_state = plot_data.Settings(name='name', hatching=hatching, stroke_width=1)
+        hatching = plot_data.HatchingSet(0.1)
+        edge_style = plot_data.EdgeStyle(line_width=1)
+        surface_style = plot_data.SurfaceStyle(hatching=hatching)
+
         for panel, grid in zip(self.panels, self.grids):
             c = panel.contour()
             contour = c.translation(grid, copy=True)
-            plot_datas.append(contour.plot_data(plot_data_states=[plot_data_state]))
+            plot_datas.append(contour.plot_data(edge_style=edge_style, surface_style=surface_style))
         contour_inter = self.intersection_area()
-        plot_datas.append(contour_inter.plot_data(plot_data_states=[plot_data.Settings(name='name', stroke_width=1)]))
+        plot_datas.append(contour_inter.plot_data(edge_style=edge_style, surface_style=plot_data.SurfaceStyle()))
         return plot_datas
 
     def intersection_area(self):
@@ -119,10 +123,11 @@ class Rivet(DessiaObject):
         return [irc]
 
     def plot_data(self, full_contour=True):
-        hatching = plot_data.HatchingSet(1)
-        plot_data_state = plot_data.Settings(name='name', hatching=hatching, stroke_width=1)
+        hatching = plot_data.HatchingSet(0.1)
+        edge_style = plot_data.EdgeStyle(line_width=1)
+        surface_style = plot_data.SurfaceStyle(hatching=hatching)
         contour = self.contour(full_contour=full_contour)
-        plot_datas = contour.plot_data(plot_data_states=[plot_data_state])
+        plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
         return plot_data.PrimitiveGroup(primitives=[plot_datas])
 
 
@@ -180,15 +185,14 @@ class PanelAssembly(DessiaObject):
         diameter = self.rivet.rivet_diameter
         circles = []
         for grid in self.grids:
-            c = vm.wires.Circle2D(grid, diameter)
-            circles.append(vm.wires.Contour2D([c]))
+            circles.append(vm.wires.Circle2D(grid, diameter))
         return circles
 
     def plot_data(self):
+        edge_style = plot_data.EdgeStyle(line_width=1, color_stroke=RED)
         plot_datas = self.panel_combination.plot_data()
-        plot_data_state = plot_data.Settings(name='name', color_line='red', stroke_width=1)
         circles = self.contour()
-        plot_datas.extend([c.plot_data(plot_data_states=[plot_data_state]) for c in circles])
+        plot_datas.extend([c.plot_data(edge_style=edge_style) for c in circles])
         return plot_data.PrimitiveGroup(primitives=plot_datas)
 
 
