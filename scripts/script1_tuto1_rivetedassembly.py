@@ -30,3 +30,7 @@ solutions = g1.generate()
 
 cs = solutions[-1].plot_data()
 plot_data.plot_canvas(cs, canvas_id='canvas')
+
+from dessia_api_client import Client
+c = Client(api_url='https://api.demo.dessia.tech')
+r = c.create_object_from_python_object(solutions[-1])
