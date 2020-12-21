@@ -111,16 +111,10 @@ class Assembly(DessiaObject):
             self.waypoints = waypoints
         self.routes = self.update_route(self.waypoints)
 
-        if length is None:
-            self.length = self.piping.length(self.routes)
-        else:
-            self.length = length
-        if min_radius is None:
-            radius = self.piping.genere_neutral_fiber(self.waypoints).radius
-            min_radius = min(list(radius.values()))
-            self.min_radius = min_radius
-        else:
-            self.min_radius = min_radius
+        self.length = self.piping.length(self.routes)
+        radius = self.piping.genere_neutral_fiber(self.waypoints).radius
+        min_radius = min(list(radius.values()))
+        self.min_radius = min_radius
 
 
     def update_waypoints(self, pourcentages: List[float]):
