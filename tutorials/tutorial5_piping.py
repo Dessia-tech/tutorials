@@ -29,7 +29,9 @@ class Frame(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, start: vm.Point3D, end: vm.Point3D,
+                 position: vm.Point3D=None,
                  name: str = ''):
+        self.position = position
         self.start = start
         self.end = end
         self.line = vm.edges.LineSegment3D(start, end)
@@ -37,7 +39,8 @@ class Frame(DessiaObject):
 
     def define_waypoints(self, pourcentage_abs_curv=float):
         length = self.line.length()
-        return self.line.point_at_abscissa(pourcentage_abs_curv*length)
+        self.position = self.line.point_at_abscissa(pourcentage_abs_curv*length)
+        return self.position
 
 class Piping(DessiaObject):
     _standalone_in_db = True
@@ -94,6 +97,7 @@ class Assembly(DessiaObject):
 
     def __init__(self, frames: List[Frame], piping: Piping, housing: Housing,
                  length: float=None, min_radius: float=None,
+                 waypoints: List[vm.Point3D]=None,
                  name: str = ''):
 
         DessiaObject.__init__(self, name=name)
@@ -101,7 +105,10 @@ class Assembly(DessiaObject):
         self.piping = piping
         self.frames = frames
 
-        self.waypoints = self.update_waypoints([0.5] * len(self.frames))
+        if waypoints is None:
+            self.waypoints = self.update_waypoints([0.5] * len(self.frames))
+        else:
+            self.waypoints = waypoints
         self.routes = self.update_route(self.waypoints)
 
         if length is None:
