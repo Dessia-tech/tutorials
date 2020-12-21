@@ -97,6 +97,8 @@ class Assembly(DessiaObject):
 
     def __init__(self, frames: List[Frame], piping: Piping, housing: Housing,
                  length: float=None, min_radius: float=None,
+                 max_radius: float = None, distance_input: float=None,
+                 straight_line: float = None,
                  waypoints: List[vm.Point3D]=None,
                  name: str = ''):
 
@@ -111,10 +113,19 @@ class Assembly(DessiaObject):
             self.waypoints = waypoints
         self.routes = self.update_route(self.waypoints)
 
+        rl = self.piping.genere_neutral_fiber(self.waypoints)
         self.length = self.piping.length(self.routes)
-        radius = self.piping.genere_neutral_fiber(self.waypoints).radius
+        radius = rl.radius
         min_radius = min(list(radius.values()))
         self.min_radius = min_radius
+        max_radius = max(list(radius.values()))
+        self.max_radius = max_radius
+        self.distance_input = self.piping.start.point_distance(self.piping.end)
+        length = 0
+        for primitive in rl.primitives:
+            if not isinstance(primitive, vm.edges.Arc3D):
+                length += primitive.length()
+        self.straight_line = length
 
 
     def update_waypoints(self, pourcentages: List[float]):

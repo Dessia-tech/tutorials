@@ -81,7 +81,7 @@ for i in range(10):
 block_optimizer = wf.InstanciateModel(tuto.Optimizer, name='Optimizer')
 block_optimize = wf.ModelMethod(tuto.Optimizer, 'optimize', name='optimize')
 
-list_attribute1 = ['length', 'min_radius']
+list_attribute1 = ['length', 'min_radius', 'max_radius', 'distance_input', 'straight_line']
 display_reductor = wf.ParallelPlot(list_attribute1, 1, name='Display')
 
 block_workflow = [block_optimizer, block_optimize, display_reductor]
