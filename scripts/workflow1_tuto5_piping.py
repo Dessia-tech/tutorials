@@ -67,13 +67,17 @@ piping2 = tuto.Piping(start=p1, end=p2,
 
 # assembly1 = tuto.Assembly(frames=[frame1, frame3, frame4, frame2], piping=piping1, housing=housing)
 assemblies = []
-minimum_radius = 0.04
-for i in range(10):
-    minimum_radius += 0.001
-    piping1 = tuto.Piping(start=p1, end=p2,
-                          direction_start=vm.Vector3D(0, 0, 1), direction_end=vm.Vector3D(1, 0, 1),
-                          diameter=0.005, length_connector=0.1, minimum_radius=0.03)
-    assemblies.append(tuto.Assembly(frames=[frame1, frame3, frame4, frame2], piping=piping1, housing=housing))
+minimum_radius = 0.02
+for i in range(30):
+    minimum_radius += 0.003
+    p1 = vm.Point3D(0, 0, 0)
+    p2 = vm.Point3D(0.1, 0, 0)
+    for j in range(2):
+        p1 += vm.Point3D(0.01, 0, 0)
+        piping1 = tuto.Piping(start=p1, end=p2,
+                              direction_start=vm.Vector3D(0, 0, 1), direction_end=vm.Vector3D(1, 0, 1),
+                              diameter=0.005, length_connector=0.1, minimum_radius=0.03)
+        assemblies.append(tuto.Assembly(frames=[frame1, frame3, frame4, frame2], piping=piping1, housing=housing))
 
 # opti1 = tuto.Optimizer()
 # solutions = opti1.optimize(assemblies=[assembly1], number_solution_per_assembly=2)
@@ -92,7 +96,7 @@ pipe_worflow = [wf.Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
 workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0])
 
 input_values = {workflow.index(block_optimize.inputs[1]): assemblies,
-                workflow.index(block_optimize.inputs[2]): 2,
+                workflow.index(block_optimize.inputs[2]): 1,
                 }
 
 workflow_run = workflow.run(input_values)

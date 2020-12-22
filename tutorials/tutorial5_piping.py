@@ -26,7 +26,7 @@ class Housing(DessiaObject):
         return self.faces
 
 class Frame(DessiaObject):
-    _standalone_in_db = True
+    _standalone_in_db = False
 
     def __init__(self, start: vm.Point3D, end: vm.Point3D,
                  position: vm.Point3D=None,
@@ -94,13 +94,13 @@ class Piping(DessiaObject):
 
 class Assembly(DessiaObject):
     _standalone_in_db = True
+    _non_serializable_attributes = ['length', 'min_radius', 'max_radius', 'distance_input',
+                               'straight_line', 'routes']
+    _non_data_eq_attributes = ['length', 'min_radius', 'max_radius', 'distance_input',
+                               'straight_line', 'routes']
 
     def __init__(self, frames: List[Frame], piping: Piping, housing: Housing,
-                 length: float=None, min_radius: float=None,
-                 max_radius: float = None, distance_input: float=None,
-                 straight_line: float = None,
-                 waypoints: List[vm.Point3D]=None,
-                 name: str = ''):
+                 waypoints: List[vm.Point3D]=None, name: str = ''):
 
         DessiaObject.__init__(self, name=name)
         self.housing = housing
