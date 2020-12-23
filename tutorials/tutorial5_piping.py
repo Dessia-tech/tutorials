@@ -12,7 +12,7 @@ from typing import List
 
 
 class Housing(DessiaObject):
-    _standalone_in_db = True
+    _standalone_in_db = False
 
     def __init__(self, faces: List[vm.faces.Face3D], origin: vm.Point3D,
                  name: str = ''):
