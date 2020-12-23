@@ -94,8 +94,6 @@ class Piping(DessiaObject):
 
 class Assembly(DessiaObject):
     _standalone_in_db = True
-    _non_serializable_attributes = ['length', 'min_radius', 'max_radius', 'distance_input',
-                               'straight_line', 'routes']
     _non_data_eq_attributes = ['length', 'min_radius', 'max_radius', 'distance_input',
                                'straight_line', 'routes']
 
