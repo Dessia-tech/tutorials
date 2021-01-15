@@ -77,7 +77,7 @@ setup(
 	long_description='',
 	author='Lucas',
 	author_email='launay@dessia.tech',
-	install_requires=['dessia_common'],
+	install_requires=['dessia_common', 'plot_data>=0.4.5'],
 	python_requires='>=3.7',
 	packages=['tutorials'],
 )
