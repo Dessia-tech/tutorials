@@ -23,11 +23,11 @@ shape1 = tuto.SimpleShape(3, 2)
 plot_data.plot_canvas(plot_data_object=shape1.plot_data(), canvas_id='canvas')
 
 
-from dessia_api_client import Client
-c = Client(api_url='https://api.stelia.dessia.tech')
-r = c.create_object_from_python_object(g1)
-r = c.create_object_from_python_object(g2)
-r = c.create_object_from_python_object(s1)
-r = c.create_object_from_python_object(p1)
-r = c.create_object_from_python_object(m1)
-r = c.create_object_from_python_object(shape1)
+# from dessia_api_client import Client
+# c = Client(api_url='https://api.stelia.dessia.tech')
+# r = c.create_object_from_python_object(g1)
+# r = c.create_object_from_python_object(g2)
+# r = c.create_object_from_python_object(s1)
+# r = c.create_object_from_python_object(p1)
+# r = c.create_object_from_python_object(m1)
+# r = c.create_object_from_python_object(shape1)
