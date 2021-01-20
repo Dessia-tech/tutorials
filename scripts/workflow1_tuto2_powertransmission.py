@@ -19,7 +19,7 @@ block_instanciate = wf.ModelMethod(objects.InstanciateReductor, 'instanciate', n
 block_motor = wf.InstanciateModel(objects.Motor, name='Motor')
 
 list_attribute1 = ['mass_reductor', 'number_solution']
-display_reductor = wf.ParallelPlot(list_attribute1, 1, name='Display Reductor')
+display_reductor = wf.MultiPlot(list_attribute1, 1, name='Display Reductor')
 
 block_workflow = [block_optimizer, block_optimize, block_instanciate_reductor, block_instanciate, block_motor,
                   display_reductor]
@@ -44,7 +44,7 @@ input_values = {workflow.index(block_optimizer.inputs[1]): 500,
 
                 }
 
-# workflow_generator_run = workflow.run(input_values)
+workflow_generator_run = workflow.run(input_values)
 
-c = Client(api_url='https://api.renault.dessia.tech')
-r = c.create_object_from_python_object(workflow)
+# c = Client(api_url='https://api.renault.dessia.tech')
+# r = c.create_object_from_python_object(workflow)

@@ -15,6 +15,7 @@ from typing import List,Tuple
 import numpy as npy
 from scipy.optimize import minimize
 import copy
+import plot_data
 # =============================================================================
 
 class Shaft(DessiaObject):
@@ -180,35 +181,52 @@ class Reductor(DessiaObject):
 
     def volmdlr_primitives(self):
         primitives = []
-        self.motor.pos_x=self.shafts[0].pos_x
-        self.motor.pos_y=self.shafts[0].pos_y
-        
+        self.motor.pos_x = self.shafts[0].pos_x
+        self.motor.pos_y = self.shafts[0].pos_y
+
         primitives.extend(self.motor.volmdlr_primitives())
-        z_previous_position_gear = self.motor.length+self.offset
-        z_previous_position_shaft=0
+        z_previous_position_gear = self.motor.length + self.offset
+        z_previous_position_shaft = 0
         for shaft in self.shafts:
-                
-           
             for mesh in self.meshes:
-                if mesh.gear1.shaft==shaft:
-                   
-                    z_position = z_previous_position_gear+mesh.gear1.length/2
-                    mesh.gear1.z_position=z_position
-                    mesh.gear2.z_position=z_position
+                if mesh.gear1.shaft == shaft:
+                    z_position = z_previous_position_gear + mesh.gear1.length / 2
+                    mesh.gear1.z_position = z_position
+                    mesh.gear2.z_position = z_position
                     primitives.extend(mesh.gear1.volmdlr_primitives())
                     primitives.extend(mesh.gear2.volmdlr_primitives())
                     break
-                
-            shaft.length= z_position+mesh.gear1.length/2+self.offset-z_previous_position_shaft
-            shaft.z_position=shaft.length/2+z_previous_position_shaft
-            
-            primitives.extend(shaft.volmdlr_primitives())
-                
-            z_previous_position_gear = z_position+mesh.gear2.length/2+self.offset
-            z_previous_position_shaft= z_position-mesh.gear2.length/2-self.offset
-            
 
+            shaft.length = (z_position + mesh.gear1.length / 2 + self.offset - z_previous_position_shaft)
+            shaft.z_position = shaft.length / 2 + z_previous_position_shaft
+
+            primitives.extend(shaft.volmdlr_primitives())
+
+            z_previous_position_gear = (z_position + mesh.gear2.length / 2 + self.offset)
+            z_previous_position_shaft = (z_position - mesh.gear2.length / 2 - self.offset)
         return primitives
+
+    def plot_data(self):
+        primitives = []
+        self.motor.pos_x = self.shafts[0].pos_x
+        self.motor.pos_y = self.shafts[0].pos_y
+
+        primitives.extend(self.motor.volmdlr_primitives())
+        circles = []
+        for shaft in self.shafts:
+            for mesh in self.meshes:
+                if mesh.gear1.shaft == shaft:
+                    for gear in mesh.gears:
+                        circle = plot_data.Circle2D(cx=shaft.pos_x,
+                                                    cy=shaft.pos_y,
+                                                    r=gear.diameter/2,
+                                                    edge_style=plot_data.EdgeStyle(),
+                                                    surface_style=plot_data.SurfaceStyle())
+                        circles.append(circle)
+                    break
+        primitives_group = plot_data.PrimitiveGroup(primitives=circles,
+                                                    name='2D')
+        return [primitives_group]
 
     def mass(self):
         mass = 0
