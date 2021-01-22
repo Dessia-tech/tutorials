@@ -207,23 +207,17 @@ class Reductor(DessiaObject):
         return primitives
 
     def plot_data(self):
-        primitives = []
-        self.motor.pos_x = self.shafts[0].pos_x
-        self.motor.pos_y = self.shafts[0].pos_y
-
-        primitives.extend(self.motor.volmdlr_primitives())
         circles = []
-        for shaft in self.shafts:
-            for mesh in self.meshes:
-                if mesh.gear1.shaft == shaft:
-                    for gear in mesh.gears:
-                        circle = plot_data.Circle2D(cx=shaft.pos_x,
-                                                    cy=shaft.pos_y,
-                                                    r=gear.diameter/2,
-                                                    edge_style=plot_data.EdgeStyle(),
-                                                    surface_style=plot_data.SurfaceStyle())
-                        circles.append(circle)
-                    break
+        for mesh in self.meshes:
+            for gear in mesh.gears:
+                fill = plot_data.SurfaceStyle(opacity=0)
+                stroke = plot_data.EdgeStyle()
+                circle = plot_data.Circle2D(cx=gear.shaft.pos_x,
+                                            cy=gear.shaft.pos_y,
+                                            r=gear.diameter/2,
+                                            edge_style=stroke,
+                                            surface_style=fill)
+                circles.append(circle)
         primitives_group = plot_data.PrimitiveGroup(primitives=circles,
                                                     name='2D')
         return [primitives_group]
@@ -319,7 +313,7 @@ class Optimizer(DessiaObject):
             x0.append((interval[1]-interval[0])*float(npy.random.random(1))+interval[0])
         return x0
 
-    def optimize(self, max_loops: int =1000):
+    def optimize(self, max_loops: int = 500):
         valid = True
         count = 0
         list_reductor=[]
@@ -328,12 +322,11 @@ class Optimizer(DessiaObject):
             self.reductor.update(x0)
             res = minimize(self.objective, x0, bounds=self.bounds)
             count += 1
-            if  res.fun<10 and res.success:
+            if res.fun < 10 and res.success:
                 print(count)
                 self.reductor.update(res.x)
-                self.reductor.number_solution=len(list_reductor)
+                self.reductor.number_solution = len(list_reductor)
                 list_reductor.append(copy.deepcopy(self.reductor))
-
         return list_reductor
     
 class InstanciateReductor(DessiaObject):
