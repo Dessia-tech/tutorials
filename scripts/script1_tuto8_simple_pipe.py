@@ -36,8 +36,10 @@ piping3 = tuto.SlavePiping(start=p6,
                             direction_start=-dir6, piping_master=piping2,
                             diameter=0.005, length_connector=0.03, minimum_radius=0.01)
 
-# vol = vm.core.VolumeModel(faces)
-# vol.babylonjs()
+vol = vm.core.VolumeModel(faces)
+vol.babylonjs()
+
+raise
 as1 = tuto.Assembly(frame=frame1, pipings=[piping1, piping2, piping3],
                     housing=housing)
 g = as1.graph()
