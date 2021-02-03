@@ -1,6 +1,7 @@
 import tutorials.tutorial8_simple_pipe as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
+import networkx as nx
 
 lx, ly = 0.5, 0.5
 lz = 0.05
@@ -49,3 +50,6 @@ opt1 = tuto.Optimizer(as1, objective_length=1.1)
 sol = opt1.optimize()
 opt1.assembly.babylonjs()
 print('Optimum with length {} with an objective at {}'.format(opt1.assembly.length(), opt1.objective_length))
+
+graph = as1.graph()
+nx.draw(graph)
