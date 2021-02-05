@@ -91,15 +91,9 @@ def get_version():
     return version
 
 
-
-setup(
-	version=get_version(),
-	name='tutorials',
-	description='tutorials for DessIA platform',
-	long_description='',
-	author='Lucas',
-	author_email='launay@dessia.tech',
-	install_requires=['dessia_common', 'plot_data>=0.4.5', 'volmdlr'],
-	python_requires='>=3.7',
-	packages=['tutorials'],
-)
+setup(version=get_version(), name='tutorials',
+      description='tutorials for DessIA platform',
+      long_description='', author='Lucas', author_email='launay@dessia.tech',
+      install_requires=['cma', 'dectree', 'dessia_common',
+                        'plot_data>=0.4.10', 'volmdlr>=0.2.4'],
+      python_requires='>=3.7', packages=['tutorials'])
