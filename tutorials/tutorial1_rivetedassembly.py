@@ -41,7 +41,7 @@ class Panel(DessiaObject):
         surface_style = plot_data.SurfaceStyle(hatching=hatching)
         contour = self.contour()
         plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
-        return plot_data.PrimitiveGroup(primitives=[plot_datas])
+        return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
 
 
 class PanelCombination(DessiaObject):
@@ -128,7 +128,7 @@ class Rivet(DessiaObject):
         surface_style = plot_data.SurfaceStyle(hatching=hatching)
         contour = self.contour(full_contour=full_contour)
         plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
-        return plot_data.PrimitiveGroup(primitives=[plot_datas])
+        return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
 
 
 class Rule(DessiaObject):

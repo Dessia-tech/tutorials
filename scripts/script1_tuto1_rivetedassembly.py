@@ -7,13 +7,13 @@ p2 = tuto.Panel(1.1, 1, 0.01)
 # p1.babylonjs()
 
 c = p1.plot_data()
-plot_data.plot_canvas(c, canvas_id='canvas')
+plot_data.plot_canvas(c[0], canvas_id='canvas')
 
 r1 = tuto.Rivet(0.01, 0.05, 0.012, 0.005)
 # r1.babylonjs()
 
 c = r1.plot_data(True)
-plot_data.plot_canvas(c, canvas_id='canvas')
+plot_data.plot_canvas(c[0], canvas_id='canvas')
 
 pc1 = tuto.PanelCombination([p1, p2], [vm.Point3D(0, 0, 0), vm.Point3D(0.7, 0.2, 0.01)])
 sol = pc1.intersection_area()
