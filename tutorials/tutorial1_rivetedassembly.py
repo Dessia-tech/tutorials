@@ -193,7 +193,7 @@ class PanelAssembly(DessiaObject):
         plot_datas = self.panel_combination.plot_data()
         circles = self.contour()
         plot_datas.extend([c.plot_data(edge_style=edge_style) for c in circles])
-        return plot_data.PrimitiveGroup(primitives=plot_datas)
+        return [plot_data.PrimitiveGroup(primitives=plot_datas)]
 
 
 class Generator(DessiaObject):

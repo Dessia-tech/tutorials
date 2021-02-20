@@ -29,7 +29,7 @@ g1 = tuto.Generator(pc1, r1, rule1)
 solutions = g1.generate()
 
 cs = solutions[-1].plot_data()
-plot_data.plot_canvas(cs, canvas_id='canvas')
+plot_data.plot_canvas(cs[0], canvas_id='canvas')
 
 from dessia_api_client import Client
 c = Client(api_url='https://api.demo.dessia.tech')
