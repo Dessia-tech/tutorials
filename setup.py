@@ -65,9 +65,30 @@ assert version_from_git_describe('v1') == '1'
 assert version_from_git_describe('v1-3-aqsfjbo') == '1.0.1.dev3'
 
 
+def get_version():
+    # Return the version if it has been injected into the file by git-archive
+    version = tag_re.search('$Format:%D$')
+    if version:
+        return version.group(1)
 
+    d = dirname(__file__)
 
+    if isdir(join(d, '.git')):
+        cmd = 'git describe --tags'
+        try:
+            version = check_output(cmd.split()).decode().strip()[:]
 
+        except CalledProcessError:
+            raise RuntimeError('Unable to get version number from git tags')
+
+        return version_from_git_describe(version)
+    else:
+        # Extract the version from the PKG-INFO file.
+        with open(join(d, 'PKG-INFO')) as f:
+            version = version_re.search(f.read()).group(1)
+
+    # print('version', version)
+    return version
 
 
 setup(
