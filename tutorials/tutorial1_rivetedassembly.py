@@ -173,9 +173,11 @@ class PanelAssembly(DessiaObject):
     def __init__(self, panel_combination: PanelCombination,
                  rivet: Rivet, grids: List[vm.Point3D],
                  number_rivet1: int, number_rivet2: int,
+                 number_rivet: int = None,
                  name: str = ''):
         self.number_rivet2 = number_rivet2
         self.number_rivet1 = number_rivet1
+        self.number_rivet = number_rivet1*number_rivet2
         self.panel_combination = panel_combination
         self.rivet = rivet
         self.grids = grids
