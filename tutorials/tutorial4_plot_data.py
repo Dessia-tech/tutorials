@@ -176,7 +176,7 @@ class MultiPlot(DessiaObject):
         sizes = [plot_data.Window(width=500, height=500),
                  plot_data.Window(width=500, height=500)]
 
-        return plot_data.MultiplePlots(elements=self.points, objects=objects,
+        return plot_data.MultiplePlots(elements=self.points, plots=objects,
                                        sizes=sizes, coords=coords)
 
 
