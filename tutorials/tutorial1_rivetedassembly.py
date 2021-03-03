@@ -14,10 +14,12 @@ class Panel(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, length: float, height: float,
-                 thickness: float, name: str = ''):
+                 thickness: float, mass: float = None,
+                 name: str = ''):
         self.thickness = thickness
         self.height = height
         self.length = length
+        self.mass = 7800*(thickness*height*length)
         DessiaObject.__init__(self, name=name)
 
     def contour(self):
@@ -47,9 +49,11 @@ class Panel(DessiaObject):
 class PanelCombination(DessiaObject):
     _standalone_in_db = True
 
-    def __init__(self, panels: List[Panel], grids: List[vm.Point3D], name: str = ''):
+    def __init__(self, panels: List[Panel], grids: List[vm.Point3D], mass:float=None,
+                 name: str = ''):
         self.grids = grids
         self.panels = panels
+        self.mass = sum([p.mass for p in panels])
         DessiaObject.__init__(self, name=name)
 
     def plot_data(self):
@@ -78,11 +82,14 @@ class Rivet(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, rivet_diameter: float, rivet_length: float,
-                 head_diameter: float, head_length: float, name: str = ''):
+                 head_diameter: float, head_length: float, mass: float = None,
+                 name: str = ''):
         self.head_diameter = head_diameter
         self.head_length = head_length
         self.rivet_diameter = rivet_diameter
         self.rivet_length = rivet_length
+        self.mass = 7800*(math.pi*(head_diameter**2)/4*head_length + math.pi*(rivet_diameter**2)/4*rivet_length)
+
         DessiaObject.__init__(self, name=name)
 
     def contour(self, full_contour=False):
@@ -174,10 +181,12 @@ class PanelAssembly(DessiaObject):
                  rivet: Rivet, grids: List[vm.Point3D],
                  number_rivet1: int, number_rivet2: int,
                  number_rivet: int = None,
+                 mass: float = None,
                  name: str = ''):
         self.number_rivet2 = number_rivet2
         self.number_rivet1 = number_rivet1
         self.number_rivet = number_rivet1*number_rivet2
+        self.mass = rivet.mass * self.number_rivet + panel_combination.mass
         self.panel_combination = panel_combination
         self.rivet = rivet
         self.grids = grids
