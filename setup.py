@@ -7,11 +7,9 @@ tag_re = re.compile(r'\btag: %s([0-9][^,]*)\b')
 version_re = re.compile('^Version: (.+)$', re.M)
 
 
-
-
 def version_from_git_describe(version):
-    if version[0]=='v':
-            version = version[1:]
+    if version[0] == 'v':
+        version = version[1:]
 
     # PEP 440 compatibility
     number_commits_ahead = 0
@@ -37,7 +35,7 @@ def version_from_git_describe(version):
                 if len(split_versions) == 1:
                     split_versions.extend(['0', '0'])
 
-                split_versions[-1] = str(int(split_versions[-1])+1)
+                split_versions[-1] = str(int(split_versions[-1]) + 1)
                 future_version = '.'.join(split_versions)
                 return '{}.dev{}'.format(future_version, number_commits_ahead)
             else:
@@ -48,7 +46,7 @@ def version_from_git_describe(version):
             split_versions.append('0')
         if len(split_versions) == 1:
             split_versions.extend(['0', '0'])
-        split_versions[-1] = str(int(split_versions[-1])+1)
+        split_versions[-1] = str(int(split_versions[-1]) + 1)
         split_versions = '.'.join(split_versions)
         return '{}.dev{}'.format(split_versions, number_commits_ahead)
     else:
@@ -56,6 +54,7 @@ def version_from_git_describe(version):
             split_versions.append(suffix)
 
         return '.'.join(split_versions)
+
 
 # Just testing if get_version works well
 assert version_from_git_describe('v0.1.7.post2') == '0.1.7.post2'
@@ -92,13 +91,13 @@ def get_version():
 
 
 setup(
-	version=0.1,
-	name='tutorials',
-	description='tutorials for DessIA platform',
-	long_description='',
-	author='Lucas',
-	author_email='launay@dessia.tech',
-	install_requires=['cma', 'dectree', 'dessia_common', 'plot_data>=0.5.2', 'volmdlr>=0.2.4'],
-	python_requires='>=3.7',
-	packages=['tutorials'],
+    version=get_version(),
+    name='tutorials',
+    description='tutorials for DessIA platform',
+    long_description='',
+    author='Lucas',
+    author_email='launay@dessia.tech',
+    install_requires=['cma', 'dectree', 'dessia_common', 'plot_data>=0.5.2', 'volmdlr>=0.2.4'],
+    python_requires='>=3.7',
+    packages=['tutorials'],
 )
