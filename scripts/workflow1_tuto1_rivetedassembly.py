@@ -14,7 +14,7 @@ import dessia_common.workflow as wf
 block_generator = wf.InstanciateModel(tuto.Generator, name='Generator')
 block_generate = wf.ModelMethod(tuto.Generator, 'generate', name='Generator')
 
-list_attribute1 = ['number_rivet1', 'number_rivet2', 'number_rivet', 'mass']
+list_attribute1 = ['number_rivet1', 'number_rivet2', 'number_rivet', 'mass', 'price']
 display_reductor = wf.MultiPlot(list_attribute1, 1, name='Display Reductor')
 
 block_workflow = [block_generator, block_generate, display_reductor]

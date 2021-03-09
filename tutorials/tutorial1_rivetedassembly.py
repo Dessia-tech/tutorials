@@ -19,7 +19,7 @@ class Panel(DessiaObject):
         self.thickness = thickness
         self.height = height
         self.length = length
-        self.mass = 7800*(thickness*height*length)
+        self.mass = 7800*(thickness*height*length) #If you want to change the volumic mass, change the '7800'.
         DessiaObject.__init__(self, name=name)
 
     def contour(self):
@@ -136,6 +136,9 @@ class Rivet(DessiaObject):
         contour = self.contour(full_contour=full_contour)
         plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
         return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
+    
+    def MP_price(self):
+        return 0.5*self.mass 
 
 
 class Rule(DessiaObject):
@@ -180,17 +183,18 @@ class PanelAssembly(DessiaObject):
     def __init__(self, panel_combination: PanelCombination,
                  rivet: Rivet, grids: List[vm.Point3D],
                  number_rivet1: int, number_rivet2: int,
-                 number_rivet: int = None,
-                 mass: float = None,
                  name: str = ''):
+        
         self.number_rivet2 = number_rivet2
         self.number_rivet1 = number_rivet1
-        self.number_rivet = number_rivet1*number_rivet2
-        self.mass = rivet.mass * self.number_rivet + panel_combination.mass
         self.panel_combination = panel_combination
         self.rivet = rivet
         self.grids = grids
         DessiaObject.__init__(self, name=name)
+        
+        self.number_rivet = number_rivet1*number_rivet2
+        self.mass = rivet.mass * self.number_rivet + panel_combination.mass
+        self.price = self._price()
 
     def contour(self):
         diameter = self.rivet.rivet_diameter
@@ -205,6 +209,18 @@ class PanelAssembly(DessiaObject):
         circles = self.contour()
         plot_datas.extend([c.plot_data(edge_style=edge_style) for c in circles])
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
+    
+    def _price(self):
+        nb_assembly_wanted = 250
+        nb_rivet_necessary = nb_assembly_wanted*self.number_rivet 
+        size_of_batch = 1000
+        rest = nb_rivet_necessary%size_of_batch
+        number_batch = int(nb_rivet_necessary/size_of_batch)
+        if rest > 0 :
+            number_batch += 1
+        fixed_cost_per_batch = 100 #€
+        total_cost = number_batch*fixed_cost_per_batch + nb_rivet_necessary*self.rivet.MP_price()
+        return total_cost/nb_assembly_wanted
 
 
 class Generator(DessiaObject):
