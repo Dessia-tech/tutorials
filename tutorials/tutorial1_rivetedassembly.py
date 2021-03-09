@@ -213,7 +213,7 @@ class PanelAssembly(DessiaObject):
     def _price(self):
         nb_assembly_wanted = 250
         nb_rivet_necessary = nb_assembly_wanted*self.number_rivet 
-        size_of_batch = 1000
+        size_of_batch = 500
         rest = nb_rivet_necessary%size_of_batch
         number_batch = int(nb_rivet_necessary/size_of_batch)
         if rest > 0 :

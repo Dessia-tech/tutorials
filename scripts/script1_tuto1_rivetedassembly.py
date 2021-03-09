@@ -28,8 +28,8 @@ all_possibilities = rule1.define_number_rivet(sol, r1)
 g1 = tuto.Generator(pc1, r1, rule1)
 solutions = g1.generate()
 
-# for sol in solutions :
-#     print('nb rivets, price', sol.number_rivet, sol._price())
+for sol in solutions :
+    print('nb rivets, price', sol.number_rivet, sol._price())
 
 cs = solutions[-1].plot_data()
 plot_data.plot_canvas(cs[0], canvas_id='canvas')
