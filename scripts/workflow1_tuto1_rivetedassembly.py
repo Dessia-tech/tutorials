@@ -40,5 +40,5 @@ workflow_run = workflow.run(input_values)
 solution = workflow_run.output_value[0]
 plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
 
-c = Client(api_url='https://api.demo.dessia.tech')
+c = Client(api_url='https://api.platform-dev.dessia.tech')
 r = c.create_object_from_python_object(workflow_run)
