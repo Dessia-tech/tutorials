@@ -212,12 +212,24 @@ class PanelAssembly(DessiaObject):
         force_applied = 100 #Newton
         surface_rivet = (math.pi*self.rivet.head_diameter**2)/4
         pressure_applied = force_applied/(self.number_rivet*surface_rivet)
-        print('pressure_applied',pressure_applied)
         return pressure_applied
         
     def _fatigue_resistance(self): 
-        number_hour_worked = 10*5*50*2 #10hours per week with 50 week of work during 2 years
-        fatigue = number_hour_worked*10000/self.pressure_applied
+        number_hour_worked = 5000 #hours
+        test_rivet = 5 #Newton
+        surface_rivet = (math.pi*self.rivet.head_diameter**2)/4
+        pressure_test = test_rivet/surface_rivet
+        
+        distance_between_riv = []
+        for n,pos in enumerate(self.grids) :
+            if n == len(self.grids)-1:
+                distance_between_riv.append((pos-self.grids[0]).norm())
+            else :
+                distance_between_riv.append((pos-self.grids[n+1]).norm())
+        ratio_distance = min(distance_between_riv)/(4.5*self.rivet.head_diameter)
+        coeff_security = 3
+        ratio_pressure = (pressure_test/self.pressure_applied)/coeff_security
+        fatigue = number_hour_worked*ratio_distance*ratio_pressure
         return fatigue
 
 
@@ -238,7 +250,6 @@ class Generator(DessiaObject):
         dir2 = ymax - ymin
         ratio1 = dir1 / (number_rivet1 + 1)
         ratio2 = dir2 / (number_rivet2 + 1)
-
         grids = []
         for n1 in range(number_rivet1):
             for n2 in range(number_rivet2):
