@@ -136,9 +136,6 @@ class Rivet(DessiaObject):
         contour = self.contour(full_contour=full_contour)
         plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
         return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
-    
-    def MP_price(self):
-        return 0.5*self.mass 
 
 
 class Rule(DessiaObject):
@@ -194,7 +191,8 @@ class PanelAssembly(DessiaObject):
         
         self.number_rivet = number_rivet1*number_rivet2
         self.mass = rivet.mass * self.number_rivet + panel_combination.mass
-        self.price = self._price()
+        self.pressure_applied = self._pressure_applied()
+        self.fatigue_resistance = self._fatigue_resistance()
 
     def contour(self):
         diameter = self.rivet.rivet_diameter
@@ -210,17 +208,17 @@ class PanelAssembly(DessiaObject):
         plot_datas.extend([c.plot_data(edge_style=edge_style) for c in circles])
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
     
-    def _price(self):
-        nb_assembly_wanted = 250
-        nb_rivet_necessary = nb_assembly_wanted*self.number_rivet 
-        size_of_batch = 500
-        rest = nb_rivet_necessary%size_of_batch
-        number_batch = int(nb_rivet_necessary/size_of_batch)
-        if rest > 0 :
-            number_batch += 1
-        fixed_cost_per_batch = 100 #€
-        total_cost = number_batch*fixed_cost_per_batch + nb_rivet_necessary*self.rivet.MP_price()
-        return total_cost/nb_assembly_wanted
+    def _pressure_applied(self):
+        force_applied = 100 #Newton
+        surface_rivet = (math.pi*self.rivet.head_diameter**2)/4
+        pressure_applied = force_applied/(self.number_rivet*surface_rivet)
+        print('pressure_applied',pressure_applied)
+        return pressure_applied
+        
+    def _fatigue_resistance(self): 
+        number_hour_worked = 10*5*50*2 #10hours per week with 50 week of work during 2 years
+        fatigue = number_hour_worked*10000/self.pressure_applied
+        return fatigue
 
 
 class Generator(DessiaObject):

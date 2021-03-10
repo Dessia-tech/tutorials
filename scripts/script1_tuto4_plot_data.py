@@ -11,6 +11,7 @@ pdt = g2.plot_data()
 plot_data.plot_canvas(plot_data_object=pdt, canvas_id='canvas')
 
 s1 = tuto.ScatterPlot(2, 2)
+print(s1)
 plot_data.plot_canvas(plot_data_object=s1.plot_data(), canvas_id='canvas')
 
 p1 = tuto.ParallelPlot(2, 2)
