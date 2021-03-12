@@ -20,24 +20,23 @@ torques = [475, 340, 200]
 optimizer = objects.GearBoxOptimizer(gearbox = gearbox, ratios_min_max=[0.5,4.2], speeds = speeds, torques = torques, number_ratios=3)
 
 results = optimizer.optimize(10000)
+print("ALL RESULTS AVAILABLE:")
 for result in results[0]:
     print('ratios:',result.ratios)
-    print('eficiencies: ', result.efficiencies)
+    print('efficiencies: ', result.efficiencies)
     print('\n')
-    
-print('\n')
 
+print('VALUES FOR THE OBJECTIVE FUNCTION:')
 print(results[1])
 print('\n')
 
+print('BEST RESULTS:')
 functional_min=min(results[1])
-gearbox_ratios=[]
-for i, (gearbox,functional) in enumerate(zip(results[0],results[1])):
+for i, (gearbox, functional) in enumerate(zip(results[0],results[1])):
     if functional == functional_min:
-        gearbox_ratios.append(gearbox.ratios)
-        
-         
-for ratio in gearbox_ratios:
-    print('raios: ',ratio)
-    print('eficiencies: ', result.efficiencies)
-    print('\n')
+        print('Ratios:', gearbox.ratios)
+        print('Efficiencies:', gearbox.efficiencies)
+        print('\n')
+
+
+
