@@ -7,7 +7,7 @@ Created on Thu Mar  4 11:29:57 2021
 import tutorials.tutorial9_simple_3ratios_gearbox as objects
 import numpy as np
 import plot_data
-from plot_data.colors import GREY, BLACK, WHITE, LIGHTBLUE, RED, BLUE
+
 
 """
 Engine efficiency map
@@ -127,14 +127,14 @@ motor = objects.Motor(efficiency_map = efficiency_map)
 """
 Gearbox
 """
-gearbox = objects.GearBox(motor = motor)
+speed_ranges = [[0, 25], [25 ,40], [40,60], [60, 80]] # in km/h
+gearbox = objects.GearBox(motor = motor, speed_ranges = speed_ranges)
 
 """
 GearBox Optimizer
 """
-speed_ranges = [[0, 25], [25 ,40], [40,60], [60, 80]] # in km/h
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox,wltp_cycle = wltp_cycle, ratios_min_max = [0.5, 4.5], 
-                                     speed_ranges = speed_ranges)
+
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox,wltp_cycle = wltp_cycle, ratios_min_max = [0.5, 4.5])
 
 """
 Results
@@ -142,37 +142,25 @@ Results
 results = optimizer.optimize(10)
 print("ALL RESULTS AVAILABLE: ")
 for result in results[0]:
+    
+    
     print('Ratios: ',result.ratios)
     print('Efficiencies: ')
     
-    # results_csv = {'Car Speed': cycle_speeds[:-1], 'Wheel Torque':cycle_torques, 'Engine Speed':result.motor.engine_speeds,
-    #                'Engine Torque': result.motor.engine_torques, 'Gear': result.gears[0], 'Ratio': result.gears[1], 'Fuel consumption': result.fuel_consumptions }
-    # results_df = pd.DataFrame(results_csv)
-    # results_df.to_csv(r'C:\Users\wiraj\Documents\GitHub\tutorials\scripts\results.csv')
     
-    # for i, fuel_consumption in enumerate(result.fuel_consumptions): 
-        # print('Fuel consumption: ', fuel_consumption )
-        # print('\n', result.gears[i])
-        # print('\n', result.wltp[i])
-        # print('\n', result.motor.speed_torque[i])
-        # print('\n\n')
+    for i, fuel_consumption in enumerate(result.fuel_consumptions): 
+        print('Fuel consumption: ', fuel_consumption )
+        print('\n gear: ', result.gears[0][i], 'ratio: ',result.gears[1][i])
+        print('\n', result.wltp[i])
+        print('\n engine speed in rpm: ', result.motor.engine_speeds[i], 'engine torque in Nm: ', result.motor.engine_torques[i])
+        print('\n\n')
+        
+    rsts = objects.Results(result, wltp_cycle)
+    graphs2d = rsts.plot_data()
+    plot_data.plot_canvas(plot_data_object = graphs2d, canvas_id = 'canvas')
         
 
 
-
-# print('VALUES FOR THE OBJECTIVE FUNCTION: \n', results[1])
-
-# print('\n')
-
-# print('Ratios used: \n', results[2])
-# print('BEST RESULTS: ')
-# functional_min=min(results[1])
-# for i, (gearbox, functional) in enumerate(zip(results[0],results[1])):
-#     if functional == functional_min:
-        
-#         print('Ratios: ', gearbox.ratios)
-#         print('Efficiencies: ', gearbox.efficiencies)
-#         print('\n')
 
 
 
