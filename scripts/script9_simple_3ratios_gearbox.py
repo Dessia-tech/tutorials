@@ -6,8 +6,8 @@ Created on Thu Mar  4 11:29:57 2021
 """
 import tutorials.tutorial9_simple_3ratios_gearbox as objects
 import numpy as np
-
-
+import plot_data
+from plot_data.colors import GREY, BLACK, WHITE, LIGHTBLUE, RED, BLUE
 
 engine_speeds = list(np.linspace(500,6000,num=12)) #Engine speed in rpm
 engine_torques = [15.6,31.2, 46.8, 62.4, 78, 93.6, 109.2, 124.8, 140.4, 156, 171.6] #engine torque in N*m
@@ -109,7 +109,7 @@ cycle_speeds = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,3.1,5.7,8.0,
 #                 31.8,28.7,25.8,22.9,20.2,17.3,15.0,12.3,10.3,7.8,6.5,4.4,3.2,1.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
 #                 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]        # velocity in km/h
 
-cycle_speeds = [i*2.916302129 for i in cycle_speeds]                        #velocity in rad/s
+
 car_mass = 1524                                                             # Midsize car wheight in kilograms
 # friction_coefficient = 0.72                                                 # static friction coefficient between car tire and dry and clean asphalt 
 # g = 9.8                                                                     # gravity velocity in m/s^2
@@ -140,25 +140,42 @@ optimizer = objects.GearBoxOptimizer(gearbox = gearbox, ratios_min_max = [0.5, 4
                                      cycle_speeds = cycle_speeds, cycle_torques = cycle_torques, 
                                      speed_ranges = speed_ranges)
 
+
 results = optimizer.optimize(10)
 print("ALL RESULTS AVAILABLE: ")
 for result in results[0]:
     print('Ratios: ',result.ratios)
     print('Efficiencies: ')
-    for i, fuel_consumption in enumerate(result.fuel_consumptions): 
-        print('Fuel consumption: ', fuel_consumption )
-        print('\n', result.gears[i])
-        print('\n', result.wltp[i])
-        print('\n', result.motor.speed_torque[i])
-        print('\n\n')
-        
+    
+    # results_csv = {'Car Speed': cycle_speeds[:-1], 'Wheel Torque':cycle_torques, 'Engine Speed':result.motor.engine_speeds,
+    #                'Engine Torque': result.motor.engine_torques, 'Gear': result.gears[0], 'Ratio': result.gears[1], 'Fuel consumption': result.fuel_consumptions }
+    # results_df = pd.DataFrame(results_csv)
+    # results_df.to_csv(r'C:\Users\wiraj\Documents\GitHub\tutorials\scripts\results.csv')
+    
+    # for i, fuel_consumption in enumerate(result.fuel_consumptions): 
+        # print('Fuel consumption: ', fuel_consumption )
+        # print('\n', result.gears[i])
+        # print('\n', result.wltp[i])
+        # print('\n', result.motor.speed_torque[i])
+        # print('\n\n')
+cycle_time = [i+1 for i in range(len(cycle_speeds[:-1]))]
+tooltip = plot_data.Tooltip(to_disp_attribute_names=['time in s', 'fuel consumption'])
+point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK)
+edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke=BLUE)
+elements = []
+for time, fuel_consuption in zip(cycle_time, results[0][0].fuel_consumptions):
+    elements.append({'time in s': time, 'fuel consumption': fuel_consuption})
+graphs = plot_data.Dataset(elements=elements, name='time X fuel consumption', tooltip=tooltip, point_style=point_style,
+                          edge_style=edge_style)
+graphs2d = plot_data.Graph2D(graphs = [graphs], to_disp_attribute_names = ['time in s', 'fuel consumption'])
+plot_data.plot_canvas(plot_data_object = graphs2d, canvas_id = 'canvas')
 
 
-print('VALUES FOR THE OBJECTIVE FUNCTION: \n', results[1])
+# print('VALUES FOR THE OBJECTIVE FUNCTION: \n', results[1])
 
-print('\n')
+# print('\n')
 
-print('Ratios used: \n', results[2])
+# print('Ratios used: \n', results[2])
 # print('BEST RESULTS: ')
 # functional_min=min(results[1])
 # for i, (gearbox, functional) in enumerate(zip(results[0],results[1])):
