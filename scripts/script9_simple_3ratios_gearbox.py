@@ -110,9 +110,6 @@ cycle_speeds= [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,3.1,5.7,8.0,1
 
 
 car_mass = 1524                                                             # Midsize car wheight in kilograms
-# friction_coefficient = 0.72                                                 # static friction coefficient between car tire and dry and clean asphalt 
-# g = 9.8                                                                     # gravity velocity in m/s^2
-# F_fric_max = 2 * (car_mass * friction_coefficient / 4)                      # Maximum Friction force for no slip in N
 dt = 1                                                                      # time interval in seconds
 tire_radius = 0.1905                                                        # tire radius in m
 
@@ -122,13 +119,13 @@ wltp_cycle = objects.WLTP_cycle(cycle_speeds = cycle_speeds, car_mass = car_mass
 """
 Engine 
 """
-motor = objects.Motor(efficiency_map = efficiency_map)
+engine = objects.Engine(efficiency_map = efficiency_map)
 
 """
 Gearbox
 """
 speed_ranges = [[0, 25], [25 ,40], [40,60], [60, 80]] # in km/h
-gearbox = objects.GearBox(motor = motor, speed_ranges = speed_ranges)
+gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 
 """
 GearBox Optimizer
@@ -142,25 +139,18 @@ Results
 results = optimizer.optimize(10)
 print("ALL RESULTS AVAILABLE: ")
 for result in results[0]:
-    
-    
     print('Ratios: ',result.ratios)
     print('Efficiencies: ')
-    
-    
     for i, fuel_consumption in enumerate(result.fuel_consumptions): 
         print('Fuel consumption: ', fuel_consumption )
         print('\n gear: ', result.gears[0][i], 'ratio: ',result.gears[1][i])
-        print('\n', result.wltp[i])
-        print('\n engine speed in rpm: ', result.motor.engine_speeds[i], 'engine torque in Nm: ', result.motor.engine_torques[i])
+        print('\n wltp speed in km/h: ', cycle_speeds[i], 'wltp torque in Nm: ', wltp_cycle.cycle_torques[i])
+        print('\n engine speed in rpm: ', result.engine.engine_speeds[i], 'engine torque in Nm: ', result.engine.engine_torques[i])
         print('\n\n')
         
-    rsts = objects.Results(result, wltp_cycle)
-    graphs2d = rsts.plot_data()
-    plot_data.plot_canvas(plot_data_object = graphs2d, canvas_id = 'canvas')
-        
-
-
+rsts = objects.Results(results[0][0], wltp_cycle)
+graphs2d = rsts.plot_data()
+plot_data.plot_canvas(plot_data_object = graphs2d, canvas_id = 'canvas')
 
 
 

@@ -50,13 +50,13 @@ class Efficiency_map(DessiaObject):
             efficiencies.append(list_efficiencies)
         self.efficiencies = efficiencies
    
-class Motor(DessiaObject):
+class Engine(DessiaObject):
     _standalone_in_db = True
     
-    def __init__(self, efficiency_map : Efficiency_map, name:str=''):
+    def __init__(self, efficiency_map : Efficiency_map, engine_speeds: List[float] = None, engine_torques: List[float] = None , name:str=''):
         self.efficiency_map = efficiency_map
-        self.engine_speeds = []
-        self.engine_torques = []
+        self.engine_speeds = engine_speeds
+        self.engine_torques = engine_torques
         
         DessiaObject.__init__(self,name=name)
     
@@ -73,11 +73,11 @@ class Motor(DessiaObject):
 class GearBox(DessiaObject):
     _standalone_in_db = True
     
-    def __init__(self, motor: Motor, ratios = None, fuel_consumptions: List[float] = None, gears: List[float] = None, speed_ranges: List[float] = None, name: str = ''):
-        self.motor = motor
+    def __init__(self, engine: Engine, ratios = None, fuel_consumptions: List[float] = None, gears: List[float] = None, speed_ranges: List[float] = None, name: str = ''):
+        self.engine = engine
         self.ratios = ratios
-        self.fuel_consumptions = [] 
-        self.gears = [[],[]]
+        self.fuel_consumptions = fuel_consumptions
+        self.gears = gears
         self.speed_ranges = speed_ranges
         
         DessiaObject.__init__(self,name=name)
@@ -88,20 +88,14 @@ class GearBox(DessiaObject):
             
                 if cycle_speed >= speed_range[0] and cycle_speed < speed_range[1]:
                     ratio = x[i]
-                    motor_speed = (cycle_speed * 2.916302129) * ratio # here the constant stands for the speed unit transformation in rad/s
-                    motor_torque = cycle_torque / ratio
-                    if motor_torque > max(self.motor.efficiency_map.engine_torques):
+                    engine_speed = (cycle_speed * 2.916302129) * ratio # here the constant stands for the speed unit transformation in rad/s
+                    engine_torque = cycle_torque / ratio
+                    if engine_torque > max(self.engine.efficiency_map.engine_torques):
                         max_torque_penaulty = 100
-                    fuel_consumption_gpkwh = self.motor.consumption_efficiency(motor_speed, motor_torque)
+                    fuel_consumption_gpkwh = self.engine.consumption_efficiency(engine_speed, engine_torque)
                     gear = i+1
                     
-        self.motor.engine_speeds.append(motor_speed*30/np.pi)
-        self.motor.engine_torques.append(motor_torque)
-        self.gears[0].append(gear)
-        self.gears[1].append(ratio)
-        self.fuel_consumptions.append(fuel_consumption_gpkwh)
-                    
-        return [fuel_consumption_gpkwh, max_torque_penaulty]
+        return [gear, ratio, fuel_consumption_gpkwh, max_torque_penaulty, engine_speed, engine_torque]
 
 
         
@@ -155,66 +149,30 @@ class GearBoxOptimizer(DessiaObject):
         
         fuel_consumptions = []
         objective_function = 0
-        # gears = []
-        # ratios = []
-        # wltp = []
-        # engine_speeds = []
-        # engine_torques = []
+        gears = []
+        ratios = []
+        engine_speeds = []
+        engine_torques = []
         
         for (cycle_speed, cycle_torque) in zip(self.wltp_cycle.cycle_speeds, self.wltp_cycle.cycle_torques):
             
-            fuel_consumptions.append(self.gearbox.gear_decision(x, cycle_speed, cycle_torque)[0])
-            objective_function += self.gearbox.gear_decision(x, cycle_speed, cycle_torque)[1]
+            gear_decision = self.gearbox.gear_decision(x, cycle_speed, cycle_torque)
+            fuel_consumptions.append(gear_decision[2])
+            objective_function += gear_decision[3]
+            gears.append(gear_decision[0])
+            ratios.append(gear_decision[1])
+            engine_speeds.append(gear_decision[4]*30/np.pi)
+            engine_torques.append(gear_decision[5])
             
         objective_function += mean(fuel_consumptions)  
-            # for i, speed_range in enumerate(self.speed_ranges):
-            #     if speed >= speed_range[0] and speed < speed_range[1]:
-            #         ratio = x[i]
-            #         motor_speed = (speed * 2.916302129) * ratio # here the constant stands for the speed unit transformation in rad/s
-            #         motor_torque = torque / ratio
-            #         if motor_torque > max(self.gearbox.motor.efficiency_map.engine_torques):
-            #             objective_function += 100
-            #         fuel_consumption_gpkwh = self.gearbox.motor.consumption_efficiency(motor_speed, motor_torque)
-            #         gear = i+1
-                    
-            #         # ratio = 'ratio: ' + str(x[i])
-            #         # motor_speed ='motor speed in rpm: ' + str(motor_speed*30/np.pi)
-            #         # motor_torque = 'motor torque in Nm: ' + str(motor_torque)
-  
-            # # objective_function += 1 - max(list_efficiencies)
-            
-            # # for i,fuel_eff in enumerate(list_fuel_consumptions):
-            # #     if fuel_eff == min(list_fuel_consumptions):
-            # #         gear = 'gear'+ str(i+1)
-            # #         ratio = 'ratio: ' + str(x[i])
-            # #         motor_speed ='motor speed in rpm: ' + str(list_motor_spd_trq[i][0]*30/np.pi)
-            # #         motor_torque = 'motor torque in Nm: ' + str(list_motor_spd_trq[i][1])
-                    
-            # engine_speeds.append(motor_speed*30/np.pi)
-            # engine_torques.append(motor_torque)
-            # # motor_speed_torque.append([motor_speed, motor_torque]) 
-            
         
         
-            
-        # self.gearbox.motor.speed_torque = motor_speed_torque
-        # self.gearbox.motor.engine_speeds = engine_speeds
-        # self.gearbox.motor.engine_torques = engine_torques
-        # self.gearbox.wltp = wltp
-        # self.gearbox.fuel_consumptions = fuel_consumptions
-        # self.gearbox.gears = [gears, ratios]
+        self.gearbox.engine.engine_speeds = engine_speeds
+        self.gearbox.engine.engine_torques = engine_torques
+        self.gearbox.fuel_consumptions = fuel_consumptions
+        self.gearbox.gears = [gears, ratios]
         
-        # if x[1]>x[0]:
-        #     objective_function += 100
-        # if x[2]>x[1]:
-        #     objective_function += 100
-        
-        # if x[0] == x[1]:
-        #     objective_function += 1000
-        # if x[1] == x[2]:
-        #     objective_function += 1000
-        # if x[2] == x[3]:
-        #     objective_function += 1000
+
             
         return objective_function
     def const1(self,x):
@@ -245,7 +203,7 @@ class GearBoxOptimizer(DessiaObject):
             sol = minimize(self.objective, x0, bounds = self.bounds, constraints = cons)
             
             count += 1
-            if sol.fun < max([j for i in self.gearbox.motor.efficiency_map.bsfc for j in i]) and sol.success:
+            if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
                 self.gearbox.ratios = list(sol.x)
                 solutions.append(list(sol.x))
                 functionals.append(sol.fun)
@@ -262,7 +220,7 @@ class Results(DessiaObject):
         
     def plot_data(self):
         points=[]
-        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consuption in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.gearbox.motor.engine_speeds,self.gearbox.motor.engine_torques, self.gearbox.fuel_consumptions):
+        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consuption in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.gearbox.engine.engine_speeds,self.gearbox.engine.engine_torques, self.gearbox.fuel_consumptions):
             points.append({'car speed': car_speed,'wheel torque': wheel_torque,'engine speed': engine_speed, 'fuel consumtion':fuel_consuption})
             
         color_fill = LIGHTBLUE
@@ -281,13 +239,14 @@ class Results(DessiaObject):
                                               edge_style=edge_style,
                                               disposition='vertical',
                                               to_disp_attribute_names=['car speed', 'wheel torque', 'engine speed',
-                                                                       'enigne torque','fuel consumtion'],
-                                              rgbs=rgbs))
-        list_colors = [BLUE, ORANGE, RED, MAGENTA, BROWN, BLACK]           
+                                                                       'enigne torque','fuel consumtion'], rgbs=rgbs))
+        
+        list_colors = [BLUE, BROWN, RED, BLACK]           
         cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
-        tooltip = plot_data.Tooltip(to_disp_attribute_names=['time in s', 'fuel consumption'])
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=['t', 'fuel consumption'])
         point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK)
-        edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[1])
+        edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
+        
         elements = []
         datasets = []
         
@@ -295,7 +254,7 @@ class Results(DessiaObject):
             if i != 0:
                 if self.gearbox.gears[0][i] != self.gearbox.gears[0][i-1]:
                     datasets.append(plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style))
-                    elements = [{'time in s': cycle_time[i], 'fuel consumption': self.gearbox.fuel_consumptions[i]}]
+                    elements = [{'t': cycle_time[i], 'fuel consumption': self.gearbox.fuel_consumptions[i]}]
                     for j in range(len(self.gearbox.ratios)):
                         if j + 1 == gear:
                             edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[j])
@@ -304,29 +263,10 @@ class Results(DessiaObject):
                     
             if gear == self.gearbox.gears[0][-1]:
                 datasets.append(plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style))
-        graphs2d = plot_data.Graph2D(graphs = datasets, to_disp_attribute_names = ['time in s', 'fuel consumption'])
+        graphs2d = plot_data.Graph2D(graphs = datasets, to_disp_attribute_names = ['t', 'fuel consumption'],)
         
         return graphs2d    
-                            
-            
-                                 
-            
-        # edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke=BLUE)
-       
-        # for time, fuel_consuption in zip(cycle_time, self.gearbox.fuel_consumptions):
-        #     elements.append({'time in s': time, 'fuel consumption': fuel_consuption})
-        # graphs = plot_data.Dataset(elements=elements, name='time X fuel consumption', tooltip=tooltip, point_style=point_style,
-        #                           edge_style=edge_style)
-        # graphs2d = plot_data.Graph2D(graphs = [graphs], to_disp_attribute_names = ['time in s', 'fuel consumption'])
-        # plot_data.plot_canvas(plot_data_object = graphs2d, canvas_id = 'canvas')
     
-    
-# class Plot_data(DessiaObject):
-#     _standalone_in_db = True
-#     def __init__(self, gearbox_optimizer: GearBoxOptimizer, name: str = ''):
-#          self.gearbox_optimizer = gearbox_optimizer
-#          DessiaObject.__init__(self,name=name)
-         
     
     
     
