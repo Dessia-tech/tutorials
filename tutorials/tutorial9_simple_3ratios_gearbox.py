@@ -41,7 +41,6 @@ class Efficiency_map(DessiaObject):
         self.bsfc = BSFC
         
         efficiencies=[]
-        BSFC = self.bsfc
         for list_bsfc in BSFC:
             list_efficiencies=[]
             for bsfc in list_bsfc:
