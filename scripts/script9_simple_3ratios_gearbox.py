@@ -125,7 +125,7 @@ engine = objects.Engine(efficiency_map = efficiency_map)
 Gearbox
 """
 speed_ranges = [[0, 25], [25 ,40], [40,60], [60, 80]] # in km/h
-gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
+gearbox = objects.GearBox(engine = engine,wltp_cycle = wltp_cycle, speed_ranges = speed_ranges)
 
 """
 GearBox Optimizer
