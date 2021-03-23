@@ -282,6 +282,7 @@ class Results(DessiaObject):
         
         list_colors = [BLUE, BROWN, RED, BLACK]           
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['t', 'f_cons'])
+        point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK, size = 0.0)
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
         
         elements = []
@@ -290,23 +291,25 @@ class Results(DessiaObject):
         for i, gear in enumerate(self.gearbox.gears[0]):
             elements.append({'t': cycle_time[i], 'f_cons': self.gearbox.fuel_consumptions[i]})
                     
-        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip)
+        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
         graphs2d = [plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'f_cons'])]
         
         tooltip  = plot_data.Tooltip(to_disp_attribute_names=['t', 'w_e'])
+        point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK, size = 0.0)
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[1])
         elements = []
         for i, torque in enumerate(self.wltp_cycle.cycle_torques):
             elements.append({'t':cycle_time[i], 'w_e':self.gearbox.engine.engine_speeds[i]})
-        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip)
+        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
         graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'w_e']))
         
         tooltip  = plot_data.Tooltip(to_disp_attribute_names=['t', 'w_t'])
-        edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[1], )
+        edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[1])
+        point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK, size = 0.0)
         elements = []
         for i, torque in enumerate(self.wltp_cycle.cycle_torques):
             elements.append({'t':cycle_time[i], 'w_t':self.gearbox.engine.engine_torques[i]})
-        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, )
+        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
         graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'w_t']))
         
         coords = [(0, 0), (0,250), (0,500)]
