@@ -207,15 +207,6 @@ class GearBoxOptimizer(DessiaObject):
         constraints = np.array(constraints)
         return constraints
         
-    
-    # def const1(self,x):
-    #     return x[0]-1.65*x[1]
-    
-    # def const2(self,x):
-    #     return x[1]-1.5*x[2]
-    
-    # def const3(self,x):
-    #     return x[2]-1.25*x[3]
 
     def cond_init(self):
         x0 = []
@@ -234,10 +225,7 @@ class GearBoxOptimizer(DessiaObject):
             A = self.A_constraints(x0)
             constraints = LinearConstraint(A, 0, np.inf)
             
-            # cons1 = {'type':'ineq', 'fun': self.const1}
-            # cons2 = {'type':'ineq', 'fun': self.const2}
-            # cons3 = {'type':'ineq', 'fun': self.const3}
-            # cons = [cons1, cons2, cons3]
+
             sol = minimize(self.objective, x0, bounds = self.bounds, constraints = constraints)
             
             count += 1
@@ -351,11 +339,7 @@ class Results(DessiaObject):
             elements.append({'t':cycle_time[i], 'w_t':self.gearbox.engine.engine_torques[i]})
         dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
         graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'w_t']))
-        
-        # coords = [(0, 0), (0,250), (0,500)]
-        # sizes = [plot_data.Window(width=1500, height=250),
-        #          plot_data.Window(width=1500, height=250),
-        #          plot_data.Window(width=1500, height=250)]
+
         coords = [(0, 0), (0,187.5), (0,375), (0,562.5)]
         sizes = [plot_data.Window(width=1500, height=187.5),
                  plot_data.Window(width=1500, height=187.5),
