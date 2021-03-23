@@ -29,6 +29,12 @@ class Panel(DessiaObject):
         p3 = vm.Point2D(self.length / 2, -self.height / 2)
         b1 = p2d.ClosedRoundedLineSegments2D([p0, p1, p2, p3], {})
         return vm.wires.Contour2D(b1.primitives)
+    
+    def hole(self, rivet_panel_position: List[vm.Point2D], diameter):
+        circles = []
+        for pos in rivet_panel_position:
+            circles.append(vm.wires.Circle2D(pos, diameter/2))
+        return circles
 
     def volmdlr_primitives(self, center=vm.O3D, dir1=vm.X3D, dir2=vm.Y3D):
         contour = self.contour()
@@ -76,6 +82,22 @@ class PanelCombination(DessiaObject):
         c2 = c2.translation(self.grids[1], copy=True)
         sol = c1.cut_by_linesegments(c2.primitives)
         return sol
+    
+    def hole(self, rivet_position: List[vm.Point2D], diameter):
+        dir1, dir2 = vm.X3D, vm.Y3D
+        holes = []
+        for panel, grid in zip(self.panels, self.grids) :    
+            c2d = grid.plane_projection2d(vm.O3D, dir1, dir2)
+            rivet_panel_position = [c-c2d for c in rivet_position]
+            holes.append(panel.hole(rivet_panel_position,diameter))
+            
+        return holes
+    
+    def volmdlr_primitives(self):
+        primitives = []
+        for pan, pt3d in zip(self.panels, self.grids):
+            primitives.extend(pan.volmdlr_primitives(center=pt3d))
+        return primitives
 
 
 class Rivet(DessiaObject):
@@ -178,7 +200,7 @@ class PanelAssembly(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, panel_combination: PanelCombination,
-                 rivet: Rivet, grids: List[vm.Point3D],
+                 rivet: Rivet, grids: List[vm.Point2D],
                  number_rivet1: int, number_rivet2: int,
                  name: str = ''):
         
@@ -198,7 +220,7 @@ class PanelAssembly(DessiaObject):
         diameter = self.rivet.rivet_diameter
         circles = []
         for grid in self.grids:
-            circles.append(vm.wires.Circle2D(grid, diameter))
+            circles.append(vm.wires.Circle2D(grid, diameter))        
         return circles
 
     def plot_data(self):
@@ -232,6 +254,24 @@ class PanelAssembly(DessiaObject):
         fatigue = number_hour_worked*ratio_distance*ratio_pressure
         return fatigue
 
+    def volmdlr_primitives(self):
+        primitives = []
+        holes = self.panel_combination.hole(self.grids, self.rivet.rivet_diameter)
+        thickness = vm.O3D
+        for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(), holes) :
+            center, dir1, dir2 = pan_vm.plane_origin, pan_vm.x, pan_vm.y
+            contour, dir3 = panel.contour(), pan_vm.extrusion_vector
+            thickness += dir3
+
+            pan_hole = p3d.ExtrudedProfile(center, dir1, dir2, contour, hole, dir3,
+                                          name='extrusion')
+            primitives.append(pan_hole)
+        
+        for grid in self.grids :
+            pos_riv = dir1*grid[0] + dir2*grid[1] + thickness
+            primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
+            
+        return primitives
 
 class Generator(DessiaObject):
     _standalone_in_db = True

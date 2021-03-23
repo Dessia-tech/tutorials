@@ -31,8 +31,8 @@ class Graph(DessiaObject):
         elements = []
         for x, y in zip(self.x, self.y):
             elements.append({'x': x, 'y': y})
-        return plot_data.Dataset(elements=elements, name='y = sin(x)', tooltip=tooltip, point_style=point_style,
-                                 edge_style=edge_style)
+        return plot_data.Dataset(elements=elements, name='y = sin(x)', tooltip=tooltip, 
+                                 point_style=point_style, edge_style=edge_style)
 
     def plot_data(self):
         to_disp_attribute_names = ['x', 'y']
@@ -118,7 +118,7 @@ class ParallelPlot(DessiaObject):
         self.maximum_y = maximum_y
 
         points = []
-        for i in range(500):
+        for i in range(5):
             x = random.uniform(0, self.maximum_x)
             y = random.uniform(0, self.maximum_y)
             z = random.uniform(0, self.maximum_y)
@@ -208,3 +208,26 @@ class SimpleShape(DessiaObject):
 
         plot_datas = [c.plot_data(edge_style=edge_style, surface_style=surface_style) for c in contours]
         return plot_data.PrimitiveGroup(primitives=plot_datas)
+
+class ScatterPlot_list(DessiaObject):
+    _standalone_in_db = True
+
+    def __init__(self, posx: List[float], posy: List[float], name: str = ''):
+        DessiaObject.__init__(self, name=name)
+        self.posx = posx
+        self.posy = posy
+        points = []
+        for x,y in zip(posx, posy):
+            points.append({'x': x, 'y': y})
+        self.points = points
+
+    def plot_data(self):
+        color_fill = LIGHTBLUE
+        color_stroke = GREY
+        point_style = plot_data.PointStyle(color_fill=color_fill, color_stroke=color_stroke)
+        axis = plot_data.Axis()
+        to_disp_attribute_names = ['x', 'y']
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
+        return plot_data.Scatter(tooltip=tooltip, to_disp_attribute_names=to_disp_attribute_names,
+                                 point_style=point_style,
+                                 elements=self.points, axis=axis)
