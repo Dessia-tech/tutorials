@@ -7,7 +7,7 @@ Created on Thu Mar  4 11:29:57 2021
 import tutorials.tutorial9_simple_3ratios_gearbox as objects
 import numpy as np
 import plot_data
-
+import pandas as pd
 
 """
 Engine efficiency map
@@ -119,13 +119,13 @@ wltp_cycle = objects.WLTP_cycle(cycle_speeds = cycle_speeds, car_mass = car_mass
 """
 Engine 
 """
-engine = objects.Engine(efficiency_map = efficiency_map)
+engine = objects.Engine(efficiency_map = efficiency_map, setpoint = [600, 100])
 
 """
 Gearbox
 """
 speed_ranges = [[0, 25], [25 ,40], [40,60], [60, 80]] # in km/h
-gearbox = objects.GearBox(engine = engine,wltp_cycle = wltp_cycle, speed_ranges = speed_ranges)
+gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 
 """
 GearBox Optimizer
@@ -149,8 +149,8 @@ for result in results[0]:
         print('\n\n')
         
 rsts = objects.Results(results[0][0], wltp_cycle)
-graphs2d = rsts.plot_data()
-plot_data.plot_canvas(plot_data_object = graphs2d, canvas_id = 'canvas')
-
-
+multiplot = rsts.plot_data()[0]
+multiplot2 = rsts.plot_data()[1]
+plot_data.plot_canvas(plot_data_object = multiplot, canvas_id = 'canvas')
+plot_data.plot_canvas(plot_data_object= multiplot2, canvas_id= 'canvas')
 
