@@ -131,7 +131,7 @@ gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 GearBox Optimizer
 """
 ratios_relations = [1.65, 1.5, 1.25]
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, ratios_min_max = [0.5, 4.5],ratios_relations =ratios_relations)
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, ratios_min_max = [0.5, 4.5],ratios_relations = ratios_relations)
 
 """
 Results
