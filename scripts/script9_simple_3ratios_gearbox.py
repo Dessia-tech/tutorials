@@ -124,29 +124,34 @@ engine = objects.Engine(efficiency_map = efficiency_map, setpoint = [600, 100])
 """
 Gearbox
 """
-speed_ranges = [[0, 25], [25 ,40], [40,60], [60, 80]] # in km/h
+speed_ranges = [[0, 40], [40 ,50], [50,60], [60, 80]] # in km/h
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 
 """
 GearBox Optimizer
 """
+<<<<<<< HEAD
 ratios_relations = [1.65, 1.5, 1.25]
 optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, ratios_min_max = [0.5, 4.5],ratios_relations = ratios_relations)
+=======
+ratios_relations = [1, 1, 1]
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, ratios_min_max = [0.5, 4.5],ratios_relations =ratios_relations)
+>>>>>>> 1f035110567f25c97615744f121c97cf2a066a4e
 
 """
 Results
 """
-results = optimizer.optimize(10)
-print("ALL RESULTS AVAILABLE: ")
-for result in results[0]:
-    print('Ratios: ',result.ratios)
-    print('Efficiencies: ')
-    for i, fuel_consumption in enumerate(result.fuel_consumptions): 
-        print('Fuel consumption: ', fuel_consumption )
-        print('\n gear: ', result.gears[0][i], 'ratio: ',result.gears[1][i])
-        print('\n wltp speed in km/h: ', cycle_speeds[i], 'wltp torque in Nm: ', wltp_cycle.cycle_torques[i])
-        print('\n engine speed in rpm: ', result.engine.engine_speeds[i], 'engine torque in Nm: ', result.engine.engine_torques[i])
-        print('\n\n')
+results = optimizer.optimize(1)
+# print("ALL RESULTS AVAILABLE: ")
+# for result in results[0]:
+#     print('Ratios: ',result.ratios)
+#     print('Efficiencies: ')
+#     for i, fuel_consumption in enumerate(result.fuel_consumptions): 
+#         print('Fuel consumption: ', fuel_consumption )
+#         print('\n gear: ', result.gears[0][i], 'ratio: ',result.gears[1][i])
+#         print('\n wltp speed in km/h: ', cycle_speeds[i], 'wltp torque in Nm: ', wltp_cycle.cycle_torques[i])
+#         print('\n engine speed in rpm: ', result.engine.engine_speeds[i], 'engine torque in Nm: ', result.engine.engine_torques[i])
+#         print('\n\n')
         
 rsts = objects.Results(results[0][0], wltp_cycle)
 multiplot = rsts.plot_data()[0]

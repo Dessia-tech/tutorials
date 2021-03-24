@@ -142,7 +142,7 @@ class GearBox(DessiaObject):
                             engine_speed = (cycle_speed * 2.916302129) * ratio # here the constant stands for the speed unit transformation in rad/s
                             engine_torque = cycle_torque / ratio
                             if engine_torque > max(self.engine.efficiency_map.engine_torques):
-                                max_torque_penaulty = 100
+                                max_torque_penaulty = 100000000
                             fuel_consumption_gpkwh = self.engine.consumption_efficiency(engine_speed, engine_torque)
                             gear = i+1
                     if speed_range == self.speed_ranges[-1]:
@@ -205,7 +205,7 @@ class GearBoxOptimizer(DessiaObject):
                 if i != 0:
                     if x_i == x[i-1]:
                         objective_function += 1000
- 
+       
         return objective_function   
     
     def A_constraints(self, x):
@@ -223,9 +223,19 @@ class GearBoxOptimizer(DessiaObject):
         return constraints       
 
     def cond_init(self):
-        x0 = []
-        for interval in self.bounds:
-            x0.append((interval[1]-interval[0])*float(np.random.random(1))+interval[0])
+        
+        valid=False
+        while not valid:
+            x0 = []
+            valid=True
+            for interval in self.bounds:
+                x0.append((interval[1]-interval[0])*float(np.random.random(1))+interval[0])
+            x0_2=np.array(x0)
+            for number in self.A_constraints(x0)*x0_2:
+                
+                if sum(number)<0:
+                    valid=False
+                
         return x0
     
     def optimize(self, max_loops = 1000): 
@@ -238,7 +248,14 @@ class GearBoxOptimizer(DessiaObject):
             x0 = self.cond_init()
             A = self.A_constraints(x0)
             constraints = LinearConstraint(A, 0, np.inf)
+<<<<<<< HEAD
             sol = minimize(self.objective, x0, bounds = self.bounds, constraints = constraints) 
+=======
+           
+
+            sol = minimize(self.objective, x0, bounds = self.bounds, constraints = constraints)
+            
+>>>>>>> 1f035110567f25c97615744f121c97cf2a066a4e
             count += 1
             if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
                 self.gearbox.ratios = list(sol.x)
