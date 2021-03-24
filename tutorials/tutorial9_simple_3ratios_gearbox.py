@@ -19,7 +19,7 @@ from scipy.optimize import LinearConstraint
     
     
 
-class Efficiency_map(DessiaObject):
+class EfficiencyMap(DessiaObject):
     _standalone_in_db = True
     
     """
@@ -27,7 +27,7 @@ class Efficiency_map(DessiaObject):
     """
     def __init__(self, engine_speeds: List[float], engine_torques: List[float], mass_flow_rate: List[float],
                  fuel_hv: float, name: str = ''): 
-        self.engine_speeds = [i*np.pi/30 for i in engine_speeds] # in rad/s
+        self.engine_speeds = engine_speeds # in rad/s
         self.engine_torques = engine_torques   #in Nm 
         self.mass_flow_rate = mass_flow_rate
         self.fuel_hv = fuel_hv #fuel lower heating value in kWh/g
@@ -56,11 +56,10 @@ class Engine(DessiaObject):
     _standalone_in_db = True
     
     
-    def __init__(self, efficiency_map : Efficiency_map, setpoint: List[float], name:str=''):
+    def __init__(self, efficiency_map : EfficiencyMap, setpoint: List[float], name:str=''):
         self.efficiency_map = efficiency_map
         self.setpoint = setpoint
-        self.engine_speeds = None
-        self.engine_torques = None
+        
         
         DessiaObject.__init__(self,name=name)
         
@@ -78,13 +77,13 @@ class Engine(DessiaObject):
         interpolate_consumption_efficiency = interpolate(torque, speed)
         return interpolate_consumption_efficiency[0]
 
-class WLTP_cycle(DessiaObject):
+class WLTPCycle(DessiaObject):
     _standalone_in_db = True
     """
     WLTP cycle paremeters and wheel torque calculations
     """
     def __init__(self, cycle_speeds: List[float], car_mass: float, tire_radius: float, dt: float = 1, name: str = ''):
-        self.cycle_speeds = cycle_speeds #speed in km/h
+        self.cycle_speeds = cycle_speeds
         self.car_mass = car_mass
         self.tire_radius = tire_radius
         self.dt = dt
@@ -92,7 +91,7 @@ class WLTP_cycle(DessiaObject):
         
         accelerations = []
         for i in range(len(self.cycle_speeds[:-1])):
-            acceleration = (self.cycle_speeds[i + 1] - self.cycle_speeds[i]) * (5 / 18) / dt  # acceleration in m/s^2
+            acceleration = (self.cycle_speeds[i + 1] - self.cycle_speeds[i]) / dt  # acceleration in m/s^2
             if acceleration < 0:
                 acceleration *= -1
             accelerations.append(acceleration)
@@ -111,171 +110,62 @@ class GearBox(DessiaObject):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = None
-        self.fuel_consumptions = None
-        self.gears = None
-        
         
         DessiaObject.__init__(self,name=name)
         
-    def gear_decision(self, x, wltp_cycle):
+    def gear_choice(self, x, cycle_speed, cycle_torque):
         max_torque_penaulty = 0
-        fuel_consumptions = []
-        gears = []
-        ratios = []
-        engine_speeds = []
-        engine_torques = []
-        
-        for (cycle_speed, cycle_torque) in zip(wltp_cycle.cycle_speeds, wltp_cycle.cycle_torques):
-            
-            if cycle_speed == 0:
-                engine_speed = self.engine.setpoint[0]*np.pi/30
-                engine_torque = self.engine.setpoint[1]
-                fuel_consumption_gpkwh = self.engine.consumption_efficiency(engine_speed, engine_torque)
-                gear = "no gear"
-                ratio = 0
-            else:
-                for i, speed_range in enumerate(self.speed_ranges):
-                    
-                    if speed_range == self.speed_ranges[0]: 
-                        if cycle_speed > speed_range[0] and cycle_speed < self.speed_range[i+1][0]:
-                            ratio = x[i]
-                            engine_speed = (cycle_speed * 2.916302129) * ratio # here the constant stands for the speed unit transformation in rad/s
-                            engine_torque = cycle_torque / ratio
-                            if engine_torque > max(self.engine.efficiency_map.engine_torques):
-                                max_torque_penaulty = 100000000
-                            fuel_consumption_gpkwh = self.engine.consumption_efficiency(engine_speed, engine_torque)
-                            gear = i+1
-                    if speed_range == self.speed_ranges[-1]:
-                        if cycle_speed < speed_range[1] and cycle_speed > self.speed_range[i-1][1]:
-                            ratio = x[i]
-                            engine_speed = (cycle_speed * 2.916302129) * ratio # here the constant stands for the speed unit transformation in rad/s
-                            engine_torque = cycle_torque / ratio
-                            if engine_torque > max(self.engine.efficiency_map.engine_torques):
-                                max_torque_penaulty = 100
-                            fuel_consumption_gpkwh = self.engine.consumption_efficiency(engine_speed, engine_torque)
-                            gear = i+1
-                    else:
-                        if cycle_speed > speed_range[0] and cycle_speed < self.speed_ranges[i-1][1]:
-                            for j in range(1):
-                                ratio = x[i-j]
-                        
-                        
-            fuel_consumptions.append(fuel_consumption_gpkwh)
-            gears.append(gear)
-            ratios.append(ratio)
-            engine_speeds.append(engine_speed*30/np.pi)
-            engine_torques.append(engine_torque)
-            
-        cycle_average_consumption  = mean(fuel_consumptions)
-        
-
-        self.engine.engine_speeds = engine_speeds
-        self.engine.engine_torques = engine_torques
-        self.fuel_consumptions = fuel_consumptions
-        self.gears = [gears, ratios]
-                    
-        return [cycle_average_consumption, max_torque_penaulty]
-
-
-class GearBoxOptimizer(DessiaObject):
-    _standalone_in_db = True
-    
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTP_cycle, ratios_min_max: Tuple[float,float], ratios_relations: List[float] = [1,1,1], name: str = ''):
-        self.gearbox = gearbox
-        self.wltp_cycle = wltp_cycle
-        self.ratios_relations = ratios_relations
-        self.ratios_min_max = ratios_min_max
-        DessiaObject.__init__(self,name=name)
- 
-        bounds=[]
-        for ratio in range(len(self.gearbox.speed_ranges)):
-            bounds.append([self.ratios_min_max[0],self.ratios_min_max[1]])
-        self.bounds = bounds
+        fuel_consumption_gpkwh = 0
+        engine_speed = 0
+        engine_torque = 0
+        gear = 0
+        ratio=0
   
-    def objective(self, x):
+        if cycle_speed == 0:
+            engine_speed = self.engine.setpoint[0]
+            engine_torque = self.engine.setpoint[1]
+            fuel_consumption_gpkwh = self.engine.consumption_efficiency(engine_speed, engine_torque)
+            gear = 0
+            ratio = 0
+        else:
+            list_ratio = []
+            list_gear = []
+            list_fuel_c = []
+            list_torque = []
+            list_speed = []
+            for i, speed_range in enumerate(self.speed_ranges):
+                if cycle_speed > speed_range[0] and cycle_speed < speed_range[1]:  
+                    ratio = x[i]
+                    engine_speed = cycle_speed * ratio 
+                    engine_torque = cycle_torque / ratio  
+                    fuel_consumption_gpkwh = self.engine.consumption_efficiency(engine_speed, engine_torque)
+                    gear = i+1
+                    list_ratio.append(ratio)
+                    list_gear.append(gear)
+                    list_fuel_c.append(fuel_consumption_gpkwh)
+                    list_torque.append(engine_speed)
+                    list_speed.append(engine_torque)
+                    
+            for i, f_c in enumerate(list_fuel_c):
+                if f_c == min(list_fuel_c):
+                    fuel_consumption_gpkwh = f_c
+                    ratio = list_ratio[i]
+                    gear = list_gear[i]
+                    engine_speed = list_speed[i]
+                    engine_torque = list_torque[i]
+                    if engine_torque > max(self.engine.efficiency_map.engine_torques):
+                        max_torque_penaulty = 100000000
+                    
+        return [fuel_consumption_gpkwh, max_torque_penaulty, engine_speed, engine_torque, gear, ratio]
 
-        objective_function = 0
-            
-        gear_decision = self.gearbox.gear_decision(x, self.wltp_cycle)
-          
-        objective_function += gear_decision[0] + gear_decision[1]  
-        
-        if mean(self.ratios_relations) == 1:
-            for i, x_i in enumerate(x):
-                if i != 0:
-                    if x_i == x[i-1]:
-                        objective_function += 1000
-       
-        return objective_function   
-    
-    def A_constraints(self, x):
-        constraints = []
-        for i, r_r in enumerate(self.ratios_relations):
-            cons = []
-            for j in range(len(x)-1):
-                if j == i:
-                    cons.append(1)
-                    cons.append(r_r*(-1))
-                else:
-                    cons.append(0)
-            constraints.append(cons)
-        constraints = np.array(constraints)
-        return constraints       
-
-    def cond_init(self):
-        
-        valid=False
-        while not valid:
-            x0 = []
-            valid=True
-            for interval in self.bounds:
-                x0.append((interval[1]-interval[0])*float(np.random.random(1))+interval[0])
-            x0_2=np.array(x0)
-            for number in self.A_constraints(x0)*x0_2:
-                
-                if sum(number)<0:
-                    valid=False
-                
-        return x0
-    
-    def optimize(self, max_loops = 1000): 
-        valid = True
-        count = 0
-        list_gearbox = []
-        functionals = []
-        solutions = []
-        while valid and count < max_loops:
-            x0 = self.cond_init()
-            A = self.A_constraints(x0)
-            constraints = LinearConstraint(A, 0, np.inf)
-<<<<<<< HEAD
-            sol = minimize(self.objective, x0, bounds = self.bounds, constraints = constraints) 
-=======
-           
-
-            sol = minimize(self.objective, x0, bounds = self.bounds, constraints = constraints)
-            
->>>>>>> 1f035110567f25c97615744f121c97cf2a066a4e
-            count += 1
-            if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
-                self.gearbox.ratios = list(sol.x)
-                solutions.append(list(sol.x))
-                functionals.append(sol.fun)
-                gearbox = self.gearbox.copy()
-                gearbox.engine.engine_speeds = self.gearbox.engine.engine_speeds
-                gearbox.engine.engine_torques = self.gearbox.engine.engine_torques
-                gearbox.gears = self.gearbox.gears
-                gearbox.ratios = self.gearbox.ratios
-                gearbox.fuel_consumptions = self.gearbox.fuel_consumptions
-                
-                list_gearbox.append(gearbox)
-                
-        return [list_gearbox, functionals, solutions]
-
-class Results(DessiaObject):
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTP_cycle, name: str = ''):
+class GearBoxResults(DessiaObject): 
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
+        self.engine_speeds = None 
+        self.engine_torques = None
+        self.fuel_consumptions = None
+        self.gears_ratios = None
         DessiaObject.__init__(self,name=name)
  
     def plot_data(self):
@@ -324,10 +214,7 @@ class Results(DessiaObject):
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
         elements = []
         for i, gear in enumerate(self.gearbox.gears[0]):
-            if gear == "no gear":
-                elements.append({'t': cycle_time[i], 'gear': 0})
-            else:
-                elements.append({'t': cycle_time[i], 'gear': gear})         
+            elements.append({'t': cycle_time[i], 'gear': gear})         
         dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
         graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'gear']))
         
@@ -370,6 +257,118 @@ class Results(DessiaObject):
                                        sizes=sizes, coords=coords)
        
         return [multiplot, multiplot2]
+    
+class GearBoxOptimizer(DessiaObject):
+    _standalone_in_db = True
+    
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, gearbox_results: GearBoxResults, ratios_min_max: Tuple[float,float], ratios_relations: List[float] = [1,1,1], name: str = ''):
+        self.gearbox = gearbox
+        self.wltp_cycle = wltp_cycle
+        self.gearbox_results = gearbox_results
+        self.ratios_relations = ratios_relations
+        self.ratios_min_max = ratios_min_max
+        DessiaObject.__init__(self,name=name)
+ 
+        bounds=[]
+        for ratio in range(len(self.gearbox.speed_ranges)):
+            bounds.append([self.ratios_min_max[0],self.ratios_min_max[1]])
+        self.bounds = bounds
+  
+    def objective(self, x):
+
+        objective_function = 0
+        fuel_consumptions = []
+        gears = []
+        ratios = []
+        engine_speeds = []
+        engine_torques = []
+        
+        for (cycle_speed, cycle_torque) in zip(self.wltp_cycle.cycle_speeds, self.wltp_cycle.cycle_torques): 
+            
+            gear_choice = self.gearbox.gear_choice(x, cycle_speed*(2*np.pi)/(np.pi*self.wltp_cycle.tire_radius), cycle_torque)
+            
+            fuel_consumptions.append(gear_choice[0])
+            objective_function += gear_choice[1]
+            
+            engine_speeds.append(gear_choice[2])
+            engine_torques.append(gear_choice[3])
+            gears.append(gear_choice[4])
+            ratios.append(gear_choice[5])
+        
+        self.gearbox_results.engine_speeds = engine_speeds
+        self.gearbox_results.engine_torques = engine_torques
+        self.gearbox_results.gears_ratios = [gears, ratios]
+        self.gearbox_results.fuel_consumptions = fuel_consumptions
+  
+        objective_function += mean(fuel_consumptions)
+        
+        if mean(self.ratios_relations) == 1:
+            for i, x_i in enumerate(x):
+                if i != 0:
+                    if x_i == x[i-1]:
+                        objective_function += 1000000
+        return objective_function   
+    
+    def A_constraints(self, x):
+        constraints = []
+        for i, r_r in enumerate(self.ratios_relations):
+            cons = []
+            for j in range(len(x)-1):
+                if j == i:
+                    cons.append(1)
+                    cons.append(r_r*(-1))
+                else:
+                    cons.append(0)
+            constraints.append(cons)
+        constraints = np.array(constraints)
+        return constraints       
+
+    def cond_init(self):
+        
+        valid=False
+        while not valid:
+            x0 = []
+            valid=True
+            for interval in self.bounds:
+                x0.append((interval[1]-interval[0])*float(np.random.random(1))+interval[0])
+            x0_2=np.array(x0)
+            for number in self.A_constraints(x0)*x0_2:
+                
+                if sum(number)<0:
+                    valid=False
+                
+        return x0
+    
+    def optimize(self, max_loops = 1000): 
+        valid = True
+        count = 0
+        list_gearbox_results = []
+        functionals = []
+        solutions = []
+        while valid and count < max_loops:
+            x0 = self.cond_init()
+            A = self.A_constraints(x0)
+            constraints = LinearConstraint(A, 0, np.inf)
+
+            sol = minimize(self.objective, x0, bounds = self.bounds, constraints = constraints)
+            
+            count += 1
+            if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
+                self.gearbox.ratios = list(sol.x)
+                solutions.append(list(sol.x))
+                functionals.append(sol.fun)
+                gearbox_results = self.gearbox_results.copy()
+                gearbox_results.gearbox = self.gearbox
+                gearbox_results.engine_speeds = self.gearbox_results.engine_speeds
+                gearbox_results.engine_torques = self.gearbox_results.engine_torques
+                gearbox_results.gears_ratios = self.gearbox_results.gears_ratios
+                gearbox_results.fuel_consumptions = self.gearbox_results.fuel_consumptions
+                
+                list_gearbox_results.append(gearbox_results)
+                
+        return [list_gearbox_results, functionals, solutions]
+
+
     
     
     

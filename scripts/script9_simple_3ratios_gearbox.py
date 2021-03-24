@@ -12,7 +12,8 @@ import pandas as pd
 """
 Engine efficiency map
 """
-engine_speeds = list(np.linspace(500,6000,num=12)) #Engine speed in rpm
+engine_speeds = list(np.linspace(500, 6000, num = 12)) #Engine speed in rpm
+engine_speeds = [i*np.pi/30 for i in engine_speeds]  # in rad/s
 engine_torques = [15.6,31.2, 46.8, 62.4, 78, 93.6, 109.2, 124.8, 140.4, 156, 171.6] #engine torque in N*m
 mass_flow_rate = [[0.1389, 0.2009, 0.2524, 0.3006, 0.3471, 0.4264, 0.4803, 0.5881, 0.5881, 0.6535, 0.7188],
                   [0.2777, 0.3659, 0.4582, 0.5587, 0.6453, 0.7792, 0.8977, 1.0325, 1.1762, 1.3069, 1.4376],
@@ -27,7 +28,7 @@ mass_flow_rate = [[0.1389, 0.2009, 0.2524, 0.3006, 0.3471, 0.4264, 0.4803, 0.588
                   [1.8868, 2.5517, 3.1537, 3.6479, 4.0882, 4.4206, 5.2203, 5.8941, 6.5500, 7.2329, 7.9068],
                   [2.0584, 2.8817, 3.5286, 4.0775, 4.5578, 5.1165, 5.6948, 6.4300, 7.1455, 7.8414, 8.6256]] #mass flow rate in g/s
 fuel_hv = 0.012068709                                                       # in kWh/g
-efficiency_map = objects.Efficiency_map(engine_speeds = engine_speeds, engine_torques = engine_torques, mass_flow_rate = mass_flow_rate, fuel_hv = fuel_hv)
+efficiency_map = objects.EfficiencyMap(engine_speeds = engine_speeds, engine_torques = engine_torques, mass_flow_rate = mass_flow_rate, fuel_hv = fuel_hv)
 
 
 """
@@ -109,35 +110,34 @@ cycle_speeds= [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,3.1,5.7,8.0,1
                 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]        # velocity in km/h
 
 
+
 car_mass = 1524                                                             # Midsize car wheight in kilograms
 dt = 1                                                                      # time interval in seconds
 tire_radius = 0.1905                                                        # tire radius in m
 
-wltp_cycle = objects.WLTP_cycle(cycle_speeds = cycle_speeds, car_mass = car_mass, tire_radius = tire_radius)
-
+wltp_cycle = objects.WLTPCycle(cycle_speeds = cycle_speeds, car_mass = car_mass, tire_radius = tire_radius)
+cycle_speeds = [speed*1000/3600 for speed in cycle_speeds] #cycle speed in m/s
+(2*np.pi)/(np.pi*tire_radius)
 
 """
 Engine 
 """
-engine = objects.Engine(efficiency_map = efficiency_map, setpoint = [600, 100])
+setpoint = [600*np.pi/30, 100]
+engine = objects.Engine(efficiency_map = efficiency_map, setpoint = setpoint)
 
 """
 Gearbox
 """
-speed_ranges = [[0, 40], [40 ,50], [50,60], [60, 80]] # in km/h
+speed_ranges = [[0, 30], [20 ,40], [30,50], [45, 70]] # in km/h
+speed_ranges = [[speed_range[0]*1000/3600, speed_range[1]*1000/3600] for speed_range in speed_ranges] #in m/s
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
+gearbox_results = objects.GearBoxResults(gearbox, wltp_cycle)
 
 """
 GearBox Optimizer
 """
-<<<<<<< HEAD
 ratios_relations = [1.65, 1.5, 1.25]
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, ratios_min_max = [0.5, 4.5],ratios_relations = ratios_relations)
-=======
-ratios_relations = [1, 1, 1]
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, ratios_min_max = [0.5, 4.5],ratios_relations =ratios_relations)
->>>>>>> 1f035110567f25c97615744f121c97cf2a066a4e
-
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,gearbox_results = gearbox_results, ratios_min_max = [0.5, 4.5],ratios_relations =ratios_relations)
 """
 Results
 """
@@ -153,9 +153,9 @@ results = optimizer.optimize(1)
 #         print('\n engine speed in rpm: ', result.engine.engine_speeds[i], 'engine torque in Nm: ', result.engine.engine_torques[i])
 #         print('\n\n')
         
-rsts = objects.Results(results[0][0], wltp_cycle)
-multiplot = rsts.plot_data()[0]
-multiplot2 = rsts.plot_data()[1]
-plot_data.plot_canvas(plot_data_object = multiplot, canvas_id = 'canvas')
-plot_data.plot_canvas(plot_data_object= multiplot2, canvas_id= 'canvas')
+# rsts = objects.Results(results[0][0], wltp_cycle)
+# multiplot = rsts.plot_data()[0]
+# multiplot2 = rsts.plot_data()[1]
+# plot_data.plot_canvas(plot_data_object = multiplot, canvas_id = 'canvas')
+# plot_data.plot_canvas(plot_data_object= multiplot2, canvas_id= 'canvas')
 
