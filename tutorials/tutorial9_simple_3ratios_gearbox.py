@@ -162,7 +162,7 @@ class GearBox(DessiaObject):
         return [ gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
 
 class GearBoxResults(DessiaObject): 
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float], gears_ratios:List[float], name: str = ''):
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float], gears_ratios:List[Tuple[float, float]], name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.engine_speeds =engine_speeds
