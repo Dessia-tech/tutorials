@@ -122,15 +122,6 @@ class GearBox(DessiaObject):
         self.ratios = ratios
         
     def gear_choice(self, cycle_speed, cycle_torque):
-        # ratios = []
-        # for i in range(len(x)):
-        #     if i == 0:
-        #         ratio = x[0]
-        #         ratios.append(ratio)
-        #     else:
-        #         ratio *= x[i]
-        #         ratios.append(ratio)
-        # self.ratios = ratios
         fuel_consumption_gpkwh = 0
         engine_speed = 0
         engine_torque = 0
@@ -352,7 +343,6 @@ class GearBoxOptimizer(DessiaObject):
                 gearbox.ratios = self.gearbox.ratios
                 gearbox_results = self.gearbox_results.copy()
                 gearbox_results.gearbox = gearbox
-                # gearbox_results.gearbox.ratios= self.gearbox.ratios
                 gearbox_results.engine_speeds = self.gearbox_results.engine_speeds
                 gearbox_results.engine_torques = self.gearbox_results.engine_torques
                 gearbox_results.gears_ratios = self.gearbox_results.gears_ratios
