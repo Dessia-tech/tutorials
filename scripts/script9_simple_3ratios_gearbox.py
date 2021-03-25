@@ -140,20 +140,20 @@ Gearbox
 speed_ranges = [[0, 30], [20 ,40], [30,50], [45, 70]] # in km/h
 speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_range[1]*(1000*2*np.pi)/(3600*np.pi*tire_radius)] for speed_range in speed_ranges] #in rad/s
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
-gearbox_results = objects.GearBoxResults(gearbox, wltp_cycle)
+# gearbox_results = objects.GearBoxResults(gearbox, wltp_cycle)
 
 """
 GearBox Optimizer
 """
 
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,gearbox_results = gearbox_results, firstgear_ratio_min_max = [.5, 4.5])
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, firstgear_ratio_min_max = [.5, 4.5])
 """
 Results
 """
 results = optimizer.optimize(10)
 for result in results[0]:
     print('Ratios: ',result.gearbox.ratios)
-    # plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
-    # plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
+    plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
+    plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
         
 
