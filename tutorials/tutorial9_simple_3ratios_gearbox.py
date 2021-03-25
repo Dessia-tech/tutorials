@@ -25,7 +25,7 @@ class EfficiencyMap(DessiaObject):
     """
     Build the engine map and then determine its efficiency 
     """
-    def __init__(self, engine_speeds: List[float], engine_torques: List[float], mass_flow_rate: List[float],
+    def __init__(self, engine_speeds: List[float], engine_torques: List[float], mass_flow_rate: List[Tuple[float, float]],
                  fuel_hv: float, name: str = ''): 
         self.engine_speeds = engine_speeds # in rad/s
         self.engine_torques = engine_torques   #in Nm 
@@ -103,7 +103,7 @@ class WLTPCycle(DessiaObject):
 class GearBox(DessiaObject):
     _standalone_in_db = True
     
-    def __init__(self, engine: Engine, speed_ranges: List[float] = None, name: str = ''):
+    def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]] = None, name: str = ''):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = None
@@ -264,7 +264,7 @@ class GearBoxResults(DessiaObject):
 class GearBoxOptimizer(DessiaObject):
     _standalone_in_db = True
     
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, firstgear_ratio_min_max: Tuple[float,float], coeff_between_gears: Tuple[float, float] = None, name: str = ''):
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, firstgear_ratio_min_max: Tuple[float,float], coeff_between_gears: List[Tuple[float, float]] = None, name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.coeff_between_gears = coeff_between_gears
