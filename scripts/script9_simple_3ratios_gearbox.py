@@ -130,8 +130,9 @@ wltp_cycle = objects.WLTPCycle(cycle_speeds = cycle_speeds, car_mass = car_mass,
 """
 Engine 
 """
-setpoint = [600*np.pi/30, 100]
-engine = objects.Engine(efficiency_map = efficiency_map, setpoint = setpoint)
+setpoint_speed = 600*np.pi/30 # in rad/s
+setpoint_torque = 100
+engine = objects.Engine(efficiency_map = efficiency_map, setpoint_speed = setpoint_speed, setpoint_torque = setpoint_torque)
 
 """
 Gearbox
@@ -145,22 +146,14 @@ gearbox_results = objects.GearBoxResults(gearbox, wltp_cycle)
 GearBox Optimizer
 """
 
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,gearbox_results = gearbox_results, ratios_min_max = [.5, 4.5])
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,gearbox_results = gearbox_results, firstgear_ratio_min_max = [.5, 4.5])
 """
 Results
 """
-results = optimizer.optimize(1)
-print("ALL RESULTS AVAILABLE: ")
+results = optimizer.optimize(10)
 for result in results[0]:
     print('Ratios: ',result.gearbox.ratios)
-    print('Efficiencies: ')
-    for i, fuel_consumption in enumerate(result.fuel_consumptions): 
-        print('Fuel consumption in g/kwh: ', fuel_consumption*3.6e9)
-        print('\n gear: ', result.gears_ratios[0][i], 'ratio: ',result.gears_ratios[1][i])
-        print('\n wltp speed in m/s: ', cycle_speeds[i], 'wltp torque in Nm: ', wltp_cycle.cycle_torques[i])
-        print('\n engine speed in rpm: ', result.engine_speeds[i]*30/np.pi, 'engine torque in Nm: ', result.engine_torques[i])
-        print('\n\n')
-    plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
-    plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
+    # plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
+    # plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
         
 
