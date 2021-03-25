@@ -337,7 +337,7 @@ class GearBoxOptimizer(DessiaObject):
             if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
                 solutions.append(sol.x)
                 functionals.append(sol.fun)
-                self.update(x0)
+                self.update(list(sol.x))
                 gearbox = self.gearbox.copy()
                 gearbox.ratios = self.gearbox.ratios
                 gearbox_results = GearBoxResults(gearbox, self.wltp_cycle, self.engine_speeds,  self.engine_torques,  self.fuel_consumptions,  self.gears_ratios)
