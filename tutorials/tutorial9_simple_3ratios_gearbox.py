@@ -30,7 +30,7 @@ class EfficiencyMap(DessiaObject):
         self.engine_speeds = engine_speeds # in rad/s
         self.engine_torques = engine_torques   #in Nm 
         self.mass_flow_rate = mass_flow_rate
-        self.fuel_hv = fuel_hv #fuel lower heating value in kWh/g
+        self.fuel_hv = fuel_hv #fuel lower heating value in J/kg
 
         DessiaObject.__init__(self,name=name)
         
@@ -38,7 +38,7 @@ class EfficiencyMap(DessiaObject):
         for i, engine_speed in enumerate(self.engine_speeds):
             list_bsfc = []
             for j, engine_torque in enumerate(self.engine_torques):
-                bsfc = self.mass_flow_rate[i][j]*3600/(engine_speed*engine_torque/1000) # in g/kWh
+                bsfc = self.mass_flow_rate[i][j]/(engine_speed*engine_torque) # in kg/J
                 list_bsfc.append(bsfc)
             BSFC.append(list_bsfc)
         self.bsfc = BSFC
@@ -109,17 +109,26 @@ class GearBox(DessiaObject):
     def __init__(self, engine: Engine, speed_ranges: List[float] = None, name: str = ''):
         self.engine = engine
         self.speed_ranges = speed_ranges
+        # self.ratios_relations = ratios_relations
         self.ratios = None
         
         DessiaObject.__init__(self,name=name)
         
     def gear_choice(self, x, cycle_speed, cycle_torque):
-        max_torque_penaulty = 0
+        ratios = []
+        for i in range(len(x)):
+            if i == 0:
+                ratio = x[0]
+                ratios.append(ratio)
+            else:
+                ratio *= x[i]
+                ratios.append(ratio)
+        self.ratios = ratios
         fuel_consumption_gpkwh = 0
         engine_speed = 0
         engine_torque = 0
         gear = 0
-        ratio=0
+        ratio = 0
   
         if cycle_speed == 0:
             engine_speed = self.engine.setpoint[0]
@@ -134,17 +143,17 @@ class GearBox(DessiaObject):
             list_torque = []
             list_speed = []
             for i, speed_range in enumerate(self.speed_ranges):
-                if cycle_speed > speed_range[0] and cycle_speed < speed_range[1]:  
-                    ratio = x[i]
+                if cycle_speed  >= speed_range[0] and cycle_speed  < speed_range[1]:  
+                    ratio = ratios[i]
                     engine_speed = cycle_speed * ratio 
                     engine_torque = cycle_torque / ratio  
                     fuel_consumption_gpkwh = self.engine.consumption_efficiency(engine_speed, engine_torque)
-                    gear = i+1
+                    gear = i + 1
                     list_ratio.append(ratio)
                     list_gear.append(gear)
                     list_fuel_c.append(fuel_consumption_gpkwh)
-                    list_torque.append(engine_speed)
-                    list_speed.append(engine_torque)
+                    list_speed.append(engine_speed)
+                    list_torque.append(engine_torque)
                     
             for i, f_c in enumerate(list_fuel_c):
                 if f_c == min(list_fuel_c):
@@ -153,10 +162,9 @@ class GearBox(DessiaObject):
                     gear = list_gear[i]
                     engine_speed = list_speed[i]
                     engine_torque = list_torque[i]
-                    if engine_torque > max(self.engine.efficiency_map.engine_torques):
-                        max_torque_penaulty = 100000000
                     
-        return [fuel_consumption_gpkwh, max_torque_penaulty, engine_speed, engine_torque, gear, ratio]
+                    
+        return [fuel_consumption_gpkwh, engine_speed, engine_torque, gear, ratio]
 
 class GearBoxResults(DessiaObject): 
     def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, name: str = ''):
@@ -172,21 +180,21 @@ class GearBoxResults(DessiaObject):
         
         cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
         points=[]
-        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.gearbox.engine.engine_speeds,self.gearbox.engine.engine_torques, self.gearbox.fuel_consumptions, cycle_time, self.gearbox.gears[0]):
-            points.append({'c_s': car_speed,'whl_t': wheel_torque,'w_e': engine_speed,'w_t': engine_torque, 'f_cons':fuel_consumption, 'time': time, 'gear': gear})
+        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.engine_speeds,self.engine_torques, self.fuel_consumptions, cycle_time, self.gears_ratios[0]):
+            points.append({'c_s': car_speed,'whl_t': wheel_torque,'w_e': engine_speed,'t_e': engine_torque, 'f_cons (g/kWh)':fuel_consumption*3.6e9, 'time': time, 'gear': gear})
 
         color_fill = LIGHTBLUE
         color_stroke = GREY
         point_style = plot_data.PointStyle(color_fill=color_fill, color_stroke=color_stroke)
         axis = plot_data.Axis()
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        to_disp_attribute_names = ['c_s', 'f_cons']
-        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
+        to_disp_attribute_names = ['c_s', 'f_cons (g/kWh)']
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names,)
         objects = [plot_data.Scatter(tooltip=tooltip, to_disp_attribute_names=to_disp_attribute_names,
                                      point_style=point_style,
                                      elements=points, axis=axis)]
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        to_disp_attribute_names = ['whl_t', 'f_cons']
+        to_disp_attribute_names = ['whl_t', 'f_cons (g/kWh)']
         tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
         objects.append(plot_data.Scatter(tooltip=tooltip, to_disp_attribute_names=to_disp_attribute_names,
                                       point_style=point_style,
@@ -195,7 +203,7 @@ class GearBoxResults(DessiaObject):
         edge_style = plot_data.EdgeStyle()
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
         objects.append(plot_data.ParallelPlot(elements=points, edge_style=edge_style,
-                                              disposition='vertical',to_disp_attribute_names = ['w_e','w_t','f_cons'],
+                                              disposition='vertical',to_disp_attribute_names = ['w_e','t_e','f_cons (g/kWh)'],
                                               rgbs=rgbs))
 
         coords = [(0, 0), (500, 0),(1000,0)]
@@ -210,43 +218,43 @@ class GearBoxResults(DessiaObject):
         point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK, size = 1)
         
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        tooltip = plot_data.Tooltip(to_disp_attribute_names=['t', 'gear'])
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=['sec', 'gear'])
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
         elements = []
-        for i, gear in enumerate(self.gearbox.gears[0]):
-            elements.append({'t': cycle_time[i], 'gear': gear})         
+        for i, gear in enumerate(self.gears_ratios[0]):
+            elements.append({'sec': cycle_time[i], 'gear': gear})         
         dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
-        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'gear']))
+        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'gear']))
         
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-        tooltip = plot_data.Tooltip(to_disp_attribute_names=['t', 'f_cons'])
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=['sec', 'f_cons (g/kWh)'])
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
         elements = []
-        for i, gear in enumerate(self.gearbox.gears[0]):
-            elements.append({'t': cycle_time[i], 'f_cons': self.gearbox.fuel_consumptions[i]})         
+        for i, gear in enumerate(self.gears_ratios[0]):
+            elements.append({'sec': cycle_time[i], 'f_cons (g/kWh)': self.fuel_consumptions[i]*3.6e9})         
         dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
-        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'f_cons']))
+        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'f_cons (g/kWh)']))
         
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
          
-        tooltip  = plot_data.Tooltip(to_disp_attribute_names=['t', 'w_e'])
+        tooltip  = plot_data.Tooltip(to_disp_attribute_names=['sec', 'w_e'])
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[2])
         elements = []
         for i, torque in enumerate(self.wltp_cycle.cycle_torques):
-            elements.append({'t':cycle_time[i], 'w_e':self.gearbox.engine.engine_speeds[i]})
+            elements.append({'sec':cycle_time[i], 'w_e':self.engine_speeds[i]})
         dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
-        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'w_e']))
+        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'w_e']))
         
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
         
-        tooltip  = plot_data.Tooltip(to_disp_attribute_names=['t', 'w_t'])
+        tooltip  = plot_data.Tooltip(to_disp_attribute_names=['sec', 'w_t'])
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[3])
         elements = []
         for i, torque in enumerate(self.wltp_cycle.cycle_torques):
-            elements.append({'t':cycle_time[i], 'w_t':self.gearbox.engine.engine_torques[i]})
+            elements.append({'sec':cycle_time[i], 'w_t':self.engine_torques[i]})
         dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
-        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['t', 'w_t']))
+        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'w_t']))
 
         coords = [(0, 0), (0,187.5), (0,375), (0,562.5)]
         sizes = [plot_data.Window(width=1500, height=187.5),
@@ -261,7 +269,7 @@ class GearBoxResults(DessiaObject):
 class GearBoxOptimizer(DessiaObject):
     _standalone_in_db = True
     
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, gearbox_results: GearBoxResults, ratios_min_max: Tuple[float,float], ratios_relations: List[float] = [1,1,1], name: str = ''):
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, gearbox_results: GearBoxResults, ratios_min_max: Tuple[float,float], ratios_relations: Tuple[float, float] = [0.5, 1], name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.gearbox_results = gearbox_results
@@ -270,8 +278,11 @@ class GearBoxOptimizer(DessiaObject):
         DessiaObject.__init__(self,name=name)
  
         bounds=[]
-        for ratio in range(len(self.gearbox.speed_ranges)):
-            bounds.append([self.ratios_min_max[0],self.ratios_min_max[1]])
+        for i in range(len(self.gearbox.speed_ranges)):
+            if i == 0:
+                bounds.append([self.ratios_min_max[0],self.ratios_min_max[1]])
+            else: 
+                bounds.append([self.ratios_relations[0], self.ratios_relations[1]])
         self.bounds = bounds
   
     def objective(self, x):
@@ -284,16 +295,17 @@ class GearBoxOptimizer(DessiaObject):
         engine_torques = []
         
         for (cycle_speed, cycle_torque) in zip(self.wltp_cycle.cycle_speeds, self.wltp_cycle.cycle_torques): 
-            
-            gear_choice = self.gearbox.gear_choice(x, cycle_speed*(2*np.pi)/(np.pi*self.wltp_cycle.tire_radius), cycle_torque)
+            cycle_speed = cycle_speed*2*np.pi/(np.pi*self.wltp_cycle.tire_radius)
+            gear_choice = self.gearbox.gear_choice(x, cycle_speed, cycle_torque)
             
             fuel_consumptions.append(gear_choice[0])
-            objective_function += gear_choice[1]
-            
-            engine_speeds.append(gear_choice[2])
-            engine_torques.append(gear_choice[3])
-            gears.append(gear_choice[4])
-            ratios.append(gear_choice[5])
+            engine_speeds.append(gear_choice[1])
+            engine_torque  = gear_choice[2]
+            if engine_torque > max(self.gearbox.engine.efficiency_map.engine_torques):
+                objective_function += 1000
+            engine_torques.append(engine_torque)
+            gears.append(gear_choice[3])
+            ratios.append(gear_choice[4])
         
         self.gearbox_results.engine_speeds = engine_speeds
         self.gearbox_results.engine_torques = engine_torques
@@ -302,41 +314,13 @@ class GearBoxOptimizer(DessiaObject):
   
         objective_function += mean(fuel_consumptions)
         
-        if mean(self.ratios_relations) == 1:
-            for i, x_i in enumerate(x):
-                if i != 0:
-                    if x_i == x[i-1]:
-                        objective_function += 1000000
-        return objective_function   
-    
-    def A_constraints(self, x):
-        constraints = []
-        for i, r_r in enumerate(self.ratios_relations):
-            cons = []
-            for j in range(len(x)-1):
-                if j == i:
-                    cons.append(1)
-                    cons.append(r_r*(-1))
-                else:
-                    cons.append(0)
-            constraints.append(cons)
-        constraints = np.array(constraints)
-        return constraints       
+      
+        return objective_function    
 
     def cond_init(self):
-        
-        valid=False
-        while not valid:
-            x0 = []
-            valid=True
-            for interval in self.bounds:
+        x0 = []
+        for interval in self.bounds:
                 x0.append((interval[1]-interval[0])*float(np.random.random(1))+interval[0])
-            x0_2=np.array(x0)
-            for number in self.A_constraints(x0)*x0_2:
-                
-                if sum(number)<0:
-                    valid=False
-                
         return x0
     
     def optimize(self, max_loops = 1000): 
@@ -347,15 +331,10 @@ class GearBoxOptimizer(DessiaObject):
         solutions = []
         while valid and count < max_loops:
             x0 = self.cond_init()
-            A = self.A_constraints(x0)
-            constraints = LinearConstraint(A, 0, np.inf)
-
-            sol = minimize(self.objective, x0, bounds = self.bounds, constraints = constraints)
-            
+            sol = minimize(self.objective, x0, bounds = self.bounds)
             count += 1
             if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
-                self.gearbox.ratios = list(sol.x)
-                solutions.append(list(sol.x))
+                solutions.append(sol.x)
                 functionals.append(sol.fun)
                 gearbox_results = self.gearbox_results.copy()
                 gearbox_results.gearbox = self.gearbox

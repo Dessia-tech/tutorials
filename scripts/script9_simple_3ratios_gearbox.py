@@ -27,8 +27,17 @@ mass_flow_rate = [[0.1389, 0.2009, 0.2524, 0.3006, 0.3471, 0.4264, 0.4803, 0.588
                   [1.5519, 2.0910, 2.5730, 3.0222, 3.4715, 3.8717, 4.4998, 5.0642, 5.7781, 6.4528, 7.1880],
                   [1.8868, 2.5517, 3.1537, 3.6479, 4.0882, 4.4206, 5.2203, 5.8941, 6.5500, 7.2329, 7.9068],
                   [2.0584, 2.8817, 3.5286, 4.0775, 4.5578, 5.1165, 5.6948, 6.4300, 7.1455, 7.8414, 8.6256]] #mass flow rate in g/s
+mass_flow_rate_kgps = []
+for list_mass_flow_rate in mass_flow_rate:
+    list_mass_flow = []
+    for mass_flow in list_mass_flow_rate:
+        list_mass_flow.append(mass_flow/1000)                                                                #mass flow rate in kg/s
+    mass_flow_rate_kgps.append(list_mass_flow) 
+    
+
 fuel_hv = 0.012068709                                                       # in kWh/g
-efficiency_map = objects.EfficiencyMap(engine_speeds = engine_speeds, engine_torques = engine_torques, mass_flow_rate = mass_flow_rate, fuel_hv = fuel_hv)
+fuel_hv = fuel_hv*3.6e9                                                    # in J/kg
+efficiency_map = objects.EfficiencyMap(engine_speeds = engine_speeds, engine_torques = engine_torques, mass_flow_rate = mass_flow_rate_kgps, fuel_hv = fuel_hv)
 
 
 """
@@ -114,10 +123,9 @@ cycle_speeds= [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,3.1,5.7,8.0,1
 car_mass = 1524                                                             # Midsize car wheight in kilograms
 dt = 1                                                                      # time interval in seconds
 tire_radius = 0.1905                                                        # tire radius in m
-
-wltp_cycle = objects.WLTPCycle(cycle_speeds = cycle_speeds, car_mass = car_mass, tire_radius = tire_radius)
 cycle_speeds = [speed*1000/3600 for speed in cycle_speeds] #cycle speed in m/s
-(2*np.pi)/(np.pi*tire_radius)
+wltp_cycle = objects.WLTPCycle(cycle_speeds = cycle_speeds, car_mass = car_mass, tire_radius = tire_radius)
+
 
 """
 Engine 
@@ -129,33 +137,30 @@ engine = objects.Engine(efficiency_map = efficiency_map, setpoint = setpoint)
 Gearbox
 """
 speed_ranges = [[0, 30], [20 ,40], [30,50], [45, 70]] # in km/h
-speed_ranges = [[speed_range[0]*1000/3600, speed_range[1]*1000/3600] for speed_range in speed_ranges] #in m/s
+speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_range[1]*(1000*2*np.pi)/(3600*np.pi*tire_radius)] for speed_range in speed_ranges] #in rad/s
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 gearbox_results = objects.GearBoxResults(gearbox, wltp_cycle)
 
 """
 GearBox Optimizer
 """
-ratios_relations = [1.65, 1.5, 1.25]
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,gearbox_results = gearbox_results, ratios_min_max = [0.5, 4.5],ratios_relations =ratios_relations)
+
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,gearbox_results = gearbox_results, ratios_min_max = [.5, 4.5])
 """
 Results
 """
 results = optimizer.optimize(1)
-# print("ALL RESULTS AVAILABLE: ")
-# for result in results[0]:
-#     print('Ratios: ',result.ratios)
-#     print('Efficiencies: ')
-#     for i, fuel_consumption in enumerate(result.fuel_consumptions): 
-#         print('Fuel consumption: ', fuel_consumption )
-#         print('\n gear: ', result.gears[0][i], 'ratio: ',result.gears[1][i])
-#         print('\n wltp speed in km/h: ', cycle_speeds[i], 'wltp torque in Nm: ', wltp_cycle.cycle_torques[i])
-#         print('\n engine speed in rpm: ', result.engine.engine_speeds[i], 'engine torque in Nm: ', result.engine.engine_torques[i])
-#         print('\n\n')
+print("ALL RESULTS AVAILABLE: ")
+for result in results[0]:
+    print('Ratios: ',result.gearbox.ratios)
+    print('Efficiencies: ')
+    for i, fuel_consumption in enumerate(result.fuel_consumptions): 
+        print('Fuel consumption in g/kwh: ', fuel_consumption*3.6e9)
+        print('\n gear: ', result.gears_ratios[0][i], 'ratio: ',result.gears_ratios[1][i])
+        print('\n wltp speed in m/s: ', cycle_speeds[i], 'wltp torque in Nm: ', wltp_cycle.cycle_torques[i])
+        print('\n engine speed in rpm: ', result.engine_speeds[i]*30/np.pi, 'engine torque in Nm: ', result.engine_torques[i])
+        print('\n\n')
+    plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
+    plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
         
-# rsts = objects.Results(results[0][0], wltp_cycle)
-# multiplot = rsts.plot_data()[0]
-# multiplot2 = rsts.plot_data()[1]
-# plot_data.plot_canvas(plot_data_object = multiplot, canvas_id = 'canvas')
-# plot_data.plot_canvas(plot_data_object= multiplot2, canvas_id= 'canvas')
 
