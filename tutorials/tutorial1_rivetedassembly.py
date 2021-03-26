@@ -11,6 +11,16 @@ from plot_data.colors import *
 
 
 class Panel(DessiaObject):
+    """ 
+    :param length: A value corresponding to the panel length.
+    :type length: float
+    :param height: A value corresponding to the panel height.
+    :type height: float
+    :param thickness: A value corresponding to the panel thickness.
+    :type thickness: float
+    :param name: The name of the Panel.
+    :type name: str
+    """
     _standalone_in_db = True
 
     def __init__(self, length: float, height: float,
@@ -53,6 +63,14 @@ class Panel(DessiaObject):
 
 
 class PanelCombination(DessiaObject):
+    """ 
+    :param panels: List of Panel representing a combination of panels.
+    :type panels: List[Panel]
+    :param grids: List of Point3D created with volmdlr representing each panel position.
+    :type grids: List[vm.Point3D]
+    :param name: The name of the PanelCombination.
+    :type name: str
+    """
     _standalone_in_db = True
 
     def __init__(self, panels: List[Panel], grids: List[vm.Point3D], mass:float=None,
@@ -101,6 +119,18 @@ class PanelCombination(DessiaObject):
 
 
 class Rivet(DessiaObject):
+    """ 
+    :param rivet_diameter: A value corresponding to the rivet body diameter.
+    :type rivet_diameter: float
+    :param rivet_length: A value corresponding to the rivet body length.
+    :type rivet_length: float
+    :param head_diameter: A value corresponding to the rivet head diameter.
+    :type head_diameter: float
+    :param head_length: A value corresponding to the rivet head length.
+    :type head_length: float
+    :param name: The name of the Rivet.
+    :type name: str
+    """
     _standalone_in_db = True
 
     def __init__(self, rivet_diameter: float, rivet_length: float,
@@ -161,6 +191,16 @@ class Rivet(DessiaObject):
 
 
 class Rule(DessiaObject):
+    """ 
+    :param minimum_ratio: A value corresponding to a ratio between rivet body diameter \
+    and the maximal distance with another rivet.
+    :type minimum_ratio: float
+    :param maximum_ratio: A value corresponding to a ratio between rivet body diameter \
+    and the minimal distance with another rivet.
+    :type maximum_ratio: float
+    :param name: The name of the Rule.
+    :type name: str
+    """
     _standalone_in_db = True
 
     def __init__(self, minimum_ratio: float,
@@ -197,6 +237,21 @@ class Rule(DessiaObject):
 
 
 class PanelAssembly(DessiaObject):
+    """ 
+    :param panel_combination: The PanelCombination used as work base.
+    :type panel_combination: PanelCombination
+    :param rivet: The rivet used as work base.
+    :type rivet: Rivet
+    :param grids: List of Point2D created with volmdlr representing each rivet position\
+    in panel_combination intersection surface.
+    :type grids: List[vm.Point2D]
+    :param number_rivet1: An integer corresponding to the number of rivet in x direction.
+    :type number_rivet1: int
+    :param number_rivet2: An integer corresponding to the number of rivet in y direction.
+    :type number_rivet2: int
+    :param name: The name of the PanelAssembly.
+    :type name: str
+    """
     _standalone_in_db = True
 
     def __init__(self, panel_combination: PanelCombination,
@@ -274,6 +329,16 @@ class PanelAssembly(DessiaObject):
         return primitives
 
 class Generator(DessiaObject):
+    """ 
+    :param panel_combination: The PanelCombination used as work base.
+    :type panel_combination: PanelCombination
+    :param rivet: The rivet used as work base.
+    :type rivet: Rivet
+    :param rule: The rule used as work base.
+    :type rule: Rule
+    :param name: The name of the Generator.
+    :type name: str
+    """
     _standalone_in_db = True
     _dessia_methods = ['generate']
 

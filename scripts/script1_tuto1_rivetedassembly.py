@@ -29,22 +29,10 @@ all_possibilities = rule1.define_number_rivet(sol, r1)
 g1 = tuto.Generator(pc1, r1, rule1)
 solutions = g1.generate()
 
-solutions[0].babylonjs()
+solutions[-1].babylonjs()
 
-# cs = solutions[-1].plot_data()
-# plot_data.plot_canvas(cs[0], canvas_id='canvas')
-
-##### import matplotlib.pyplot as plt
-# f_s, h, nb_riv = [], [], []
-# for sol in solutions :
-    # f_s.append(sol.pressure_applied)
-    # h.append(sol.fatigue_resistance)
-    # nb_riv.append(sol.number_rivet)
-# plt.figure()
-# plt.plot(nb_riv, h, '.')
-# plt.xlabel('Nb rivets')
-# plt.ylabel('Fatigue resistance in Hour')
-# plt.show()
+cs = solutions[-1].plot_data()
+plot_data.plot_canvas(cs[0], canvas_id='canvas')
 
 # from dessia_api_client import Client
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
