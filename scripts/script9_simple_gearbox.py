@@ -4,10 +4,11 @@ Created on Thu Mar  4 11:29:57 2021
 
 @author: wiraj
 """
-import tutorials.tutorial9_simple_3ratios_gearbox as objects
+import tutorials.tutorial9_simple_gearbox as objects
 import numpy as np
 import plot_data
 import pandas as pd
+from dessia_api_client import Client
 
 """
 Engine efficiency map
@@ -150,10 +151,13 @@ optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,
 """
 Results
 """
+
 results = optimizer.optimize(10)
 for result in results[0]:
     print('Ratios: ',result.gearbox.ratios)
-    plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
-    plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
+    # plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
+    # plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
+    
         
-
+c = Client(api_url = 'https://api.demo.dessia.tech')
+r = c.create_object_from_python_object(results[0][0])

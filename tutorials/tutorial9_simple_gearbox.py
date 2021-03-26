@@ -20,7 +20,7 @@ from scipy.optimize import LinearConstraint
     
 
 class EfficiencyMap(DessiaObject):
-    _standalone_in_db = True
+    _standalone_in_db = False
     
     """
     Build the engine map and then determine its efficiency 
@@ -51,31 +51,9 @@ class EfficiencyMap(DessiaObject):
                 list_efficiencies.append(efficiency)
             efficiencies.append(list_efficiencies)
         self.efficiencies = efficiencies
-   
-class Engine(DessiaObject):
-    _standalone_in_db = True
-    
-    
-    def __init__(self, efficiency_map : EfficiencyMap, setpoint_speed: float, setpoint_torque: float, name:str=''):
-        self.efficiency_map = efficiency_map
-        self.setpoint_speed = setpoint_speed
-        self.setpoint_torque = setpoint_torque
         
-        
-        DessiaObject.__init__(self,name=name)
-    
-    def efficiency(self, speed:float, torque:float):
-        interpolate = interp2d(self.efficiency_map.engine_torques, self.efficiency_map.engine_speeds, self.efficiency_map.efficiencies)
-        interpolate_efficiency = interpolate(torque, speed)
-        return interpolate_efficiency[0]
-    
-    def consumption_efficiency(self, speed:float, torque: float):
-        interpolate = interp2d(self.efficiency_map.engine_torques, self.efficiency_map.engine_speeds, self.efficiency_map.bsfc)
-        interpolate_consumption_efficiency = interpolate(torque, speed)
-        return interpolate_consumption_efficiency[0]
-
 class WLTPCycle(DessiaObject):
-    _standalone_in_db = True
+    _standalone_in_db = False
     """
     WLTP cycle paremeters and wheel torque calculations
     """
@@ -98,8 +76,30 @@ class WLTPCycle(DessiaObject):
             torque = acceleration*car_mass*tire_radius/2                         #torque in Nm  
             cycle_torques.append(torque)
             
-        self.cycle_torques = cycle_torques
+        self.cycle_torques = cycle_torques 
         
+class Engine(DessiaObject):
+    _standalone_in_db = True
+    
+    
+    def __init__(self, efficiency_map : EfficiencyMap, setpoint_speed: float, setpoint_torque: float, name:str=''):
+        self.efficiency_map = efficiency_map
+        self.setpoint_speed = setpoint_speed
+        self.setpoint_torque = setpoint_torque
+        
+        
+        DessiaObject.__init__(self,name=name)
+    
+    def efficiency(self, speed:float, torque:float):
+        interpolate = interp2d(self.efficiency_map.engine_torques, self.efficiency_map.engine_speeds, self.efficiency_map.efficiencies)
+        interpolate_efficiency = interpolate(torque, speed)
+        return interpolate_efficiency[0]
+    
+    def consumption_efficiency(self, speed:float, torque: float):
+        interpolate = interp2d(self.efficiency_map.engine_torques, self.efficiency_map.engine_speeds, self.efficiency_map.bsfc)
+        interpolate_consumption_efficiency = interpolate(torque, speed)
+        return interpolate_consumption_efficiency[0]
+  
 class GearBox(DessiaObject):
     _standalone_in_db = True
     
@@ -162,6 +162,8 @@ class GearBox(DessiaObject):
         return [ gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
 
 class GearBoxResults(DessiaObject): 
+    _standalone_in_db = True
+    
     def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float], gears_ratios:List[Tuple[float, float]], name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
