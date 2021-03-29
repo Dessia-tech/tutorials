@@ -14,7 +14,7 @@ from dessia_api_client import Client
 Engine efficiency map
 """
 engine_speeds = list(np.linspace(500, 6000, num = 12)) #Engine speed in rpm
-engine_speeds = [i*np.pi/30 for i in engine_speeds]  # in rad/s
+engine_speeds = [float(i)*np.pi/30 for i in engine_speeds]  # in rad/s
 engine_torques = [15.6,31.2, 46.8, 62.4, 78, 93.6, 109.2, 124.8, 140.4, 156, 171.6] #engine torque in N*m
 mass_flow_rate = [[0.1389, 0.2009, 0.2524, 0.3006, 0.3471, 0.4264, 0.4803, 0.5881, 0.5881, 0.6535, 0.7188],
                   [0.2777, 0.3659, 0.4582, 0.5587, 0.6453, 0.7792, 0.8977, 1.0325, 1.1762, 1.3069, 1.4376],
@@ -152,7 +152,7 @@ optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,
 Results
 """
 
-results = optimizer.optimize(10)
+results = optimizer.optimize(1)
 for result in results[0]:
     print('Ratios: ',result.gearbox.ratios)
     # plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')

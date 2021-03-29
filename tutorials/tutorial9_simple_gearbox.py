@@ -98,7 +98,7 @@ class Engine(DessiaObject):
     def consumption_efficiency(self, speed:float, torque: float):
         interpolate = interp2d(self.efficiency_map.engine_torques, self.efficiency_map.engine_speeds, self.efficiency_map.bsfc)
         interpolate_consumption_efficiency = interpolate(torque, speed)
-        return interpolate_consumption_efficiency[0]
+        return float(interpolate_consumption_efficiency[0])
   
 class GearBox(DessiaObject):
     _standalone_in_db = True
@@ -114,10 +114,10 @@ class GearBox(DessiaObject):
         ratios = []
         for i in range(len(x)):
             if i == 0:
-                ratio = x[0]
+                ratio = float(x[0])
                 ratios.append(ratio)
             else:
-                ratio *= x[i]
+                ratio *= float(x[i])
                 ratios.append(ratio)
         self.ratios = ratios
         
@@ -305,7 +305,7 @@ class GearBoxOptimizer(DessiaObject):
         engine_torques = []
         
         for (cycle_speed, cycle_torque) in zip(self.wltp_cycle.cycle_speeds, self.wltp_cycle.cycle_torques): 
-            cycle_speed = cycle_speed*2*np.pi/(np.pi*self.wltp_cycle.tire_radius)
+            cycle_speed = cycle_speed*2/self.wltp_cycle.tire_radius
             gear_choice = self.gearbox.gear_choice(cycle_speed, cycle_torque)
             gears.append(gear_choice[0])
             ratios.append(gear_choice[1])
@@ -325,7 +325,7 @@ class GearBoxOptimizer(DessiaObject):
                 x0.append((interval[1]-interval[0])*float(np.random.random(1))+interval[0])
         return x0
     
-    def optimize(self, max_loops = 1000): 
+    def optimize(self, max_loops:int = 1000): 
         valid = True
         count = 0
         list_gearbox_results = []
@@ -337,7 +337,7 @@ class GearBoxOptimizer(DessiaObject):
             sol = minimize(self.objective, x0, bounds = self.bounds)
             count += 1
             if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
-                solutions.append(sol.x)
+                solutions.append(list(sol.x))
                 functionals.append(sol.fun)
                 self.update(list(sol.x))
                 gearbox = self.gearbox.copy()
