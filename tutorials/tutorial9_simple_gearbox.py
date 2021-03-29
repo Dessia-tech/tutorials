@@ -292,7 +292,7 @@ class GearBoxOptimizer(DessiaObject):
             if engine_torque > max(self.gearbox.engine.efficiency_map.engine_torques):
                 objective_function += 1000
         objective_function += mean(self.fuel_consumptions)     
-      
+        
         return objective_function    
     
     def update(self, x):
@@ -337,7 +337,12 @@ class GearBoxOptimizer(DessiaObject):
             sol = minimize(self.objective, x0, bounds = self.bounds)
             count += 1
             if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
-                solutions.append(list(sol.x))
+                
+                new_sol_x=[0]*len(sol.x)
+                for i,x in enumerate(sol.x):
+                    new_sol_x[i]=float(x)
+
+                solutions.append(list(new_sol_x))
                 functionals.append(sol.fun)
                 self.update(list(sol.x))
                 gearbox = self.gearbox.copy()
