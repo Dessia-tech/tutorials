@@ -171,16 +171,23 @@ class GearBoxResults(DessiaObject):
         self.engine_speeds =engine_speeds
         self.engine_torques = engine_torques
         self.fuel_consumptions = fuel_consumptions
-        self.ratios = ratios
+        self.gears = gears
         self.ratios = ratios
         self.average_fuel_consumption = average_fuel_consumption
         DessiaObject.__init__(self,name=name)
+        
+        self.average_engine_speed = mean(self.engine_speeds)
+        self.average_engine_torque = mean(self.engine_torques)
+        self.ratio_min = min(self.gearbox.ratios)
+        self.ratio_max = max(self.gearbox.ratios)
+        self.average_ratio = mean(self.gearbox.ratios)
+        
  
     def plot_data(self):
         
         cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
         points=[]
-        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.engine_speeds,self.engine_torques, self.fuel_consumptions, cycle_time, self.gears_ratios[0]):
+        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.engine_speeds,self.engine_torques, self.fuel_consumptions, cycle_time, self.gears):
             points.append({'c_s': car_speed,'whl_t': wheel_torque,'w_e': engine_speed,'t_e': engine_torque, 'f_cons (g/kWh)':fuel_consumption*3.6e9, 'time': time, 'gear': gear})
 
         color_fill = LIGHTBLUE
@@ -221,7 +228,7 @@ class GearBoxResults(DessiaObject):
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['sec', 'gear'])
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
         elements = []
-        for i, gear in enumerate(self.gears_ratios[0]):
+        for i, gear in enumerate(self.gears):
             elements.append({'sec': cycle_time[i], 'gear': gear})         
         dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
         graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'gear']))
@@ -231,7 +238,7 @@ class GearBoxResults(DessiaObject):
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['sec', 'f_cons (g/kWh)'])
         edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
         elements = []
-        for i, gear in enumerate(self.gears_ratios[0]):
+        for i, gear in enumerate(self.gears):
             elements.append({'sec': cycle_time[i], 'f_cons (g/kWh)': self.fuel_consumptions[i]*3.6e9})         
         dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
         graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'f_cons (g/kWh)']))

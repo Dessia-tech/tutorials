@@ -23,7 +23,7 @@ block_wltpcycle = wf.InstanciateModel(objects.WLTPCycle, name = 'WLTP Cycle')
 
 block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
 
-list_attribute = ['fuel_consumptions', 'engine_speeds', 'engine_torques']
+list_attribute = ['average_fuel_consumption', 'average_engine_speed', 'average_engine_torque', 'ratio_min', 'ratio_max', 'average_ratio']
 display = wf.MultiPlot(list_attribute, order = 1, name= 'Display')
 
 block_workflow = [block_optimizer, method_optimize, block_gearbox, block_engine, block_efficiencymap, block_wltpcycle, display]
