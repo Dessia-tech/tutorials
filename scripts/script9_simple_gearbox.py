@@ -153,11 +153,11 @@ Results
 """
 
 results = optimizer.optimize(1)
-for result in results[0]:
+for result in results:
     print('Ratios: ',result.gearbox.ratios)
-    # plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
-    # plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
+    plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
+    plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
     
         
-c = Client(api_url = 'https://api.demo.dessia.tech')
-r = c.create_object_from_python_object(results[0][0])
+# c = Client(api_url = 'https://api.demo.dessia.tech')
+# r = c.create_object_from_python_object(results[0])

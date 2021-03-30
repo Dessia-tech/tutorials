@@ -164,13 +164,15 @@ class GearBox(DessiaObject):
 class GearBoxResults(DessiaObject): 
     _standalone_in_db = True
     
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float], gears_ratios:List[Tuple[float, float]], name: str = ''):
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float],
+                 gears_ratios:List[Tuple[float, float]],average_fuel_consumption:float, name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.engine_speeds =engine_speeds
         self.engine_torques = engine_torques
         self.fuel_consumptions = fuel_consumptions
         self.gears_ratios =gears_ratios
+        self.average_fuel_consumption = average_fuel_consumption
         DessiaObject.__init__(self,name=name)
  
     def plot_data(self):
@@ -329,29 +331,21 @@ class GearBoxOptimizer(DessiaObject):
         valid = True
         count = 0
         list_gearbox_results = []
-        functionals = []
-        solutions = []
+        
         while valid and count < max_loops:
             x0 = self.cond_init()
             self.update(x0)
             sol = minimize(self.objective, x0, bounds = self.bounds)
             count += 1
             if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
-                
-                new_sol_x=[0]*len(sol.x)
-                for i,x in enumerate(sol.x):
-                    new_sol_x[i]=float(x)
-
-                solutions.append(list(new_sol_x))
-                functionals.append(sol.fun)
+                self.average_fuel_consumption = float(sol.fun)
                 self.update(list(sol.x))
                 gearbox = self.gearbox.copy()
                 gearbox.ratios = self.gearbox.ratios
-                gearbox_results = GearBoxResults(gearbox, self.wltp_cycle, self.engine_speeds,  self.engine_torques,  self.fuel_consumptions,  self.gears_ratios)
-                
+                gearbox_results = GearBoxResults(gearbox, self.wltp_cycle, self.engine_speeds,  self.engine_torques,  self.fuel_consumptions,  self.gears_ratios, self.average_fuel_consumption) 
                 list_gearbox_results.append(gearbox_results)
                 
-        return [list_gearbox_results, functionals, solutions]
+        return list_gearbox_results
 
 
         
