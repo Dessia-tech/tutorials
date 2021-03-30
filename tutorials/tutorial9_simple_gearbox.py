@@ -164,14 +164,15 @@ class GearBox(DessiaObject):
 class GearBoxResults(DessiaObject): 
     _standalone_in_db = True
     
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float],
-                 gears_ratios:List[Tuple[float, float]],average_fuel_consumption:float, name: str = ''):
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float],
+                 gears: List[float], ratios:List[float], average_fuel_consumption:float, name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.engine_speeds =engine_speeds
         self.engine_torques = engine_torques
         self.fuel_consumptions = fuel_consumptions
-        self.gears_ratios =gears_ratios
+        self.ratios = ratios
+        self.ratios = ratios
         self.average_fuel_consumption = average_fuel_consumption
         DessiaObject.__init__(self,name=name)
  
@@ -318,7 +319,8 @@ class GearBoxOptimizer(DessiaObject):
         
         self.engine_speeds = engine_speeds
         self.engine_torques = engine_torques
-        self.gears_ratios = [gears, ratios]
+        self.gears = gears
+        self.ratios = ratios
         self.fuel_consumptions = fuel_consumptions
 
     def cond_init(self):
@@ -342,7 +344,7 @@ class GearBoxOptimizer(DessiaObject):
                 self.update(list(sol.x))
                 gearbox = self.gearbox.copy()
                 gearbox.ratios = self.gearbox.ratios
-                gearbox_results = GearBoxResults(gearbox, self.wltp_cycle, self.engine_speeds,  self.engine_torques,  self.fuel_consumptions,  self.gears_ratios, self.average_fuel_consumption) 
+                gearbox_results = GearBoxResults(gearbox, self.wltp_cycle, self.engine_speeds,  self.engine_torques,  self.fuel_consumptions,  self.gears, self.ratios, self.average_fuel_consumption) 
                 list_gearbox_results.append(gearbox_results)
                 
         return list_gearbox_results
