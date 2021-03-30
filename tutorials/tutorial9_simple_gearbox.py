@@ -173,7 +173,7 @@ class GearBoxResults(DessiaObject):
         self.fuel_consumptions = fuel_consumptions
         self.gears = gears
         self.ratios = ratios
-        self.average_fuel_consumption = average_fuel_consumption*3.6e9
+        self.average_fuel_consumption = average_fuel_consumption
         DessiaObject.__init__(self,name=name)
         
         self.average_engine_speed = mean(self.engine_speeds)
