@@ -165,7 +165,7 @@ class GearBoxResults(DessiaObject):
     _standalone_in_db = True
     
     def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float],
-                 gears: List[float], ratios:List[float], average_fuel_consumption:float, name: str = ''):
+                 gears: List[float], ratios:List[float],ratio_min:float, ratio_max:float, average_ratio:float, average_fuel_consumption:float, name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.engine_speeds =engine_speeds
@@ -178,9 +178,9 @@ class GearBoxResults(DessiaObject):
         
         self.average_engine_speed = mean(self.engine_speeds)
         self.average_engine_torque = mean(self.engine_torques)
-        self.ratio_min = min(self.gearbox.ratios)
-        self.ratio_max = max(self.gearbox.ratios)
-        self.average_ratio = mean(self.gearbox.ratios)
+        self.ratio_min = ratio_min
+        self.ratio_max = ratio_max
+        self.average_ratio = average_ratio
         
  
     def plot_data(self):
@@ -351,7 +351,10 @@ class GearBoxOptimizer(DessiaObject):
                 self.update(list(sol.x))
                 gearbox = self.gearbox.copy()
                 gearbox.ratios = self.gearbox.ratios
-                gearbox_results = GearBoxResults(gearbox, self.wltp_cycle, self.engine_speeds,  self.engine_torques,  self.fuel_consumptions,  self.gears, self.ratios, self.average_fuel_consumption) 
+                self.ratio_min = min(gearbox.ratios)
+                self.ratio_max = max(gearbox.ratios)
+                self.average_ratio = mean(gearbox.ratios)
+                gearbox_results = GearBoxResults(gearbox, self.wltp_cycle, self.engine_speeds,  self.engine_torques,  self.fuel_consumptions,  self.gears, self.ratios,self.ratio_min, self.ratio_max, self.average_ratio, self.average_fuel_consumption) 
                 list_gearbox_results.append(gearbox_results)
                 
         return list_gearbox_results
