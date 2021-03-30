@@ -106,7 +106,7 @@ class GearBox(DessiaObject):
     def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]] = None, name: str = ''):
         self.engine = engine
         self.speed_ranges = speed_ranges
-        self.ratios = 0*len(self.speed_ranges)
+        self.ratios = [0]*len(self.speed_ranges)
         
         DessiaObject.__init__(self,name=name)
         
