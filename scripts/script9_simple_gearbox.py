@@ -147,7 +147,7 @@ gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 GearBox Optimizer
 """
 
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, firstgear_ratio_min_max = [.5, 4.5])
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, first_gear_ratio_min_max = [.5, 4.5])
 """
 Results
 """
