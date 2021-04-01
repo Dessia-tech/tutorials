@@ -97,7 +97,7 @@ setup(
     long_description='',
     author='Lucas',
     author_email='launay@dessia.tech',
-    install_requires=['cma', 'dectree', 'dessia_common', 'plot_data>=0.5.2', 'volmdlr>=0.2.4'],
+    install_requires=['cma', 'dectree', 'dessia_common', 'plot_data>=0.5.2', 'volmdlr>=0.2.7'],
     python_requires='>=3.7',
     packages=['tutorials'],
 )
