@@ -7,7 +7,6 @@ Created on Thu Mar  4 11:29:57 2021
 import tutorials.tutorial9_simple_gearbox as objects
 import numpy as np
 import plot_data
-import pandas as pd
 from dessia_api_client import Client
 
 """
@@ -141,7 +140,6 @@ Gearbox
 speed_ranges = [[0, 30], [20 ,40], [30,50], [45, 70]] # in km/h
 speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_range[1]*(1000*2*np.pi)/(3600*np.pi*tire_radius)] for speed_range in speed_ranges] #in rad/s
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
-# gearbox_results = objects.GearBoxResults(gearbox, wltp_cycle)
 
 """
 GearBox Optimizer
