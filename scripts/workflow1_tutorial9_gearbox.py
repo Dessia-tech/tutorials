@@ -1,19 +1,44 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar  4 11:29:57 2021
+Created on Mon Mar 29 11:52:37 2021
 
-@author: wiraj
+@author: dasilva
 """
 import tutorials.tutorial9_simple_gearbox as objects
-import numpy as np
-import plot_data
-from dessia_api_client import Client
+import dessia_common.workflow as wf
 
-"""
-Engine efficiency map
-"""
+from dessia_api_client import Client
+import numpy as np
+
+
+block_optimizer = wf.InstanciateModel(objects.GearBoxOptimizer, name='Gearbox Optimizer')
+method_optimize = wf.ModelMethod(objects.GearBoxOptimizer, 'optimize', name='Optimize')
+
+block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
+block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
+
+block_efficiencymap = wf.InstanciateModel(objects.EfficiencyMap, name= 'Efficiency Map')
+block_wltpcycle = wf.InstanciateModel(objects.WLTPCycle, name = 'WLTP Cycle')
+
+list_attribute = ['average_fuel_consumption', 'average_engine_speed', 'average_engine_torque', 'ratio_min', 'ratio_max', 'average_ratio']
+display = wf.MultiPlot(list_attribute, order = 1, name= 'Display')
+
+block_workflow = [block_optimizer, method_optimize, block_gearbox, block_engine, block_efficiencymap, block_wltpcycle, display]
+pipe_workflow = [wf.Pipe(block_optimizer.outputs[0], method_optimize.inputs[0]), 
+                 wf.Pipe(block_gearbox.outputs[0], block_optimizer.inputs[0]),
+                 wf.Pipe(block_wltpcycle.outputs[0], block_optimizer.inputs[1]), 
+                 wf.Pipe(block_engine.outputs[0], block_gearbox.inputs[0]), 
+                 wf.Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
+                 wf.Pipe(method_optimize.outputs[0], display.inputs[0])]
+
+workflow = wf.Workflow(block_workflow, pipe_workflow, method_optimize.outputs[0])
+
+
+
+
 engine_speeds = list(np.linspace(500, 6000, num = 12)) #Engine speed in rpm
-engine_speeds = [float(i)*np.pi/30 for i in engine_speeds]  # in rad/s
+engine_speeds = [float(i)*(np.pi/30) for i in engine_speeds]  # in rad/s
 engine_torques = [15.6,31.2, 46.8, 62.4, 78, 93.6, 109.2, 124.8, 140.4, 156, 171.6] #engine torque in N*m
 mass_flow_rate = [[0.1389, 0.2009, 0.2524, 0.3006, 0.3471, 0.4264, 0.4803, 0.5881, 0.5881, 0.6535, 0.7188],
                   [0.2777, 0.3659, 0.4582, 0.5587, 0.6453, 0.7792, 0.8977, 1.0325, 1.1762, 1.3069, 1.4376],
@@ -33,16 +58,9 @@ for list_mass_flow_rate in mass_flow_rate:
     for mass_flow in list_mass_flow_rate:
         list_mass_flow.append(mass_flow/1000)                                                                #mass flow rate in kg/s
     mass_flow_rate_kgps.append(list_mass_flow) 
-    
-
 fuel_hv = 0.012068709                                                       # in kWh/g
 fuel_hv = fuel_hv*3.6e9                                                    # in J/kg
-efficiency_map = objects.EfficiencyMap(engine_speeds = engine_speeds, engine_torques = engine_torques, mass_flow_rate = mass_flow_rate_kgps, fuel_hv = fuel_hv)
 
-
-"""
-WLTP cycle
-"""
 
 cycle_speeds= [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,3.1,5.7,8.0,10.1,12.0,13.8,15.4,16.7,17.7,18.3,18.8,
                 18.9,18.4,16.9,14.3,10.8,7.1,4.0,0.0,0.0,0.0,0.0,1.5,3.8,5.6,7.5,9.2,10.8,12.4,13.8,15.2,16.3,17.3,18.0,
@@ -118,44 +136,30 @@ cycle_speeds= [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,3.1,5.7,8.0,1
                 31.8,28.7,25.8,22.9,20.2,17.3,15.0,12.3,10.3,7.8,6.5,4.4,3.2,1.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
                 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]        # velocity in km/h
 
-
-
 car_mass = 1524                                                             # Midsize car wheight in kilograms
 dt = 1                                                                      # time interval in seconds
 tire_radius = 0.1905                                                        # tire radius in m
 cycle_speeds = [speed*1000/3600 for speed in cycle_speeds] #cycle speed in m/s
-wltp_cycle = objects.WLTPCycle(cycle_speeds = cycle_speeds, car_mass = car_mass, tire_radius = tire_radius)
-
-
-"""
-Engine 
-"""
-setpoint_speed = 600*np.pi/30 # in rad/s
+setpoint_speed = 600*(np.pi/30) # in rad/s
 setpoint_torque = 100
-engine = objects.Engine(efficiency_map = efficiency_map, setpoint_speed = setpoint_speed, setpoint_torque = setpoint_torque)
-
-"""
-Gearbox
-"""
 speed_ranges = [[0, 30], [20 ,40], [30,50], [45, 70]] # in km/h
-speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_range[1]*(1000*2*np.pi)/(3600*np.pi*tire_radius)] for speed_range in speed_ranges] #in rad/s
-gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
+speed_ranges = [[speed_range[0]*(1000*2)/(3600*tire_radius), speed_range[1]*(1000*2)/(3600*tire_radius)] for speed_range in speed_ranges] #in rad/s
 
-"""
-GearBox Optimizer
-"""
 
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, first_gear_ratio_min_max = [.5, 4.5])
-"""
-Results
-"""
+input_values = {workflow.index(block_optimizer.inputs[2]): [.5, 4.5], 
+                workflow.index(method_optimize.inputs[1]): 30, 
+                workflow.index(block_gearbox.inputs[1]):speed_ranges, 
+                workflow.index(block_engine.inputs[1]):setpoint_speed,
+                workflow.index(block_engine.inputs[2]):setpoint_torque,
+                workflow.index(block_efficiencymap.inputs[0]):engine_speeds,
+                workflow.index(block_efficiencymap.inputs[1]):engine_torques, 
+                workflow.index(block_efficiencymap.inputs[2]):mass_flow_rate_kgps, 
+                workflow.index(block_efficiencymap.inputs[3]):fuel_hv, 
+                workflow.index(block_wltpcycle.inputs[0]):cycle_speeds, 
+                workflow.index(block_wltpcycle.inputs[1]):car_mass, 
+                workflow.index(block_wltpcycle.inputs[2]):tire_radius}
 
-results = optimizer.optimize(1)
-for result in results:
-    print('Ratios: ',result.gearbox.ratios)
-    plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
-    plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
-    
-        
-# c = Client(api_url = 'https://api.demo.dessia.tech')
-# r = c.create_object_from_python_object(results[0])
+workflow_run = workflow.run(input_values)
+
+c = Client(api_url = 'https://api.demo.dessia.tech')
+r = c.create_object_from_python_object(workflow_run)
