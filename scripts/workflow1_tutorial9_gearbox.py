@@ -147,7 +147,7 @@ speed_ranges = [[speed_range[0]*(1000*2)/(3600*tire_radius), speed_range[1]*(100
 
 
 input_values = {workflow.index(block_optimizer.inputs[2]): [.5, 4.5], 
-                workflow.index(method_optimize.inputs[1]): 5, 
+                workflow.index(method_optimize.inputs[1]): 30, 
                 workflow.index(block_gearbox.inputs[1]):speed_ranges, 
                 workflow.index(block_engine.inputs[1]):setpoint_speed,
                 workflow.index(block_engine.inputs[2]):setpoint_torque,
