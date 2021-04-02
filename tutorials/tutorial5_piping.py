@@ -172,7 +172,7 @@ class Optimizer(DessiaObject):
                 waypoints = self.assembly.waypoints
                 radius = self.assembly.piping.genere_neutral_fiber(waypoints).radius
                 min_radius = min(list(radius.values()))
-                if min_radius >= 0.5*self.assembly.piping.minimum_radius and len(list(radius.keys())) == len(waypoints) - 2:
+                if min_radius >= 0.9*self.assembly.piping.minimum_radius and len(list(radius.keys())) == len(waypoints) - 2:
                     new_assembly = self.assembly.copy()
                     new_assembly.update(xra)
                     solutions.append(new_assembly)

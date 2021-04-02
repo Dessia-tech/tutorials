@@ -16,6 +16,7 @@ r1 = tuto.Rivet(0.01, 0.05, 0.012, 0.005)
 # plot_data.plot_canvas(c[0], canvas_id='canvas')
 
 pc1 = tuto.PanelCombination([p1, p2], [vm.Point3D(0, 0, 0), vm.Point3D(0.7, 0.2, 0.01)])
+# pc1.babylonjs()
 sol = pc1.intersection_area()
 c3 = sol.plot_data()
 cs = pc1.plot_data()
@@ -28,23 +29,11 @@ all_possibilities = rule1.define_number_rivet(sol, r1)
 g1 = tuto.Generator(pc1, r1, rule1)
 solutions = g1.generate()
 
+solutions[-1].babylonjs()
 
+cs = solutions[-1].plot_data()
+plot_data.plot_canvas(cs[0], canvas_id='canvas')
 
-# cs = solutions[-1].plot_data()
-# plot_data.plot_canvas(cs[0], canvas_id='canvas')
-
-##### import matplotlib.pyplot as plt
-# f_s, h, nb_riv = [], [], []
-# for sol in solutions :
-    # f_s.append(sol.pressure_applied)
-    # h.append(sol.fatigue_resistance)
-    # nb_riv.append(sol.number_rivet)
-# plt.figure()
-# plt.plot(nb_riv, h, '.')
-# plt.xlabel('Nb rivets')
-# plt.ylabel('Fatigue resistance in Hour')
-# plt.show()
-
-from dessia_api_client import Client
-c = Client(api_url='https://api.platform-dev.dessia.tech')
-r = c.create_object_from_python_object(solutions[-1])
+# from dessia_api_client import Client
+# c = Client(api_url='https://api.platform-dev.dessia.tech')
+# r = c.create_object_from_python_object(solutions[-1])

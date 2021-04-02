@@ -93,7 +93,7 @@ block_workflow = [block_optimizer, block_optimize, display_reductor]
 pipe_worflow = [wf.Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
                 wf.Pipe(block_optimize.outputs[0], display_reductor.inputs[0])]
 
-workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0])
+workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0], name="workflowpipe")
 
 input_values = {workflow.index(block_optimize.inputs[1]): assemblies,
                 workflow.index(block_optimize.inputs[2]): 1,
@@ -101,5 +101,5 @@ input_values = {workflow.index(block_optimize.inputs[1]): assemblies,
 
 workflow_run = workflow.run(input_values)
 
-c = Client(api_url='https://api.safran-es.dessia.tech')
+c = Client(api_url='https://api.platform-dev.dessia.tech')
 r = c.create_object_from_python_object(workflow_run)
