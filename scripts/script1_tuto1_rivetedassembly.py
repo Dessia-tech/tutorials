@@ -16,7 +16,6 @@ r1 = tuto.Rivet(0.01, 0.05, 0.012, 0.005)
 # plot_data.plot_canvas(c[0], canvas_id='canvas')
 
 pc1 = tuto.PanelCombination([p1, p2], [vm.Point3D(0, 0, 0), vm.Point3D(0.7, 0.2, 0.01)])
-# pc1.babylonjs()
 sol = pc1.intersection_area()
 c3 = sol.plot_data()
 cs = pc1.plot_data()
