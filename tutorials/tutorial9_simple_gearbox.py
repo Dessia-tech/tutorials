@@ -14,6 +14,7 @@ from scipy.interpolate import interp2d
 from statistics import mean
 import plot_data 
 from plot_data.colors import *
+import dectree as dt
 
     
     
@@ -353,6 +354,25 @@ class GearBoxOptimizer(DessiaObject):
                 list_gearbox_results.append(gearbox_results)
                 
         return list_gearbox_results
+    
+class GearBoxGenerator(DessiaObject):
+    
+    
+    def __init__(self, gearbox: GearBox,  max_number_shafts: int, max_number_gears: int, max_number_planetary_gear: int, z_min_max: Tuple[float, float], name = '' ):
+        self.gearbox : gearbox
+        self.max_number_shafts = max_number_shafts
+        self.max_number_gears = max_number_gears
+        self.max_number_planetary_gear = max_number_gears
+        self.z_min_max = z_min_max
+        DessiaObject.__init__(self,name=name)
+    
+    def generate(self):
+        
+        list_node = []
+        list_gear = []
+        
+        
+        
 
 
         
