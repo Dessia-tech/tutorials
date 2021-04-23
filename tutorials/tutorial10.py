@@ -105,7 +105,7 @@ class GearBox(DessiaObject):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = ratios
-        self.gear_connections = [0]*len(speed_ranges)*2
+        self.gear_connections = []
         DessiaObject.__init__(self,name=name)
         
     def update(self, x):
@@ -358,10 +358,10 @@ class GearBoxOptimizer(DessiaObject):
 class GearBoxGenerator(DessiaObject):
     
     
-    def __init__(self, gearbox: GearBox, max_number_gears: int, max_number_shafts: int = 3, number_connections: int = 3,name = ''):
+    def __init__(self, gearbox: GearBox, max_number_meshes: int, max_number_shafts: int = 3, number_connections: int = 3 ,name = ''):
         self.gearbox = gearbox
         self.max_number_shafts = max_number_shafts
-        self.max_number_gears = max_number_gears
+        self.max_number_meshes = max_number_gears
         self.number_connections = number_connections
 
         DessiaObject.__init__(self,name=name)
@@ -369,23 +369,43 @@ class GearBoxGenerator(DessiaObject):
     def generate(self):
         
         list_node = []
-        list_gear = []
-        gearbox = self.gearbox
+        # list_gear = []
+        # gearbox = self.gearbox
        
-        for gear in range(self.max_number_gears):
-            list_node.apend(self.number_connections)
-            list_gear.append(gear + 1)
+        for i in range(self.max_number_shafts + self.max_number_meshes):
+            list_node.append(self.number_connections)
+            # list_gear.append(i + 1)
         
         tree = dt.RegularDecisionTree(list_node)
         list_gearbox = []
+        list_valid_nodes = []
+        
+        
         while not tree.finished:
              valid = True
              node = tree.current_node
-             gearbox.gear_connections[len(node) - 1] = node[-1]
-             if len(node)==len(list_gear) and valid:
-                 list_gearbox.append(copy.deepcopy(gearbox))
+             connections = []
+             connections.append(node[-1])
              
+             # gearbox.gear_connections[len(node) - 1] = node[-1]
              
+             # if len(node) <= len(list_gear)/2 + 1:
+             #     if node[-1] != 0:
+             #         valid  = False
+             # else:
+             #     if node[-1] == 2:
+             #         valid = False
+             
+             # if len(node)==len(list_gear) and valid:
+             #     list_connections 
+             #     list_gearbox.append(copy.deepcopy(gearbox))
+             #     list_valid_nodes.append(node)
+                 
+             tree.NextNode(valid)
+             
+        return list_gearbox, list_valid_nodes
+             
+             du coup, la façon dont on  determine les connections entre un seront determiné comment? 
         
         
         
