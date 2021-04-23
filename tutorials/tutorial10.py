@@ -15,7 +15,7 @@ from statistics import mean
 import plot_data 
 from plot_data.colors import *
 import dectree as dt
-
+import copy
     
     
 
@@ -105,6 +105,7 @@ class GearBox(DessiaObject):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = ratios
+        self.gear_connections = [0]*len(speed_ranges)*2
         DessiaObject.__init__(self,name=name)
         
     def update(self, x):
@@ -353,7 +354,38 @@ class GearBoxOptimizer(DessiaObject):
                 list_gearbox_results.append(gearbox_results)
                 
         return list_gearbox_results
+    
+class GearBoxGenerator(DessiaObject):
+    
+    
+    def __init__(self, gearbox: GearBox, max_number_gears: int, max_number_shafts: int = 3, number_connections: int = 3,name = ''):
+        self.gearbox = gearbox
+        self.max_number_shafts = max_number_shafts
+        self.max_number_gears = max_number_gears
+        self.number_connections = number_connections
 
+        DessiaObject.__init__(self,name=name)
+    
+    def generate(self):
+        
+        list_node = []
+        list_gear = []
+        gearbox = self.gearbox
+       
+        for gear in range(self.max_number_gears):
+            list_node.apend(self.number_connections)
+            list_gear.append(gear + 1)
+        
+        tree = dt.RegularDecisionTree(list_node)
+        list_gearbox = []
+        while not tree.finished:
+             valid = True
+             node = tree.current_node
+             gearbox.gear_connections[len(node) - 1] = node[-1]
+             if len(node)==len(list_gear) and valid:
+                 list_gearbox.append(copy.deepcopy(gearbox))
+             
+             
         
         
         
