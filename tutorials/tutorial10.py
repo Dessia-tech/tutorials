@@ -16,8 +16,8 @@ import plot_data
 from plot_data.colors import *
 import dectree as dt
 import copy
-    
-    
+import networkx as nx
+from powertransmission.architecture import Shaft 
 
 class EfficiencyMap(DessiaObject):
     _standalone_in_db = False
@@ -358,59 +358,118 @@ class GearBoxOptimizer(DessiaObject):
 class GearBoxGenerator(DessiaObject):
     
     
-    def __init__(self, gearbox: GearBox, max_number_meshes: int, max_number_shafts: int = 3, number_connections: int = 3 ,name = ''):
+    def __init__(self, gearbox: GearBox, max_number_shafts: int, max_number_gears: int, number_connections: List[str] = ['free', 'fixed', 'inexistent'] ,name = ''):
         self.gearbox = gearbox
         self.max_number_shafts = max_number_shafts
-        self.max_number_meshes = max_number_gears
+        self.max_number_gears = max_number_gears
         self.number_connections = number_connections
-
         DessiaObject.__init__(self,name=name)
+        
     
     def generate(self):
+        gearbox_graph = nx.gearbox_graphraph()
+        for n_gear in range(self.max_number_gears):
+            gearbox_graph.add_node('G' + str(n_gear+1))
+        for n_shaft in range(self.max_number_shafts):
+            gearbox_graph.add_node('S' + str(n_shaft+1))
+            
+        for n_gear in range(self.max_number_gears):
+            for n_shaft in range(self.max_number_gears):
+                gearbox_graph.add_edge('G' + str(n_gear+1), 'S' + str(n_shaft+1))
+        for edges in gearbox_graph.edges:
+            
+            
+                
+            
+        return gearbox_graph
+            
         
-        list_node = []
-        # list_gear = []
-        # gearbox = self.gearbox
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+#         list_node = []
+#         list_gear = []
+#         # gearbox = self.gearbox
+        
+        
        
-        for i in range(self.max_number_shafts + self.max_number_meshes):
-            list_node.append(self.number_connections)
-            # list_gear.append(i + 1)
         
-        tree = dt.RegularDecisionTree(list_node)
-        list_gearbox = []
-        list_valid_nodes = []
+#         for i in range(self.max_number_meshes): 
+#             list_node.append(self.min_max_number_shafts_per_mesh[1] - self.min_max_number_shafts_per_mesh[0])
+#             list_node.append(self.number_connections)
+#             list_gear.append(i + 1)
         
         
-        while not tree.finished:
-             valid = True
-             node = tree.current_node
-             connections = []
-             connections.append(node[-1])
+#         tree = dt.RegularDecisionTree(list_node)
+#         list_gearbox = []
+#         list_valid_nodes = []
+#         # shafts = []
+        
+#         while not tree.finished:
+#               valid = True
+#               node = tree.current_node
+#               # connections = []
+#               if len(node)%2 == 0: 
+#                   number_shaft = node[-1] 
+              
+#               # if len(node)%2 != 0:
+#               #     shaft = self.list_shafts[node[-1]]
+#               # else: 
+#               #     connections.append(node[-1])
+
+#               # gearbox.gear_connections[len(node) - 1] = node[-1]
              
-             # gearbox.gear_connections[len(node) - 1] = node[-1]
+#               if len(node) <= len(list_gear)/2 + 1:
+#                   if node[-1] != 0:
+#                       valid  = False
+#               else:
+#                   if node[-1] == 2:
+#                       valid = False
              
-             # if len(node) <= len(list_gear)/2 + 1:
-             #     if node[-1] != 0:
-             #         valid  = False
-             # else:
-             #     if node[-1] == 2:
-             #         valid = False
-             
-             # if len(node)==len(list_gear) and valid:
-             #     list_connections 
-             #     list_gearbox.append(copy.deepcopy(gearbox))
-             #     list_valid_nodes.append(node)
+#               if len(node)==len(list_gear) and valid:
+#                   list_connections 
+#                   list_gearbox.append(copy.deepcopy(gearbox))
+#                   list_valid_nodes.append(node)
                  
-             tree.NextNode(valid)
+#               tree.NextNode(valid)
              
-        return list_gearbox, list_valid_nodes
+#         return list_gearbox, list_valid_nodes
              
-             du coup, la façon dont on  determine les connections entre un seront determiné comment? 
         
         
-        
-        
-        
+# # avant j'utilisais les meshes et les arbres pour le noueds, mais je voyais pas commet faire le contrôle après pour le deuxième point que tu avait proposé vendredi, de vérifier si un engrènement n'est connecté que 
 
 
         

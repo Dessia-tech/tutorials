@@ -10,6 +10,7 @@ import numpy as np
 import plot_data
 from dessia_api_client import Client
 
+
 """
 Engine efficiency map
 """
@@ -142,4 +143,4 @@ speed_ranges = [[0, 30], [20 ,40], [30,50], [45, 70]] # in km/h
 speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_range[1]*(1000*2*np.pi)/(3600*np.pi*tire_radius)] for speed_range in speed_ranges] #in rad/s
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 
-generator = objects.GearBoxGenerator(gearbox, 8)
+generator = objects.GearBoxGenerator(gearbox,4, 4)
