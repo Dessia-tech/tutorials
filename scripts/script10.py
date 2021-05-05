@@ -141,6 +141,29 @@ speed_ranges = [[0, 30], [20 ,40], [30,50]] # in km/h
 speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_range[1]*(1000*2*np.pi)/(3600*np.pi*tire_radius)] for speed_range in speed_ranges] #in rad/s
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 
-generator = objects.GearBoxGenerator(gearbox, max_number_shafts=4, max_number_gears=7)
-
+generator = objects.GearBoxGenerator(gearbox,number_inputs = 2, max_number_shafts = 4, max_number_gears = 5)
+# solutions = generator.connections_decision_tree() 
+# for i, node in enumerate(solutions[1]):
+#     print(node)
+#     if i >= 15:
+#         break
+# for j, gearbox in enumerate(solutions[0]):
+#     print(gearbox.gearbox_connections)
+#     if j >= 15:
+#         break
+# for j, gearbox_connections in enumerate(solutions[2]):
+#     print(gearbox_connections)
+#     if j >= 15:
+#         break
 solutions = generator.solutions()
+list_gearbox_graphs = solutions[0]
+list_paths = solutions[1]
+
+import matplotlib.pyplot as plt
+import networkx as nx
+
+for k, graph in enumerate(list_gearbox_graphs):
+    plt.figure()
+    nx.draw_kamada_kawai(graph, with_labels = True)
+    if k >= 15:
+        break
