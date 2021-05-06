@@ -392,7 +392,7 @@ class GearBoxOptimizer(DessiaObject):
 class GearBoxGenerator(DessiaObject):
     
     
-    def __init__(self, gearbox: GearBox, number_inputs:int, max_number_shafts: int,   max_number_gears: int, connections: List[str] = ['free', 'fixed', 'inexistent'] ,name = ''):
+    def __init__(self, gearbox: GearBox, number_inputs:int, max_number_shafts: int,   max_number_gears: int, connections: List[str] = ['existent', 'inexistent'] ,name = ''):
         self.gearbox = gearbox
         self.number_inputs = number_inputs
         self.max_number_shafts = max_number_shafts
@@ -406,7 +406,12 @@ class GearBoxGenerator(DessiaObject):
     
         for n_gear in range(self.max_number_gears):
             for n_shaft in range(self.max_number_shafts):
-                gearbox_graph.add_edge('G' + str(n_gear+1), 'S' + str(n_shaft+1))
+                    gearbox_graph.add_edge('G' + str(n_gear+1), 'S' + str(n_shaft+1))
+                # if n_gear == n_shaft and n_gear+1 <= self.number_inputs:    
+                #     gearbox_graph.add_edge('G' + str(n_gear+1), 'S' + str(n_shaft+1))
+                # else:
+                #     if n_shaft+1 > self.number_inputs:
+                #         gearbox_graph.add_edge('G' + str(n_gear+1), 'S' + str(n_shaft+1))
         return gearbox_graph
    
             
@@ -422,17 +427,28 @@ class GearBoxGenerator(DessiaObject):
             list_edges.append(edge)
         edges = []
         for gear in range(self.max_number_gears):
-            for edge in list_edges:
-                if 'G' + str(gear+1) in edge:
-                    edges.append(edge)
-                    dict_connections[edge] = 0
+            for shaft in range(self.max_number_shafts):
+                if ('G' + str(gear+1), 'S' + str(shaft+1)) in list_edges: 
+                    edges.append(('G' + str(gear+1), 'S' + str(shaft+1)))
+                if ('S' + str(shaft+1), 'G' + str(gear+1)) in list_edges:
+                    edges.append(('S' + str(shaft+1), 'G' + str(gear+1)))
+        # for connection in edges:
+        #     dict_connections[connection] = 0 
+                
+        print(edges)
+        print(list_edges)
+        
+        
         tree = dt.RegularDecisionTree(list_node)
         list_gearbox = []
         list_nodes = []
         while not tree.finished:
               valid = True
               node = tree.current_node
-              if len(node)%self.max_number_shafts == 0:
+              if not len(node)%self.max_number_shafts == 0: 
+                  if node[self.max_number_shafts*int(len(node)/self.max_number_shafts):].count(0) > 2:
+                    valid = False
+              else:
                   if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) < self.max_number_shafts:
                       if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) != (self.max_number_shafts - 2):
                           valid = False
@@ -513,7 +529,7 @@ class GearBoxGenerator(DessiaObject):
                                                                                                       dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
                                         # print(len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))), dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
                         if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_multi_entry_counter_paths_between_2shafts]:
-                            print('yes')
+                            # print('yes')
                             valid = False
                                         
                 
@@ -735,7 +751,50 @@ class GearBoxGenerator(DessiaObject):
     
     
     
-    
+    # def connections_decision_tree(self):
+    #     list_node = []
+    #     list_edges = []
+    #     # gearbox = self.gearbox.copy()
+    #     gearbox_graph = self.gearbox_graph()
+    #     dict_connections = {}
+    #     list_dict_connections = []
+    #     for edge in gearbox_graph.edges():
+    #         list_node.append(len(self.connections))
+    #         list_edges.append(edge)
+    #     edges = []
+    #     for gear in range(self.max_number_gears):
+    #         for shaft in range(self.max_number_shafts):
+    #             if ('G' + str(gear+1), 'S' + str(shaft+1)) in list_edges:
+    #                 edges.append(('G' + str(gear+1), 'S' + str(shaft+1)))
+    #                 dict_connections[('G' + str(gear+1), 'S' + str(shaft+1))] = 0
+    #             if ('S' + str(shaft+1), 'G' + str(gear+1)) in list_edges:
+    #                 edges.append(('S' + str(shaft+1), 'G' + str(gear+1)))
+    #                 dict_connections[('S' + str(shaft+1), 'G' + str(gear+1))] = 0
+    #     print(edges)
+        
+        
+    #     # tree = dt.RegularDecisionTree(list_node)
+    #     # list_gearbox = []
+    #     # list_nodes = []
+    #     # while not tree.finished:
+    #     #       valid = True
+    #     #       node = tree.current_node
+    #     #       if len
+    #     #       if len(node)%self.max_number_shafts == 0:
+    #     #           if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) < self.max_number_shafts:
+    #     #               if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) != (self.max_number_shafts - 2):
+    #     #                   valid = False
+    #     #       if len(node) == len(list_edges) and valid:
+    #     #           for i_nd, nd in enumerate(node): 
+    #     #               dict_connections[edges[i_nd]] = self.connections[nd]
+    #     #               self.gearbox.gearbox_connections[edges[i_nd]] = self.connections[nd]
+    #     #           # gearbox = self.gearbox.copy()
+    #     #           # gearbox.gearbox_connections = self.gearbox.gearbox_connections
+    #     #           list_dict_connections.append(copy.copy(dict_connections))
+    #     #           # list_gearbox.append(gearbox)
+    #     #       tree.NextNode(valid)
+        
+    #     # return list_dict_connections
     
     
     
