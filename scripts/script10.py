@@ -141,8 +141,13 @@ speed_ranges = [[0, 30], [20 ,40], [30,50]] # in km/h
 speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_range[1]*(1000*2*np.pi)/(3600*np.pi*tire_radius)] for speed_range in speed_ranges] #in rad/s
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 
-generator = objects.GearBoxGenerator(gearbox,number_inputs = 2, max_number_shafts = 5, max_number_gears = 6)
-graph = generator.gearbox_graph()
+generator = objects.GearBoxGenerator(gearbox,number_inputs = 2, number_shaft_assemblies=5, max_number_gears = 5 )
+generate = generator.generate()
+solutions = generator.solutions()
+list_gearbox_graphs = solutions[0]
+list_paths = solutions[1]
+list_paths_edges = solutions[2]
+# graph = generator.gearbox_graph()
 # edges = generator.connections_decision_tree()
 # solutions = generator.connections_decision_tree() 
 # for i, node in enumerate(solutions[1]):
@@ -157,9 +162,9 @@ graph = generator.gearbox_graph()
 #     print(gearbox_connections)
 #     if j >= 15:
 #         break
-solutions = generator.solutions()
-list_gearbox_graphs = solutions[0]
-list_paths = solutions[1]
+# solutions = generator.solutions()
+# list_gearbox_graphs = solutions[0]
+# list_paths = solutions[1]
 
 import matplotlib.pyplot as plt
 import networkx as nx
