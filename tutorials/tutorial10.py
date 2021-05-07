@@ -479,7 +479,8 @@ class GearBoxGenerator(DessiaObject):
                     for j in range(self.number_shaft_assemblies):
                         if i < j:
                             if 'S'+str(i+1) in graph_paths_nodes and 'S'+str(j+1) in graph_paths_nodes:
-                                counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))]))
+                                counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = (len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))),\
+                                                                                               dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
                                 # print(len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))))
                 # for counter in list_counter_paths_between_2shafts:
                 #     if all( item in list(counter_paths_between_2shafts.values()) for item in list(counter.values())):
