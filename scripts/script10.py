@@ -147,6 +147,7 @@ solutions = generator.solutions()
 list_gearbox_graphs = solutions[0]
 list_paths = solutions[1]
 list_paths_edges = solutions[2]
+list_dict_connections = solutions[-1]
 # graph = generator.gearbox_graph()
 # edges = generator.connections_decision_tree()
 # solutions = generator.connections_decision_tree() 
@@ -172,5 +173,5 @@ import networkx as nx
 for k, graph in enumerate(list_gearbox_graphs):
     plt.figure()
     nx.draw_kamada_kawai(graph, with_labels = True)
-    if k >= 15:
+    if k >= 36:
         break

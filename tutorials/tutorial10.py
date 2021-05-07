@@ -405,22 +405,28 @@ class GearBoxGenerator(DessiaObject):
         list_node = []
         connections = []
         list_dict_connections = []
+        dict_connections = {}
         for i in range(self.number_shaft_assemblies):
             for j in range(self.number_shaft_assemblies):
                 if i < j:
                     connections.append((i+1, j+1))
-        
+                    # dict_connections[(i+1, j+1)] = 0
+        print(connections)
         for gear in range(self.max_number_gears):
             list_node.append(len(connections))
             
             
         tree = dt.RegularDecisionTree(list_node)
-        dict_connections = {}
+        
         
         while not tree.finished:
               valid = True
               node = tree.current_node
-              
+              if len(node) >  1:
+                  
+                  if connections[node[-1]][0] != connections[node[-2]][0]:
+                      if connections[node[-1]][0] != connections[node[-2]][1]:
+                          valid = False      
               if len(node) == self.max_number_gears and valid:
                   for i_node, nd in enumerate(node):
                       dict_connections['G' + str(i_node+1)] = connections[nd]
@@ -434,6 +440,7 @@ class GearBoxGenerator(DessiaObject):
         list_paths = []
         list_paths_edges = []
         list_counter_paths_between_2shafts = []
+        list_dict_connections = []
         for gearbox_connections in list_gearbox_connections:
             gearbox_graph = nx.Graph()
             for gearbox_connection in gearbox_connections:
@@ -457,17 +464,26 @@ class GearBoxGenerator(DessiaObject):
                 
                 for node in gearbox_graph.nodes(): 
                     if node not in [path_node for path in paths for path_node in path]:
-                        valid = False 
-                        
+                        valid = False
+                # previous_shaft_number = input_shaft 
+                # for i_node, node in enumerate(list(gearbox_graph.nodes())):
+                #     for i_shaft in range(self.number_shaft_assemblies):
+                #         if node == 'S'+str(i_shaft+1):
+                #             if i_shaft + 1 >= previous_shaft_number:
+                #                 previous_shaft_number = i_shaft+1
+                #             else:
+                #                 valid = False 
                 graph_paths_nodes = [node for path in paths for node in path]
                 counter_paths_between_2shafts = {}
                 for i in range(self.number_shaft_assemblies):
                     for j in range(self.number_shaft_assemblies):
                         if i < j:
                             if 'S'+str(i+1) in graph_paths_nodes and 'S'+str(j+1) in graph_paths_nodes:
-                                counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = (len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))),\
-                                                                                              dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
+                                counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))]))
                                 # print(len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))))
+                # for counter in list_counter_paths_between_2shafts:
+                #     if all( item in list(counter_paths_between_2shafts.values()) for item in list(counter.values())):
+                #         valid = False
                 if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_counter_paths_between_2shafts]:
                     valid = False
                         
@@ -477,8 +493,9 @@ class GearBoxGenerator(DessiaObject):
                     list_paths.append(paths)
                     list_paths_edges.append(paths_edges)
                     list_counter_paths_between_2shafts.append(counter_paths_between_2shafts)
+                    list_dict_connections.append(gearbox_connections)
         
-        return list_gearbox_graphs, list_paths, list_paths_edges, list_counter_paths_between_2shafts
+        return list_gearbox_graphs, list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
                                             
                                             
                 
