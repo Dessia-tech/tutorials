@@ -20,6 +20,7 @@ import networkx as nx
 import networkx.algorithms.isomorphism as iso
 from powertransmission.architecture import Shaft
 from collections import Counter
+from itertools import product
 
 class EfficiencyMap(DessiaObject):
     _standalone_in_db = False
@@ -370,7 +371,7 @@ class GearBoxGenerator(DessiaObject):
         self.connections = connections
         DessiaObject.__init__(self,name=name)
         
-    def generate(self):
+    def generate_connections(self):
         list_node = []
         connections = []
         list_dict_connections = []
@@ -379,7 +380,6 @@ class GearBoxGenerator(DessiaObject):
             for j in range(self.number_shaft_assemblies):
                 if i < j:
                     connections.append((i+1, j+1))
-                    # dict_connections[(i+1, j+1)] = 0
         print(connections)
         for gear in range(self.max_number_gears):
             list_node.append(len(connections))
@@ -400,7 +400,7 @@ class GearBoxGenerator(DessiaObject):
                   list_dict_connections.append(copy.copy(dict_connections))
               tree.NextNode(valid)
         return list_dict_connections
-    def solutions(self):
+    def generate(self):
         list_gearbox_connections = self.generate()
         list_gearbox_graphs = []
         list_paths = []
@@ -408,6 +408,7 @@ class GearBoxGenerator(DessiaObject):
         list_counter_paths_between_2shafts = []
         list_dict_connections = []
         for gearbox_connections in list_gearbox_connections:
+            # gearbox_graph = nx.DiGraph()
             gearbox_graph = nx.Graph()
             for gearbox_connection in gearbox_connections:
                 gearbox_graph.add_edge('S'+str(gearbox_connections[gearbox_connection][0]), gearbox_connection)
@@ -418,15 +419,13 @@ class GearBoxGenerator(DessiaObject):
             for shaft in range(self.number_shaft_assemblies):
                 for node in gearbox_graph.nodes():
                     if node == 'S'+str(input_shaft):
-                        nx.set_node_attributes(gearbox_graph, {node:'Entry Shaft'}, 'Element')
+                        gearbox_graph.nodes()[node]['Node Type'] = 'Input Shaft'
                     elif node == 'S'+str(output_shaft):
-                        nx.set_node_attributes(gearbox_graph, {node:'Out Shaft'}, 'Element')
+                        gearbox_graph.nodes()[node]['Node Type'] = 'Output Shaft'
                     elif 'S' in node:
-                            nx.set_node_attributes(gearbox_graph, {node:'Shaft'}, 'Element')
+                        gearbox_graph.nodes()[node]['Node Type'] = 'Shaft'
                     else:
-                        nx.set_node_attributes(gearbox_graph, {node:'Gear'}, 'Element')
-                        
-                
+                        gearbox_graph.nodes()[node]['Node Type'] = 'Gear'
             paths = []
             count = 0
             for path in nx.all_simple_paths(gearbox_graph, 'S'+str(input_shaft), 'S'+str(output_shaft)):
@@ -442,14 +441,7 @@ class GearBoxGenerator(DessiaObject):
                 for node in gearbox_graph.nodes(): 
                     if node not in [path_node for path in paths for path_node in path]:
                         valid = False
-                # previous_shaft_number = input_shaft 
-                # for i_node, node in enumerate(list(gearbox_graph.nodes())):
-                #     for i_shaft in range(self.number_shaft_assemblies):
-                #         if node == 'S'+str(i_shaft+1):
-                #             if i_shaft + 1 >= previous_shaft_number:
-                #                 previous_shaft_number = i_shaft+1
-                #             else:
-                #                 valid = False 
+
                 graph_paths_nodes = [node for path in paths for node in path]
                 counter_paths_between_2shafts = {}
                 for i in range(self.number_shaft_assemblies):
@@ -458,19 +450,28 @@ class GearBoxGenerator(DessiaObject):
                             if 'S'+str(i+1) in graph_paths_nodes and 'S'+str(j+1) in graph_paths_nodes:
                                 counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = (len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))),\
                                                                                                dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
-                                # print(len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))))
-                # for counter in list_counter_paths_between_2shafts:
-                #     if all( item in list(counter_paths_between_2shafts.values()) for item in list(counter.values())):
-                #         valid = False
+ 
                 if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_counter_paths_between_2shafts]:
                     valid = False
                 
                 for graph in list_gearbox_graphs:
-                    node_match = iso.categorical_node_match('Element', 'Gear')
+                    node_match = iso.categorical_node_match('Node Type', 'Shaft')
                     if nx.is_isomorphic(gearbox_graph, graph, node_match= node_match):
                         valid = False
 
                 if valid:
+                    # for shaft in range(self.number_shaft_assemblies):
+                    #     remove_edges = []
+                    #     if gearbox_graph.in_degree('S'+str(shaft+1)) > 1:
+                    #         for path_edge in paths_edges:
+                    #             for edge in path_edge:
+                    #                 if edge[1] == 'S'+str(shaft+1):
+                    #                     remove_edges.append(edge)
+                    #                     # gearbox_graph.remove_edge(edge[0], edge[1])
+                    #         for i_edge, edge in enumerate(remove_edges):
+                    #             gearbox_graph.remove_edge(edge[0], edge[1])
+                    #             gearbox_graph.add_edge(edge[0],'S'+str(shaft+1)+'-'+str(i_edge+1))
+                    #             gearbox_graph.add_edge('S'+str(shaft+1)+'-'+str(i_edge+1), edge[1], label = 'clutch')
                     
                     list_gearbox_graphs.append(gearbox_graph)
                     list_paths.append(paths)
@@ -479,6 +480,32 @@ class GearBoxGenerator(DessiaObject):
                     list_dict_connections.append(gearbox_connections)
         
         return list_gearbox_graphs, list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
+    
+    def clutch_analisys(self):
+        new_list_gearbox_graphs
+        list_gearbox_graphs = self.generate()[0]
+        for graph in list_gearbox_graphs:
+            cycles = nx.cycle_basis(graph)
+            list_cycle_shafts = []
+            for cycle in cycles:
+                cycle_shafts = []
+                for node in cycle:
+                    if 'S' in node:
+                        cycle_shafts.append(node)
+                list_cycle_shafts.append(cycle_shafts)
+            clutch_combinations = list(product(list_cycle_shafts[0], list_cycle_shafts[1]))
+            for clutch_combination in clutch_combinations:
+                for i_cycle, cycle in enumerate(cycles):
+                    
+                    if 'G' in cycle[0]:
+                        for i_node, node in enumerate(cycle):
+                            if clutch_combination[i_cycle] == node:
+                                edge = (clutch_combination[i_cycle], node[i_node-1])
+                                
+                    
+                                      
+                        
+            
                                             
                                             
                 
