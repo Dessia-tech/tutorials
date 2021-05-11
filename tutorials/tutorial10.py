@@ -17,6 +17,7 @@ from plot_data.colors import *
 import dectree as dt
 import copy
 import networkx as nx
+import networkx.algorithms.isomorphism as iso
 from powertransmission.architecture import Shaft
 from collections import Counter
 
@@ -355,38 +356,6 @@ class GearBoxOptimizer(DessiaObject):
                 list_gearbox_results.append(gearbox_results)
                 
         return list_gearbox_results
-
-# class Connection(DessiaObject):
-#     _eq_is_data_eq=False
-#     '''
-#     Define a connection
-    
-    
-#     :param nodes: The 2 elements connected
-#     :type nodes: List[Gear,Shaft]
-#     :param connection_type: The type of the connection :
-    
-#         -'D' is for Double
-    
-#         -'GI' is when the first element of nodes meshing to the second inward of the planetary gear
-    
-#         -'GE' is when the first element of nodes meshing to the second outward of the planetary gear
-    
-    
-#     :type connection_type: str
-    
-#     :param name: Name
-#     :type name: str, optional
-    
-
-
-#      '''
-
-#     def __init__(self, nodes: List[Gears], connection_type: str, name: str = ''):
-
-#         self.nodes = nodes
-#         self.connection_type = connection_type
-#         DessiaObject.__init__(self, name=name)
     
     
 class GearBoxGenerator(DessiaObject):
@@ -417,8 +386,6 @@ class GearBoxGenerator(DessiaObject):
             
             
         tree = dt.RegularDecisionTree(list_node)
-        
-        
         while not tree.finished:
               valid = True
               node = tree.current_node
@@ -430,7 +397,6 @@ class GearBoxGenerator(DessiaObject):
               if len(node) == self.max_number_gears and valid:
                   for i_node, nd in enumerate(node):
                       dict_connections['G' + str(i_node+1)] = connections[nd]
-                  
                   list_dict_connections.append(copy.copy(dict_connections))
               tree.NextNode(valid)
         return list_dict_connections
@@ -449,7 +415,18 @@ class GearBoxGenerator(DessiaObject):
         
             input_shaft = min([shaft for gearbox_connection in gearbox_connections.values() for shaft in gearbox_connection])
             output_shaft = max([shaft for gearbox_connection in gearbox_connections.values() for shaft in gearbox_connection])
-            
+            for shaft in range(self.number_shaft_assemblies):
+                for node in gearbox_graph.nodes():
+                    if node == 'S'+str(input_shaft):
+                        nx.set_node_attributes(gearbox_graph, {node:'Entry Shaft'}, 'Element')
+                    elif node == 'S'+str(output_shaft):
+                        nx.set_node_attributes(gearbox_graph, {node:'Out Shaft'}, 'Element')
+                    elif 'S' in node:
+                            nx.set_node_attributes(gearbox_graph, {node:'Shaft'}, 'Element')
+                    else:
+                        nx.set_node_attributes(gearbox_graph, {node:'Gear'}, 'Element')
+                        
+                
             paths = []
             count = 0
             for path in nx.all_simple_paths(gearbox_graph, 'S'+str(input_shaft), 'S'+str(output_shaft)):
@@ -487,7 +464,12 @@ class GearBoxGenerator(DessiaObject):
                 #         valid = False
                 if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_counter_paths_between_2shafts]:
                     valid = False
-                        
+                
+                for graph in list_gearbox_graphs:
+                    node_match = iso.categorical_node_match('Element', 'Gear')
+                    if nx.is_isomorphic(gearbox_graph, graph, node_match= node_match):
+                        valid = False
+
                 if valid:
                     
                     list_gearbox_graphs.append(gearbox_graph)
