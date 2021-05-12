@@ -21,6 +21,7 @@ import networkx.algorithms.isomorphism as iso
 from powertransmission.architecture import Shaft
 from collections import Counter
 from itertools import product
+import matplotlib.pyplot as plt
 
 class EfficiencyMap(DessiaObject):
     _standalone_in_db = False
@@ -401,7 +402,7 @@ class GearBoxGenerator(DessiaObject):
               tree.NextNode(valid)
         return list_dict_connections
     def generate(self):
-        list_gearbox_connections = self.generate()
+        list_gearbox_connections = self.generate_connections()
         list_gearbox_graphs = []
         list_paths = []
         list_paths_edges = []
@@ -460,19 +461,6 @@ class GearBoxGenerator(DessiaObject):
                         valid = False
 
                 if valid:
-                    # for shaft in range(self.number_shaft_assemblies):
-                    #     remove_edges = []
-                    #     if gearbox_graph.in_degree('S'+str(shaft+1)) > 1:
-                    #         for path_edge in paths_edges:
-                    #             for edge in path_edge:
-                    #                 if edge[1] == 'S'+str(shaft+1):
-                    #                     remove_edges.append(edge)
-                    #                     # gearbox_graph.remove_edge(edge[0], edge[1])
-                    #         for i_edge, edge in enumerate(remove_edges):
-                    #             gearbox_graph.remove_edge(edge[0], edge[1])
-                    #             gearbox_graph.add_edge(edge[0],'S'+str(shaft+1)+'-'+str(i_edge+1))
-                    #             gearbox_graph.add_edge('S'+str(shaft+1)+'-'+str(i_edge+1), edge[1], label = 'clutch')
-                    
                     list_gearbox_graphs.append(gearbox_graph)
                     list_paths.append(paths)
                     list_paths_edges.append(paths_edges)
@@ -482,10 +470,13 @@ class GearBoxGenerator(DessiaObject):
         return list_gearbox_graphs, list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
     
     def clutch_analisys(self):
-        new_list_gearbox_graphs
+        new_list_gearbox_graphs = []
+        list_clutch_combinations = []
+        list_cycles = []
         list_gearbox_graphs = self.generate()[0]
         for graph in list_gearbox_graphs:
             cycles = nx.cycle_basis(graph)
+            list_cycles.append(cycles)
             list_cycle_shafts = []
             for cycle in cycles:
                 cycle_shafts = []
@@ -494,18 +485,60 @@ class GearBoxGenerator(DessiaObject):
                         cycle_shafts.append(node)
                 list_cycle_shafts.append(cycle_shafts)
             clutch_combinations = list(product(list_cycle_shafts[0], list_cycle_shafts[1]))
+            list_clutch_combinations.append(clutch_combinations)
             for clutch_combination in clutch_combinations:
+                graph_copy = copy.deepcopy(graph)
+                
                 for i_cycle, cycle in enumerate(cycles):
-                    
                     if 'G' in cycle[0]:
                         for i_node, node in enumerate(cycle):
                             if clutch_combination[i_cycle] == node:
-                                edge = (clutch_combination[i_cycle], node[i_node-1])
-                                
-                    
-                                      
-                        
+                                # print('yes, it goes through here')
+                                edge = (clutch_combination[i_cycle], cycle[i_node-1])
+                                # print((clutch_combination[i_cycle], cycle[i_node-1]))
+                                graph_copy.edges()[edge]['Clutch'] = True
+                    else:
+                        for i_node, node in enumerate(cycle):
+                            if clutch_combination[i_cycle] == node:
+                                edge = (clutch_combination[i_cycle], cycle[i_node+1])
+                                graph_copy.edges()[edge]['Clutch'] = True
+                # for edge in graph_copy.edges():
+                    # print(graph_copy.edges()[edge])
+                new_list_gearbox_graphs.append(graph_copy)
+        
+        return new_list_gearbox_graphs, list_clutch_combinations, list_cycles
+    
+    # def clutch_generation(self):
+    #     clutch_gearbox_graphs = self.clutch_analisys()
             
+    def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
+        for i, graph in enumerate(graphs_list):
+            plt.figure()
+            gears = []
+            shafts = []
+            for node in graph.nodes():
+                for node in graph.nodes():
+                    if 'S' in node:
+                        shafts.append(node)
+                    else:
+                        gears.append(node)
+            edges = []
+            edges_clutch =[]
+            for edge in graph.edges():
+                if graph.edges()[edge]:
+                    edges_clutch.append(edge)
+                else:
+                    edges.append(edge)
+            pos = nx.kamada_kawai_layout(graph)
+            nx.draw_networkx_nodes(graph, pos, shafts, node_color='skyblue', node_size=1000)
+            nx.draw_networkx_nodes(graph, pos, gears, node_shape = 's', node_color='steelblue', node_size=1000)
+            nx.draw_networkx_edges(graph, pos, edges_clutch,edge_color='red', width= 3)
+            nx.draw_networkx_edges(graph, pos, edges)
+            labels = {element: element for element in shafts + gears}
+            nx.draw_networkx_labels(graph, pos, labels=labels)
+            if max_number_graphs is not None:
+                if i >= max_number_graphs:
+                    break
                                             
                                             
                 
