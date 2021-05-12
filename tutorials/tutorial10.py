@@ -493,10 +493,15 @@ class GearBoxGenerator(DessiaObject):
                     if 'G' in cycle[0]:
                         for i_node, node in enumerate(cycle):
                             if clutch_combination[i_cycle] == node:
-                                # print('yes, it goes through here')
-                                edge = (clutch_combination[i_cycle], cycle[i_node-1])
-                                # print((clutch_combination[i_cycle], cycle[i_node-1]))
-                                graph_copy.edges()[edge]['Clutch'] = True
+                                if clutch_combination[i_cycle] == clutch_combination[-1]:
+                                    edge = (clutch_combination[i_cycle], clutch_combination[0])
+                                    graph_copy.edges()[edge]['Clutch'] = True
+                                else:
+                                    
+                                    # print('yes, it goes through here')
+                                    edge = (clutch_combination[i_cycle], cycle[i_node-1])
+                                    # print((clutch_combination[i_cycle], cycle[i_node-1]))
+                                    graph_copy.edges()[edge]['Clutch'] = True
                     else:
                         for i_node, node in enumerate(cycle):
                             if clutch_combination[i_cycle] == node:
