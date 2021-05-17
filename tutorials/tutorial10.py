@@ -381,7 +381,7 @@ class GearBoxGenerator(DessiaObject):
             for j in range(self.number_shaft_assemblies):
                 if i < j:
                     connections.append((i+1, j+1))
-        print(connections)
+        # print(connections)
         for gear in range(self.max_number_gears):
             list_node.append(len(connections))
             
@@ -473,11 +473,13 @@ class GearBoxGenerator(DessiaObject):
         new_list_gearbox_graphs = []
         list_clutch_combinations = []
         list_cycles = []
+        list_dict_clutch_connections = []
         list_gearbox_graphs = self.generate()[0]
         for graph in list_gearbox_graphs:
             cycles = nx.cycle_basis(graph)
             list_cycles.append(cycles)
             list_cycle_shafts = []
+            
             for cycle in cycles:
                 cycle_shafts = []
                 for node in cycle:
@@ -488,42 +490,156 @@ class GearBoxGenerator(DessiaObject):
             list_clutch_combinations.append(clutch_combinations)
             for clutch_combination in clutch_combinations:
                 graph_copy = copy.deepcopy(graph)
-                
+                dict_clutch_connections = {}
                 for i_cycle, cycle in enumerate(cycles):
                     if 'G' in cycle[0]:
                         for i_node, node in enumerate(cycle):
                             if clutch_combination[i_cycle] == node:
-                                if clutch_combination[i_cycle] == clutch_combination[-1]:
-                                    edge = (clutch_combination[i_cycle], clutch_combination[0])
+                                if clutch_combination[i_cycle] == cycle[-1]:
+                                    edge = (cycle[0], clutch_combination[i_cycle])
+                                    # print(edge)
                                     graph_copy.edges()[edge]['Clutch'] = True
+                                    dict_clutch_connections[edge] = (cycle[0], cycle[i_node-1])
+                                    for nd in edge:
+                                        if 'S' in nd:
+                                            graph_copy.nodes()[nd]['Clutch'] = True
                                 else:
-                                    
-                                    # print('yes, it goes through here')
-                                    edge = (clutch_combination[i_cycle], cycle[i_node-1])
-                                    # print((clutch_combination[i_cycle], cycle[i_node-1]))
+                                    edge = (cycle[i_node-1], clutch_combination[i_cycle])
                                     graph_copy.edges()[edge]['Clutch'] = True
+                                    dict_clutch_connections[edge] = (cycle[i_node+1], cycle[i_node-1])
+                                    for nd in edge:
+                                        if 'S' in nd:
+                                            graph_copy.nodes()[nd]['Clutch'] = True
+                                            # print('here')
+                                            # print(graph_copy.nodes()[nd]['Clutch'])
                     else:
                         for i_node, node in enumerate(cycle):
                             if clutch_combination[i_cycle] == node:
-                                edge = (clutch_combination[i_cycle], cycle[i_node+1])
-                                graph_copy.edges()[edge]['Clutch'] = True
+                                if clutch_combination[i_cycle] == cycle[-2]:
+                                    edge = (cycle[i_node-1], clutch_combination[i_cycle])
+                                    graph_copy.edges()[edge]['Clutch'] = True
+                                    dict_clutch_connections[edge] = (cycle[i_node+1], cycle[i_node-1])
+                                    for nd in edge:
+                                        if 'S' in nd:
+                                            graph_copy.nodes()[nd]['Clutch'] = True
+                                else:
+                                    edge = (cycle[i_node+1], clutch_combination[i_cycle])
+                                    graph_copy.edges()[edge]['Clutch'] = True
+                                    dict_clutch_connections[edge] = (cycle[i_node+1], cycle[i_node-1])
+                                    for nd in edge:
+                                        if 'S' in nd:
+                                            graph_copy.nodes()[nd]['Clutch'] = True
                 # for edge in graph_copy.edges():
                     # print(graph_copy.edges()[edge])
+                list_dict_clutch_connections.append(dict_clutch_connections)
                 new_list_gearbox_graphs.append(graph_copy)
         
-        return new_list_gearbox_graphs, list_clutch_combinations, list_cycles
+        return new_list_gearbox_graphs, list_dict_clutch_connections, list_clutch_combinations, list_cycles
     
-    # def clutch_generation(self):
-    #     clutch_gearbox_graphs = self.clutch_analisys()
+    def clutch_generate(self):
+        clutch_analisys = self.clutch_analisys()
+        clutch_gearbox_graphs = clutch_analisys[0]
+        list_clutch_connections = clutch_analisys[1]
+        list_clutch_gearbox_graphs = []
+        for i_graph, graph in enumerate(clutch_gearbox_graphs):
+            graph_copy = copy.deepcopy(graph)
+            clutch_connections = list_clutch_connections[i_graph]
+            for node in graph.nodes():
+                if 'Clutch' in list(graph.nodes()[node].keys()):
+                    for edge in graph.edges():
+                        
+                                # print(clutch)
+                                
+                        if node in edge:
+                            # for link in clutch_connections.keys():
+                            #     if all(elem in link for elem in edge):
+                            #         clutch = clutch_connections[link]
+                            if graph.edges()[edge]:
+                                graph_copy.remove_edge(edge[0], edge[1])
+                                if 'S' in edge[0]:
+                                   graph_copy.add_edge(edge[1],edge[0]+'-'+edge[1]) 
+                                   graph_copy.add_edge(edge[0], edge[0]+'-'+edge[1])
+                                else:
+                                    graph_copy.add_edge(edge[0],edge[1]+'-'+edge[0]) 
+                                    graph_copy.add_edge(edge[1], edge[1]+'-'+edge[0])
+                            else:
+                                clutch_link_values = [value for values in clutch_connections.values() for value in values]
+                                if edge[0] in clutch_link_values or edge[1] in clutch_link_values:
+                                    graph_copy.remove_edge(edge[0], edge[1])
+                                    if 'S' in edge[0]:
+                                        graph_copy.add_edge(edge[1],edge[0]+'-'+edge[1]) 
+                                        graph_copy.add_edge(edge[0], edge[0]+'-'+edge[1])
+                                    else:
+                                        graph_copy.add_edge(edge[0],edge[1]+'-'+edge[0]) 
+                                        graph_copy.add_edge(edge[1], edge[1]+'-'+edge[0])
+                    
+                    
+            for edge_clutch in clutch_connections.keys():
+                graph_copy.add_edges_from([(edge_clutch[1]+'-'+ clutch_connections[edge_clutch][0], edge_clutch[1]+'-'+ clutch_connections[edge_clutch][1],{'Clucth': True})])
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                        
+                           
+                                
+                                # for link in clutch_connections.keys():
+                                #     if edge[0] in link and edge[1] in link:
+                                #         clutch = clutch_connections[link]
+                                        
+                                
+                                # if 'S' in edge[0]:
+                                #     graph_copy.add_edge(edge[1],edge[0]+'-'+edge[1])
+                                #     if clutch[0] == edge[1]:
+                                #         if (edge[0],clutch[0]) in graph_copy.edges():
+                                #             graph_copy.remove_edge(edge[0],clutch[0])
+                                #         graph_copy.add_edges_from([(edge[0]+'-'+edge[1],edge[0]+'-'+clutch[0], {'Clucth': True})])
+                                #         graph_copy.add_edge(edge[0]+'-'+clutch[0],clutch[0] )
+                                #     else:
+                                #         if (edge[0],clutch[1]) in graph_copy.edges():
+                                #             graph_copy.remove_edge(edge[0],clutch[1])
+                                #         graph_copy.add_edges_from([(edge[0]+'-'+edge[1],edge[0]+'-'+clutch[1], {'Clucth': True})])
+                                #         graph_copy.add_edge(edge[0]+'-'+clutch[1],clutch[1])
+                                #     # graph_copy.add_edges_from([(edge[0], edge[0]+'-'+edge[1], {'Clucth': True})])
+                                    
+                                # else:
+                                #     graph_copy.add_edge(edge[0], edge[1]+'-'+edge[0])
+                                #     if clutch[0] == edge[1]:
+                                #         if (edge[1],clutch[0]) in graph_copy.edges():
+                                #             graph_copy.remove_edge(edge[1],clutch[0])
+                                #         graph_copy.add_edges_from([(edge[1]+'-'+edge[0],edge[1]+'-'+clutch[0], {'Clucth': True})])
+                                #         graph_copy.add_edge(edge[1]+'-'+clutch[0],clutch[0] )
+                                #     else:
+                                #         if (edge[1],clutch[1]) in graph_copy.edges():
+                                #             graph_copy.remove_edge(edge[1],clutch[1])
+                                #         graph_copy.add_edges_from([(edge[1]+'-'+edge[0],edge[1]+'-'+clutch[1], {'Clucth': True})])
+                                #         graph_copy.add_edge(edge[1]+'-'+clutch[1],clutch[1])
+                                    # graph_copy.add_edges_from([(edge[1], edge[1]+'-'+edge[0], {'Clucth': True})])
+                        
+                    # else:
+                    #     for nd in edge:
+                    #         if 'S' in nd:
+                    #             if graph.nodes()[nd]['Clutch']:
+            list_clutch_gearbox_graphs.append(graph_copy)
+        return list_clutch_gearbox_graphs
+                        
+        
             
     def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
+        
         for i, graph in enumerate(graphs_list):
             plt.figure()
             gears = []
             shafts = []
+            S_G = []
             for node in graph.nodes():
                 for node in graph.nodes():
-                    if 'S' in node:
+                    if 'S' in node and 'G' in node:
+                        S_G.append(node)
+                    elif 'S' in node and 'G' not in node:
                         shafts.append(node)
                     else:
                         gears.append(node)
@@ -535,11 +651,13 @@ class GearBoxGenerator(DessiaObject):
                 else:
                     edges.append(edge)
             pos = nx.kamada_kawai_layout(graph)
+            
             nx.draw_networkx_nodes(graph, pos, shafts, node_color='skyblue', node_size=1000)
+            nx.draw_networkx_nodes(graph, pos, S_G, node_color='grey', node_size=500)
             nx.draw_networkx_nodes(graph, pos, gears, node_shape = 's', node_color='steelblue', node_size=1000)
             nx.draw_networkx_edges(graph, pos, edges_clutch,edge_color='red', width= 3)
             nx.draw_networkx_edges(graph, pos, edges)
-            labels = {element: element for element in shafts + gears}
+            labels = {element: element for element in  shafts + S_G + gears}
             nx.draw_networkx_labels(graph, pos, labels=labels)
             if max_number_graphs is not None:
                 if i >= max_number_graphs:

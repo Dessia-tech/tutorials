@@ -149,7 +149,8 @@ list_paths = solutions[1]
 list_paths_edges = solutions[2]
 list_dict_connections = solutions[-1]
 clutch_analisys = generator.clutch_analisys()
-generator.draw_graph(clutch_analisys[0], 13)
+cutch_generate = generator.clutch_generate()
+generator.draw_graph(cutch_generate, 25)
 # graph = generator.gearbox_graph()
 # edges = generator.connections_decision_tree()
 # solutions = generator.connections_decision_tree() 
