@@ -105,7 +105,7 @@ class Engine(DessiaObject):
   
 class GearBox(DessiaObject):
     _standalone_in_db = True
-    _non_serializable_attributes = ['gearbox_graph']
+    # _non_serializable_attributes = ['gearbox_graph']
     
     def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]], ratios: List[float] = None, name: str = ''):
         self.engine = engine
@@ -165,10 +165,10 @@ class GearBox(DessiaObject):
                     
         return [ gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
     def update_gb_graph(self, graph):
-        self.gearbox_graph = graph
+        self.gearbox_graph = [graph]
        
     def plot_data(self):
-        gearbox_graph = self.gearbox_graph
+        gearbox_graph = self.gearbox_graph[0]
         gears = []
         shafts = []
         S_G = []
