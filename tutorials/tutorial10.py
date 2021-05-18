@@ -105,7 +105,7 @@ class Engine(DessiaObject):
   
 class GearBox(DessiaObject):
     _standalone_in_db = True
-    # _non_serializable_attributes = ['gearbox_graph']
+    _non_serializable_attributes = ['gearbox_graph']
     
     def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]], ratios: List[float] = None, name: str = ''):
         self.engine = engine
@@ -113,6 +113,7 @@ class GearBox(DessiaObject):
         self.ratios = ratios
         self.gearbox_connections = {}
         DessiaObject.__init__(self,name=name)
+        self._utd_graph = False
         
     def update(self, x):
         ratios = []
@@ -165,10 +166,19 @@ class GearBox(DessiaObject):
                     
         return [ gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
     def update_gb_graph(self, graph):
-        self.gearbox_graph = [graph]
+        self.gearbox_graph = graph
+    
+    def _get_graph(self):
+        if not self._utd_graph:
+            self._cached_graph = self.gearbox_graph
+            self._utd_graph = True
+        return self._cached_graph
+
+    graph = property(_get_graph)
+
        
     def plot_data(self):
-        gearbox_graph = self.gearbox_graph[0]
+        gearbox_graph = self._get_graph()
         gears = []
         shafts = []
         S_G = []
@@ -634,6 +644,7 @@ class GearBoxGenerator(DessiaObject):
                         output_shaft = node
             paths = nx.all_simple_paths(graph_copy, input_shaft, output_shaft)
             valid = True
+            
             for path in paths:
                 if not any(('S' in node and 'G' in node) for node in path):
                     valid = False
