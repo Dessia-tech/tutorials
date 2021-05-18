@@ -143,13 +143,15 @@ gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 
 generator = objects.GearBoxGenerator(gearbox,number_inputs = 2, number_shaft_assemblies=5, max_number_gears = 5 )
 generate = generator.generate_connections()
-solutions = generator.generate()
+solutions = generator.generate_paths()
 list_gearbox_graphs = solutions[0]
 list_paths = solutions[1]
 list_paths_edges = solutions[2]
 list_dict_connections = solutions[-1]
 clutch_analisys = generator.clutch_analisys()
-clutch_generate = generator.clutch_generate()
+clutch_generate = generator.generate()
+sol1 = clutch_generate[0][0]
+plot_data.plot_canvas(sol1.plot_data()[0])
 # generator.draw_graph(clutch_generate, 25)
 # graph = generator.gearbox_graph()
 # edges = generator.connections_decision_tree()

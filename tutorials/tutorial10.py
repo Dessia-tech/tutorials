@@ -105,6 +105,7 @@ class Engine(DessiaObject):
   
 class GearBox(DessiaObject):
     _standalone_in_db = True
+    _non_serializable_attributes = ['gearbox_graph']
     
     def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]], ratios: List[float] = None, name: str = ''):
         self.engine = engine
@@ -173,12 +174,12 @@ class GearBox(DessiaObject):
         S_G = []
         for node in gearbox_graph.nodes():
             if 'S' in node and 'G' in node:
-                gearbox_graph.nodes()[node]['color'] = 'rgb(195,230,252)'
+                gearbox_graph.nodes()[node]['color'] = 'rgb(169,169,169)'
                 gearbox_graph.nodes()[node]['shape'] = 'o'
                 gearbox_graph.nodes()[node]['name'] = node
                 S_G.append(node)
             elif 'S' in node and 'G' not in node:
-                gearbox_graph.nodes()[node]['color'] = 'rgb(169,169,169)'
+                gearbox_graph.nodes()[node]['color'] = 'rgb(195,230,252)'
                 gearbox_graph.nodes()[node]['shape'] = 'o'
                 gearbox_graph.nodes()[node]['name'] = node
                 shafts.append(node)
@@ -193,9 +194,11 @@ class GearBox(DessiaObject):
         for edge in gearbox_graph.edges():
             if gearbox_graph.edges()[edge]:
                 gearbox_graph.edges()[edge]['color'] = 'rgb(247,0,0)'
+                gearbox_graph.edges()[edge]['width'] = 10
                 edges_clutch.append(edge)
             else:
                 gearbox_graph.edges()[edge]['color'] = 'rgb(0,0,0)'
+                gearbox_graph.edges()[edge]['width'] = 5
                 edges.append(edge)
         return [plot_data.graph.NetworkxGraph(gearbox_graph)]
 
@@ -399,7 +402,7 @@ class GearBoxOptimizer(DessiaObject):
 class GearBoxGenerator(DessiaObject):
     
     
-    def __init__(self, gearbox: GearBox, number_inputs:int, number_shaft_assemblies: int,   max_number_gears: int, connections: List[str] = ['existent', 'inexistent'] ,name = ''):
+    def __init__(self, gearbox: GearBox, number_inputs:int, number_shaft_assemblies: int,   max_number_gears: int, connections: List[str] = ['existent', 'inexistent'] ,name:str = ''):
         self.gearbox = gearbox
         self.number_inputs = number_inputs
         self.number_shaft_assemblies = number_shaft_assemblies
@@ -437,7 +440,7 @@ class GearBoxGenerator(DessiaObject):
                   list_dict_connections.append(copy.copy(dict_connections))
               tree.NextNode(valid)
         return list_dict_connections
-    def generate(self):
+    def generate_paths(self):
         list_gearbox_connections = self.generate_connections()
         list_gearbox_graphs = []
         list_paths = []
@@ -510,7 +513,7 @@ class GearBoxGenerator(DessiaObject):
         list_clutch_combinations = []
         list_cycles = []
         list_dict_clutch_connections = []
-        list_gearbox_graphs = self.generate()[0]
+        list_gearbox_graphs = self.generate_paths()[0]
         for graph in list_gearbox_graphs:
             cycles = nx.cycle_basis(graph)
             list_cycles.append(cycles)
@@ -584,7 +587,7 @@ class GearBoxGenerator(DessiaObject):
         
         return new_list_gearbox_graphs, list_dict_clutch_connections, list_clutch_combinations, list_cycles
     
-    def clutch_generate(self):
+    def generate(self):
         list_gearbox_solutions = []
         clutch_analisys = self.clutch_analisys()
         clutch_gearbox_graphs = clutch_analisys[0]
@@ -695,7 +698,8 @@ class GearBoxGenerator(DessiaObject):
             # if list_clutch_combinations[i_graph][0] ==  list_clutch_combinations[i_graph][1]:
                 
             
-        return list_gearbox_solutions, list_clutch_gearbox_graphs
+        return list_gearbox_solutions
+    # , list_clutch_gearbox_graphs
                         
         
             
