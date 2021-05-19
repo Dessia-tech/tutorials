@@ -90,6 +90,7 @@ class Engine(DessiaObject):
         self.efficiency_map = efficiency_map
         self.setpoint_speed = setpoint_speed
         self.setpoint_torque = setpoint_torque
+        
 
         DessiaObject.__init__(self,name=name)
     
@@ -105,15 +106,18 @@ class Engine(DessiaObject):
   
 class GearBox(DessiaObject):
     _standalone_in_db = True
-    _non_serializable_attributes = ['gearbox_graph']
+    # _non_serializable_attributes = ['graph']
     
-    def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]], ratios: List[float] = None, name: str = ''):
+    def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]], ratios: List[float] = None, graph: nx.Graph=None, name: str = ''):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = ratios
         # self.gearbox_connections = {}
         DessiaObject.__init__(self,name=name)
-        self._utd_graph = False
+        # self._utd_graph = False
+        self.graph = graph
+        self.average_path_length = 0
+        self.average_clutch_distance = 0
         
     def update(self, x):
         ratios = []
@@ -165,21 +169,23 @@ class GearBox(DessiaObject):
             engine_torque = list_torque[list_fuel_c.index(fuel_consumption_gpkwh)]
                     
         return [ gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
-    def update_gb_graph(self, graph):
-        self.gearbox_graph = [graph[0]]
-        self.average_path_length = graph[1]
-        self.average_clutch_distance = graph[2]
     
-    def _get_graph(self):
-        if not self._utd_graph:
-            self._cached_graph = self.gearbox_graph
-            self._utd_graph = True
-        return self._cached_graph
+    def update_gb_graph(self, graph):
+        self.graph = graph
+        self.average_path_length = graph.graph['Average length path']
+        self.average_clutch_distance = graph.graph['Average distance clutch-input']
+       
+    
+    # def _get_graph(self):
+    #     if not self._utd_graph:
+    #         self._cached_graph = self.gearbox_graph
+    #         self._utd_graph = True
+    #     return self._cached_graph
 
-    graph = property(_get_graph)
+    # graph = property(_get_graph)
     
     def plot_data(self):
-        gearbox_graph = self._get_graph()[0]
+        gearbox_graph = self.graph
         gears = []
         shafts = []
         S_G = []
@@ -212,6 +218,38 @@ class GearBox(DessiaObject):
                 gearbox_graph.edges()[edge]['width'] = 5
                 edges.append(edge)
         return [plot_data.graph.NetworkxGraph(gearbox_graph)]
+    
+    
+    def to_dict(self, subobjects_id = {}):
+        """
+        Export dictionary
+        """
+        d = {}
+        d['engine'] = self.engine.to_dict()
+        d['speed_ranges'] = self.speed_ranges
+        d['ratios'] = self.ratios
+        d['average_path_length'] = self.average_path_length
+        d['average_clutch_distance'] = self.average_clutch_distance
+        d['graph'] = nx.readwrite.json_graph.node_link_data(self.graph)
+        d['name'] = self.name
+        d['object_class'] = 'tutorials.tutorial10.GearBox'
+        
+        return d
+    @classmethod
+    def dict_to_object(cls, d):
+        obj = cls(engine = Engine.dict_to_object(d['engine']),
+                  speed_ranges =  d['speed_ranges'],
+                  ratios = d['ratios'], 
+                  # average_path_length =  d['average_path_length'],
+                  # average_clutch_distance = d['average_clutch_distance'],
+                  graph = nx.readwrite.json_graph.node_link_graph(d['graph']),
+                  name = d['name'],
+                  # object_class = d['object_class']
+                  )
+        return obj
+
+        
+         
 
 class GearBoxResults(DessiaObject): 
     _standalone_in_db = True
@@ -615,10 +653,9 @@ class GearBoxGenerator(DessiaObject):
                 graph_copy.add_edges_from([(shaft+'-'+ clutch_connections[i_shaft+1][0], shaft+'-'+ clutch_connections[i_shaft+1][1],{'Clucth': True})])
             if valid:
                 graph_copy.graph['Average distance clutch-input'] = mean(clutch_average_path_length)
-                average_path_legnth = graph_copy.graph['Average length path']
-                average_clutch_distance = graph_copy.graph['Average distance clutch-input']
+                
                 gearbox = self.gearbox.copy()
-                gearbox.update_gb_graph([graph_copy,average_path_legnth, average_clutch_distance])
+                gearbox.update_gb_graph(graph_copy)
                 list_gearbox_solutions.append(gearbox)
                 list_clutch_gearbox_graphs.append(graph_copy)
                 
