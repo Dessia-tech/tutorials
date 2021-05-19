@@ -105,13 +105,13 @@ class Engine(DessiaObject):
   
 class GearBox(DessiaObject):
     _standalone_in_db = True
-    _non_serializable_attributes = ['gearbox_graph']
+    # _non_serializable_attributes = ['gearbox_graph']
     
     def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]], ratios: List[float] = None, name: str = ''):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = ratios
-        self.gearbox_connections = {}
+        # self.gearbox_connections = {}
         DessiaObject.__init__(self,name=name)
         self._utd_graph = False
         
@@ -166,7 +166,9 @@ class GearBox(DessiaObject):
                     
         return [ gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
     def update_gb_graph(self, graph):
-        self.gearbox_graph = graph
+        self.gearbox_graph = [graph]
+        self.average_path_legnth = graph.graph['Average length path']
+        self.average_clutch_distance = graph.graph['Average distance clutch-input']
     
     def _get_graph(self):
         if not self._utd_graph:
@@ -175,10 +177,9 @@ class GearBox(DessiaObject):
         return self._cached_graph
 
     graph = property(_get_graph)
-
-       
+    
     def plot_data(self):
-        gearbox_graph = self._get_graph()
+        gearbox_graph = self._get_graph()[0]
         gears = []
         shafts = []
         S_G = []
@@ -450,6 +451,7 @@ class GearBoxGenerator(DessiaObject):
                   list_dict_connections.append(copy.copy(dict_connections))
               tree.NextNode(valid)
         return list_dict_connections
+    
     def generate_paths(self):
         list_gearbox_connections = self.generate_connections()
         list_gearbox_graphs = []
@@ -478,8 +480,10 @@ class GearBoxGenerator(DessiaObject):
                         gearbox_graph.nodes()[node]['Node Type'] = 'Gear'
             paths = []
             count = 0
+            average_lengths = []  
             for path in nx.all_simple_paths(gearbox_graph, 'S'+str(input_shaft), 'S'+str(output_shaft)):
                 paths.append(path)
+                average_lengths.append(len(path))
                 count += 1
             paths_edges = []
             for path in map(nx.utils.pairwise, paths):
@@ -504,12 +508,14 @@ class GearBoxGenerator(DessiaObject):
                 # if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_counter_paths_between_2shafts]:
                 #     valid = False
                 
+                
                 for graph in list_gearbox_graphs:
                     node_match = iso.categorical_node_match('Node Type', 'Shaft')
                     if nx.is_isomorphic(gearbox_graph, graph, node_match= node_match):
                         valid = False
 
                 if valid:
+                    gearbox_graph.graph['Average length path'] = mean(average_lengths)
                     list_gearbox_graphs.append(gearbox_graph)
                     list_paths.append(paths)
                     list_paths_edges.append(paths_edges)
@@ -544,54 +550,15 @@ class GearBoxGenerator(DessiaObject):
                     # if 'G' in cycle[0]:
                     for i_node, node in enumerate(cycle):
                         if clutch_combination[i_cycle] == node:
-                            
-                            # dict_clutch_connections[i_cycle + 1] = (cycle[i_node+1], cycle[i_node-1])
-                            # graph_copy.add_node()[node]['Clutch'] = True
-                            
+                        
                             
                             if clutch_combination[i_cycle] == cycle[-1]:
                                 dict_clutch_connections[i_cycle + 1] = (cycle[0], cycle[i_node-1])
                                 graph_copy.nodes()[node]['Clutch'] = True
-                                
-                                # edge = (cycle[0], clutch_combination[i_cycle])
-                                # # print(edge)
-                                # graph_copy.edges()[edge]['Clutch'] = True
-                                # dict_clutch_connections[edge] = (cycle[0], cycle[i_node-1])
-                                # for nd in edge:
-                                #     if 'S' in nd:
-                                #         graph_copy.nodes()[nd]['Clutch'] = True
                             else:
                                 dict_clutch_connections[i_cycle + 1] = (cycle[i_node+1], cycle[i_node-1])
                                 graph_copy.nodes()[node]['Clutch'] = True
-                                
-                                
-                                # edge = (cycle[i_node-1], clutch_combination[i_cycle])
-                                # graph_copy.edges()[edge]['Clutch'] = True
-                                # dict_clutch_connections[edge] = (cycle[i_node+1], cycle[i_node-1])
-                                # for nd in edge:
-                                #     if 'S' in nd:
-                                #         graph_copy.nodes()[nd]['Clutch'] = True
-                                #         # print('here')
-                                #         # print(graph_copy.nodes()[nd]['Clutch'])
-                    # else:
-                    #     for i_node, node in enumerate(cycle):
-                    #         if clutch_combination[i_cycle] == node:
-                    #             if clutch_combination[i_cycle] == cycle[-2]:
-                    #                 edge = (cycle[i_node-1], clutch_combination[i_cycle])
-                    #                 graph_copy.edges()[edge]['Clutch'] = True
-                    #                 dict_clutch_connections[edge] = (cycle[i_node+1], cycle[i_node-1])
-                    #                 for nd in edge:
-                    #                     if 'S' in nd:
-                    #                         graph_copy.nodes()[nd]['Clutch'] = True
-                    #             else:
-                    #                 edge = (cycle[i_node+1], clutch_combination[i_cycle])
-                    #                 graph_copy.edges()[edge]['Clutch'] = True
-                    #                 dict_clutch_connections[edge] = (cycle[i_node+1], cycle[i_node-1])
-                    #                 for nd in edge:
-                    #                     if 'S' in nd:
-                    #                         graph_copy.nodes()[nd]['Clutch'] = True
-                # for edge in graph_copy.edges():
-                    # print(graph_copy.edges()[edge])
+                      
                 list_dict_clutch_connections.append(dict_clutch_connections)
                 new_list_gearbox_graphs.append(graph_copy)
         
@@ -604,6 +571,7 @@ class GearBoxGenerator(DessiaObject):
         list_clutch_connections = clutch_analisys[1]
         list_clutch_combinations = [clutch_combination for clutch_combinations in clutch_analisys[2] for clutch_combination in clutch_combinations]
         list_clutch_gearbox_graphs = []
+        # list_average_lengths = []
         for i_graph, graph in enumerate(clutch_gearbox_graphs):
             graph_copy = copy.deepcopy(graph)
             clutch_connections = list_clutch_connections[i_graph]
@@ -615,18 +583,7 @@ class GearBoxGenerator(DessiaObject):
                     for edge in graph.edges():
                                 
                         if node in edge:
-                            # # for link in clutch_connections.keys():
-                            # #     if all(elem in link for elem in edge):
-                            # #         clutch = clutch_connections[link]
-                            # if graph.edges()[edge]:
-                            #     graph_copy.remove_edge(edge[0], edge[1])
-                            #     if 'S' in edge[0]:
-                            #        graph_copy.add_edge(edge[1],edge[0]+'-'+edge[1]) 
-                            #        graph_copy.add_edge(edge[0], edge[0]+'-'+edge[1])
-                            #     else:
-                            #         graph_copy.add_edge(edge[0],edge[1]+'-'+edge[0]) 
-                            #         graph_copy.add_edge(edge[1], edge[1]+'-'+edge[0])
-                            # else:
+                            
                             clutch_link_values = [value for values in clutch_connections.values() for value in values]
                             if edge[0] in clutch_link_values or edge[1] in clutch_link_values:
                                 graph_copy.remove_edge(edge[0], edge[1])
@@ -636,84 +593,36 @@ class GearBoxGenerator(DessiaObject):
                                 else:
                                     graph_copy.add_edge(edge[0],edge[1]+'-'+edge[0]) 
                                     graph_copy.add_edge(edge[1], edge[1]+'-'+edge[0])
+            clutches = []
             for node in graph_copy.nodes():
                 if graph_copy.nodes()[node]:
                     if graph_copy.nodes()[node]['Node Type'] == 'Input Shaft':
                         input_shaft = node
                     if graph_copy.nodes()[node]['Node Type'] == 'Output Shaft':
                         output_shaft = node
-            paths = nx.all_simple_paths(graph_copy, input_shaft, output_shaft)
-            valid = True
-            
+                    if 'Clutch' in list(graph.nodes()[node].keys()):
+                        clutches.append(node)
+            paths = nx.all_simple_paths(graph_copy, input_shaft, output_shaft) 
+            valid = True  
             for path in paths:
                 if not any(('S' in node and 'G' in node) for node in path):
                     valid = False
-                    
+            clutch_average_path_length = []
+            for clutch in clutches:
+                clutch_average_path_length.append(nx.shortest_path_length(graph_copy, input_shaft, clutch))
+                 
             for i_shaft, shaft in enumerate(list_clutch_combinations[i_graph]):
-                # for edge_clutch in clutch_connections.keys():
                 graph_copy.add_edges_from([(shaft+'-'+ clutch_connections[i_shaft+1][0], shaft+'-'+ clutch_connections[i_shaft+1][1],{'Clucth': True})])
-            
-            
             if valid:
+                graph_copy.graph['Average distance clutch-input'] = mean(clutch_average_path_length)
                 gearbox = self.gearbox.copy()
                 gearbox.update_gb_graph(graph_copy)
                 list_gearbox_solutions.append(gearbox)
                 list_clutch_gearbox_graphs.append(graph_copy)
-            
-                    
-                    
-                    
-                    
-                    
-                    
-                        
-                           
-                                
-                                # for link in clutch_connections.keys():
-                                #     if edge[0] in link and edge[1] in link:
-                                #         clutch = clutch_connections[link]
-                                        
-                                
-                                # if 'S' in edge[0]:
-                                #     graph_copy.add_edge(edge[1],edge[0]+'-'+edge[1])
-                                #     if clutch[0] == edge[1]:
-                                #         if (edge[0],clutch[0]) in graph_copy.edges():
-                                #             graph_copy.remove_edge(edge[0],clutch[0])
-                                #         graph_copy.add_edges_from([(edge[0]+'-'+edge[1],edge[0]+'-'+clutch[0], {'Clucth': True})])
-                                #         graph_copy.add_edge(edge[0]+'-'+clutch[0],clutch[0] )
-                                #     else:
-                                #         if (edge[0],clutch[1]) in graph_copy.edges():
-                                #             graph_copy.remove_edge(edge[0],clutch[1])
-                                #         graph_copy.add_edges_from([(edge[0]+'-'+edge[1],edge[0]+'-'+clutch[1], {'Clucth': True})])
-                                #         graph_copy.add_edge(edge[0]+'-'+clutch[1],clutch[1])
-                                #     # graph_copy.add_edges_from([(edge[0], edge[0]+'-'+edge[1], {'Clucth': True})])
-                                    
-                                # else:
-                                #     graph_copy.add_edge(edge[0], edge[1]+'-'+edge[0])
-                                #     if clutch[0] == edge[1]:
-                                #         if (edge[1],clutch[0]) in graph_copy.edges():
-                                #             graph_copy.remove_edge(edge[1],clutch[0])
-                                #         graph_copy.add_edges_from([(edge[1]+'-'+edge[0],edge[1]+'-'+clutch[0], {'Clucth': True})])
-                                #         graph_copy.add_edge(edge[1]+'-'+clutch[0],clutch[0] )
-                                #     else:
-                                #         if (edge[1],clutch[1]) in graph_copy.edges():
-                                #             graph_copy.remove_edge(edge[1],clutch[1])
-                                #         graph_copy.add_edges_from([(edge[1]+'-'+edge[0],edge[1]+'-'+clutch[1], {'Clucth': True})])
-                                #         graph_copy.add_edge(edge[1]+'-'+clutch[1],clutch[1])
-                                    # graph_copy.add_edges_from([(edge[1], edge[1]+'-'+edge[0], {'Clucth': True})])
-                        
-                    # else:
-                    #     for nd in edge:
-                    #         if 'S' in nd:
-                    #             if graph.nodes()[nd]['Clutch']:
-            # if list_clutch_combinations[i_graph][0] ==  list_clutch_combinations[i_graph][1]:
                 
             
-        return list_gearbox_solutions
-    # , list_clutch_gearbox_graphs
-                        
-        
-            
+        return list_gearbox_solutions, list_clutch_gearbox_graphs
+    
     def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
         for i, graph in enumerate(graphs_list):

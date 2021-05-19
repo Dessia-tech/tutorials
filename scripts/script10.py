@@ -150,9 +150,9 @@ list_paths_edges = solutions[2]
 list_dict_connections = solutions[-1]
 clutch_analisys = generator.clutch_analisys()
 clutch_generate = generator.generate()
-sol1 = clutch_generate[0]
-plot_data.plot_canvas(sol1.plot_data()[0])
-# generator.draw_graph(clutch_generate, 25)
+# sol1 = clutch_generate[0]
+# plot_data.plot_canvas(sol1.plot_data()[0])
+generator.draw_graph(clutch_generate[1], 25)
 # graph = generator.gearbox_graph()
 # edges = generator.connections_decision_tree()
 # solutions = generator.connections_decision_tree() 
