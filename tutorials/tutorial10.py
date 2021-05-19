@@ -621,7 +621,8 @@ class GearBoxGenerator(DessiaObject):
                 list_clutch_gearbox_graphs.append(graph_copy)
                 
             
-        return list_gearbox_solutions, list_clutch_gearbox_graphs
+        return list_gearbox_solutions
+    # , list_clutch_gearbox_graphs
     
     def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
