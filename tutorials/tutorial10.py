@@ -108,7 +108,9 @@ class GearBox(DessiaObject):
     _standalone_in_db = True
     # _non_serializable_attributes = ['graph']
     
-    def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]], ratios: List[float] = None, graph: nx.Graph=None, name: str = ''):
+    def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]],
+                 ratios: List[float] = None, graph: nx.Graph=None,
+                 average_path_length:float = 0, average_clutch_distance: float = 0, name: str = ''):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = ratios
@@ -116,9 +118,17 @@ class GearBox(DessiaObject):
         DessiaObject.__init__(self,name=name)
         # self._utd_graph = False
         self.graph = graph
-        self.average_path_length = 0
-        self.average_clutch_distance = 0
-        
+        self.average_path_length = average_path_length
+        self.average_clutch_distance = average_clutch_distance
+        # if not self.graph == None:
+        #     self.average_path_length = graph.graph['Average length path']
+        #     self.average_clutch_distance = graph.graph['Average distance clutch-input']
+    
+    def update_gb_graph(self, graph):
+        self.graph = graph
+        self.average_path_length = graph.graph['Average length path']
+        self.average_clutch_distance = graph.graph['Average distance clutch-input']
+            
     def update(self, x):
         ratios = []
         for i in range(len(x)):
@@ -170,10 +180,7 @@ class GearBox(DessiaObject):
                     
         return [ gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
     
-    def update_gb_graph(self, graph):
-        self.graph = graph
-        self.average_path_length = graph.graph['Average length path']
-        self.average_clutch_distance = graph.graph['Average distance clutch-input']
+    
        
     
     # def _get_graph(self):
@@ -240,8 +247,8 @@ class GearBox(DessiaObject):
         obj = cls(engine = Engine.dict_to_object(d['engine']),
                   speed_ranges =  d['speed_ranges'],
                   ratios = d['ratios'], 
-                  # average_path_length =  d['average_path_length'],
-                  # average_clutch_distance = d['average_clutch_distance'],
+                   average_path_length =  d['average_path_length'],
+                   average_clutch_distance = d['average_clutch_distance'],
                   graph = nx.readwrite.json_graph.node_link_graph(d['graph']),
                   name = d['name'],
                   # object_class = d['object_class']

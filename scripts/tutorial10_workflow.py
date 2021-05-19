@@ -18,17 +18,17 @@ block_efficiencymap = wf.InstanciateModel(objects.EfficiencyMap, name= 'Efficien
 block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
 block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
 
-# list_attribute = ['average_path_length', 'average_clutch_distance']
-# display = wf.MultiPlot(list_attribute, order = 1, name= 'Display')
+list_attribute = ['average_path_length', 'average_clutch_distance']
+display = wf.MultiPlot(list_attribute, order = 1, name= 'Display')
 block_workflow = [block_generator, block_generate, block_gearbox, block_engine, block_efficiencymap,
                   # block_wltpcycle,
-                   # display
+                    display
                   ]
 pipe_workflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]), 
                   wf.Pipe(block_gearbox.outputs[0], block_generator.inputs[0]), 
                   wf.Pipe(block_engine.outputs[0], block_gearbox.inputs[0]), 
                   wf.Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
-                  # wf.Pipe(block_generate.outputs[0], display.inputs[0])
+                   wf.Pipe(block_generate.outputs[0], display.inputs[0])
                   ]
 
 workflow = wf.Workflow(block_workflow, pipe_workflow, block_generate.outputs[0])
