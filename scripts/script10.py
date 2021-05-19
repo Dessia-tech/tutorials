@@ -152,7 +152,7 @@ clutch_analisys = generator.clutch_analisys()
 clutch_generate = generator.generate()
 # sol1 = clutch_generate[0]
 # plot_data.plot_canvas(sol1.plot_data()[0])
-generator.draw_graph(clutch_generate[1], 25)
+# generator.draw_graph(clutch_generate[1], 25)
 # graph = generator.gearbox_graph()
 # edges = generator.connections_decision_tree()
 # solutions = generator.connections_decision_tree() 

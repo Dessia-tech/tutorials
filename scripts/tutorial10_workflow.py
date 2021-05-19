@@ -18,7 +18,7 @@ block_efficiencymap = wf.InstanciateModel(objects.EfficiencyMap, name= 'Efficien
 block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
 block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
 
-list_attribute = ['average_path_legnth', 'average_clutch_distance']
+list_attribute = ['average_path_length', 'average_clutch_distance']
 display = wf.MultiPlot(list_attribute, order = 1, name= 'Display')
 block_workflow = [block_generator, block_generate, block_gearbox, block_engine, block_efficiencymap,
                   # block_wltpcycle,
