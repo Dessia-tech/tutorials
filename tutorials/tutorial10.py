@@ -254,6 +254,7 @@ class GearBox(DessiaObject):
 class GearBoxResults(DessiaObject): 
     _standalone_in_db = True
     
+    
     def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float],
                  gears: List[float], ratios:List[float], average_fuel_consumption:float, name: str = ''):
         self.gearbox = gearbox
@@ -448,9 +449,9 @@ class GearBoxOptimizer(DessiaObject):
     
     
 class GearBoxGenerator(DessiaObject):
-    
-    
-    def __init__(self, gearbox: GearBox, number_inputs:int, number_shaft_assemblies: int,   max_number_gears: int, connections: List[str] = ['existent', 'inexistent'] ,name:str = ''):
+     _standalone_in_db = True 
+     
+     def __init__(self, gearbox: GearBox, number_inputs:int, number_shaft_assemblies: int,   max_number_gears: int, connections: List[str] = ['existent', 'inexistent'] ,name:str = ''):
         self.gearbox = gearbox
         self.number_inputs = number_inputs
         self.number_shaft_assemblies = number_shaft_assemblies
@@ -459,7 +460,7 @@ class GearBoxGenerator(DessiaObject):
         self.connections = connections
         DessiaObject.__init__(self,name=name)
         
-    def generate_connections(self):
+     def generate_connections(self):
         list_node = []
         connections = []
         list_dict_connections = []
@@ -489,7 +490,7 @@ class GearBoxGenerator(DessiaObject):
               tree.NextNode(valid)
         return list_dict_connections
     
-    def generate_paths(self):
+     def generate_paths(self):
         list_gearbox_connections = self.generate_connections()
         list_gearbox_graphs = []
         list_paths = []
@@ -532,7 +533,7 @@ class GearBoxGenerator(DessiaObject):
                 for node in gearbox_graph.nodes(): 
                     if node not in [path_node for path in paths for path_node in path]:
                         valid = False
-
+    
                 # graph_paths_nodes = [node for path in paths for node in path]
                 # counter_paths_between_2shafts = {}
                 # for i in range(self.number_shaft_assemblies):
@@ -541,7 +542,7 @@ class GearBoxGenerator(DessiaObject):
                 #             if 'S'+str(i+1) in graph_paths_nodes and 'S'+str(j+1) in graph_paths_nodes:
                 #                 counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = (len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))),\
                 #                                                                                dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
- 
+     
                 # if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_counter_paths_between_2shafts]:
                 #     valid = False
                 
@@ -550,7 +551,7 @@ class GearBoxGenerator(DessiaObject):
                     node_match = iso.categorical_node_match('Node Type', 'Shaft')
                     if nx.is_isomorphic(gearbox_graph, graph, node_match= node_match):
                         valid = False
-
+    
                 if valid:
                     gearbox_graph.graph['Average length path'] = mean(average_lengths)
                     list_gearbox_graphs.append(gearbox_graph)
@@ -561,7 +562,7 @@ class GearBoxGenerator(DessiaObject):
         
         return list_gearbox_graphs, list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
     
-    def clutch_analisys(self):
+     def clutch_analisys(self):
         new_list_gearbox_graphs = []
         list_clutch_combinations = []
         list_cycles = []
@@ -601,7 +602,7 @@ class GearBoxGenerator(DessiaObject):
         
         return new_list_gearbox_graphs, list_dict_clutch_connections, list_clutch_combinations, list_cycles
     
-    def generate(self):
+     def generate(self):
         list_gearbox_solutions = []
         clutch_analisys = self.clutch_analisys()
         clutch_gearbox_graphs = clutch_analisys[0]
@@ -662,7 +663,7 @@ class GearBoxGenerator(DessiaObject):
         return list_gearbox_solutions
     # , list_clutch_gearbox_graphs
     
-    def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
+     def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
         for i, graph in enumerate(graphs_list):
             plt.figure()
