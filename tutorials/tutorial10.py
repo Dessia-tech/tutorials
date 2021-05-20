@@ -109,17 +109,22 @@ class GearBox(DessiaObject):
     _non_serializable_attributes = ['graph']
     
     def __init__(self, engine: Engine, speed_ranges: List[Tuple[float, float]],
-                 ratios: List[float] = None, graph: nx.Graph=None,
-                 average_path_length:float = 0, average_clutch_distance: float = 0, name: str = ''):
+                 ratios: List[float] = None,
+                 # graph: nx.Graph=None,
+                 # average_path_length:float = 0, average_clutch_distance: float = 0, 
+                 name: str = ''):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = ratios
         # self.gearbox_connections = {}
         DessiaObject.__init__(self,name=name)
-        # self._utd_graph = False
-        self.graph = graph
-        self.average_path_length = average_path_length
-        self.average_clutch_distance = average_clutch_distance
+        self.graph = None
+        self.average_path_length = None
+        self.average_clutch_distance = None
+
+        # self.graph = graph
+        # self.average_path_length = average_path_length
+        # self.average_clutch_distance = average_clutch_distance
         # if not self.graph == None:
         #     self.average_path_length = graph.graph['Average length path']
         #     self.average_clutch_distance = graph.graph['Average distance clutch-input']
@@ -243,12 +248,15 @@ class GearBox(DessiaObject):
         obj = cls(engine = Engine.dict_to_object(d['engine']),
                   speed_ranges =  d['speed_ranges'],
                   ratios = d['ratios'], 
-                   average_path_length =  d['average_path_length'],
-                   average_clutch_distance = d['average_clutch_distance'],
-                  graph = nx.readwrite.json_graph.node_link_graph(d['graph']),
+                   # average_path_length =  d['average_path_length'],
+                   # average_clutch_distance = d['average_clutch_distance'],
+                  # graph = nx.readwrite.json_graph.node_link_graph(d['graph']),
                   name = d['name'],
                   # object_class = d['object_class']
                   )
+        obj.graph = nx.readwrite.json_graph.node_link_graph(d['graph'])
+        obj.average_clutch_distance = d['average_clutch_distance']
+        obj.average_path_length = d['average_path_length']
         return obj
 
 class GearBoxResults(DessiaObject): 
