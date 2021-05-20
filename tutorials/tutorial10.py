@@ -30,7 +30,7 @@ class EfficiencyMap(DessiaObject):
     """
     Build the engine map and then determine its efficiency 
     """
-    def __init__(self, engine_speeds: List[float], engine_torques: List[float], mass_flow_rate: List[Tuple[float, float]],
+    def __init__(self, engine_speeds: List[float], engine_torques: List[float], mass_flow_rate: List[List[float]],
                  fuel_hv: float, name: str = ''): 
         self.engine_speeds = engine_speeds                                      # in rad/s
         self.engine_torques = engine_torques                                    #in Nm 
