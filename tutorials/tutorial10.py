@@ -451,13 +451,13 @@ class GearBoxOptimizer(DessiaObject):
 class GearBoxGenerator(DessiaObject):
      _standalone_in_db = True 
      
-     def __init__(self, gearbox: GearBox, number_inputs:int, number_shaft_assemblies: int,   max_number_gears: int, connections: List[str] = ['existent', 'inexistent'] ,name:str = ''):
+     def __init__(self, gearbox: GearBox, number_inputs:int, number_shaft_assemblies: int,   max_number_gears: int, name:str = ''):
         self.gearbox = gearbox
         self.number_inputs = number_inputs
         self.number_shaft_assemblies = number_shaft_assemblies
        
         self.max_number_gears = max_number_gears
-        self.connections = connections
+        # self.connections = connections
         DessiaObject.__init__(self,name=name)
         
      def generate_connections(self):
