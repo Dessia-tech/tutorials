@@ -477,22 +477,29 @@ class GearBoxGenerator(DessiaObject):
             for j in range(self.number_shaft_assemblies):
                 if i < j:
                     connections.append((i+1, j+1))
+        connections.append(None)
         # print(connections)
         for gear in range(self.max_number_gears):
             list_node.append(len(connections))
-            
-            
+
         tree = dt.RegularDecisionTree(list_node)
         while not tree.finished:
               valid = True
               node = tree.current_node
-              if len(node) >  1:
-                  
-                  if connections[node[-1]][0] != connections[node[-2]][0]:
-                      if connections[node[-1]][0] != connections[node[-2]][1]:
+              new_node = []
+              for nd in node:
+                  if nd != len(connections)-1:
+                      # print(len(connections))
+                      new_node.append(nd)
+              
+              
+              if len(new_node) >  1:
+                  # print(new_node)
+                  if connections[new_node[-1]][0] != connections[new_node[-2]][0]:
+                      if connections[new_node[-1]][0] != connections[new_node[-2]][1]:
                           valid = False      
               if len(node) == self.max_number_gears and valid:
-                  for i_node, nd in enumerate(node):
+                  for i_node, nd in enumerate(new_node):
                       dict_connections['G' + str(i_node+1)] = connections[nd]
                   list_dict_connections.append(copy.copy(dict_connections))
               tree.NextNode(valid)
@@ -668,8 +675,7 @@ class GearBoxGenerator(DessiaObject):
                 list_clutch_gearbox_graphs.append(graph_copy)
                 
             
-        return list_gearbox_solutions
-    # , list_clutch_gearbox_graphs
+        return list_gearbox_solutions, list_clutch_gearbox_graphs
     
      def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
