@@ -25,7 +25,7 @@ from itertools import product
 import matplotlib.pyplot as plt
 
 class EfficiencyMap(DessiaObject):
-    _standalone_in_db = False
+    _standalone_in_db = True
     
     """
     Build the engine map and then determine its efficiency 
