@@ -108,7 +108,7 @@ class GearBox(DessiaObject):
     _standalone_in_db = True
     _non_serializable_attributes = ['graph']
     
-    def __init__(self, engine: Engine, speed_ranges: List[List[float, float]],
+    def __init__(self, engine: Engine, speed_ranges: List[List[float]],
                  ratios: List[float] = None,
                  # graph: nx.Graph=None,
                  # average_path_length:float = 0, average_clutch_distance: float = 0, 
