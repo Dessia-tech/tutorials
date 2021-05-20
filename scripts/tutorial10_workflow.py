@@ -102,5 +102,5 @@ import json
 object1=json.dumps(d1)
 object2=json.loads(object1)
 
-c = Client(api_url = 'https://api.demo.dessia.tech')
+c = Client(api_url = 'https://api.platform-dev.dessia.tech')
 r = c.create_object_from_python_object(workflow_run)

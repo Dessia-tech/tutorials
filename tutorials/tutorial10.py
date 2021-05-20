@@ -19,8 +19,8 @@ import plot_data.graph
 import copy
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
-from powertransmission.architecture import Shaft
-from collections import Counter
+# from powertransmission.architecture import Shaft
+# from collections import Counter
 from itertools import product
 import matplotlib.pyplot as plt
 
@@ -179,10 +179,7 @@ class GearBox(DessiaObject):
             engine_torque = list_torque[list_fuel_c.index(fuel_consumption_gpkwh)]
                     
         return [ gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
-    
-    
-       
-    
+ 
     # def _get_graph(self):
     #     if not self._utd_graph:
     #         self._cached_graph = self.gearbox_graph
@@ -225,8 +222,7 @@ class GearBox(DessiaObject):
                 gearbox_graph.edges()[edge]['width'] = 5
                 edges.append(edge)
         return [plot_data.graph.NetworkxGraph(gearbox_graph)]
-    
-    
+
     def to_dict(self, subobjects_id = {}):
         """
         Export dictionary
@@ -255,9 +251,6 @@ class GearBox(DessiaObject):
                   )
         return obj
 
-        
-         
-
 class GearBoxResults(DessiaObject): 
     _standalone_in_db = True
     
@@ -278,8 +271,7 @@ class GearBoxResults(DessiaObject):
         self.ratio_min = min(self.gearbox.ratios)
         self.ratio_max = max(self.gearbox.ratios)
         self.average_ratio = mean(self.gearbox.ratios)
-        
- 
+
     def plot_data(self):
         
         cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
