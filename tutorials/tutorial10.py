@@ -6,7 +6,7 @@ Created on Tue Mar  2 13:30:58 2021
 @author: wirajan
 """
 
-from dessia_common import DessiaObject
+from dessia_common import DessiaObject, DisplayObject
 from typing import List,Tuple
 import numpy as np
 from scipy.optimize import minimize
@@ -837,7 +837,7 @@ class Clustering(DessiaObject):
                                                    else 0)
         print('Estimated number of clusters:', self.n_clusters)
         
-    def plot_data(self):
+    def plot_clusters(self):
         clustering =self.dbscan()
         encoding_mds = MDS()
         matrix_mds = encoding_mds.fit_transform(self.df)
@@ -850,14 +850,6 @@ class Clustering(DessiaObject):
             if label not in clusters:
                 clusters.append(label)
         print(clusters)
-        # plt.figure()
-        # for i in range(len(matrix_mds)):
-        #     if self.labels[i] == -1:
-        #         color = (0, 0, 0)
-        #     else:
-        #         color = cmp_f(self.labels[i] / (self.n_clusters - 1))
-        #     plt.plot([matrix_mds[i, 0]], [matrix_mds[i, 1]],
-        #              marker='o', color=color)
         to_disp_attribute_names = ['x', 'y']
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['x', 'y','Average length path',
                                                              'Average distance clutch-input',
@@ -885,21 +877,21 @@ class Clustering(DessiaObject):
                                    'Density': self.gearboxes[i].density}) 
             if len(elements) == 1:
                 elements.append(elements[0])
-            
-            # dataset = plot_data.Dataset(elements=elements, tooltip=tooltip, point_style=point_style,
-            #                      edge_style=edge_style)
-            # graph = plot_data.Graph2D(graphs=[dataset], to_disp_attribute_names=to_disp_attribute_names)
-            # plot_data.plot_canvas(graph)
-            # print(elements)
             data_sets.append(plot_data.Dataset(elements=elements, tooltip=tooltip, point_style=point_style,
                                  edge_style=edge_style,name = 'Cluster'+str(cluster)))
+            
         clusters_graph = plot_data.Graph2D(graphs=data_sets, to_disp_attribute_names=to_disp_attribute_names)
             
         
         return clusters_graph
-    
-    # def display_cluster(self):
+    def _displays(self):
+        plot_data = self.plot_clusters()
+        displays = []
+        display_ = DisplayObject(type_='plot_data', data=plot_data)
+        displays.append(display_.to_dict())
         
+        return displays
+ 
                 
             
                 
