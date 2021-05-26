@@ -893,7 +893,7 @@ class Clustering(DessiaObject):
         else:
             reference_path = ''
         display_ = DisplayObject(type_='plot_data', data=plot_data, 
-                                 reference_path=reference_path)
+                                 reference_path=reference_path + '/gearboxes')
         displays.append(display_.to_dict())
         
         return displays
