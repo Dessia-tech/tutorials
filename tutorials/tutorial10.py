@@ -869,12 +869,12 @@ class Clustering(DessiaObject):
                 if cluster == self.labels[i]:
                     elements.append({'x':point[0], 'y': point[1],
                                      'Average length path':self.gearboxes[i].average_path_length, 
-                                    'Average distance clutch-input':self.gearboxes[i].average_clutch_distance,
-                                    'Number of shafts': self.gearboxes[i].number_shafts, 
-                                    'Number of gears': self.gearboxes[i].number_gears,
-                                    'Standard deviation distante input/cluches':self.gearboxes[i].std_clutch_distance,
-                                   'Standard deviation distante input/gears':self.gearboxes[i].std_gears_distance,
-                                   'Density': self.gearboxes[i].density}) 
+                                     'Average distance clutch-input':self.gearboxes[i].average_clutch_distance,
+                                     'Number of shafts': self.gearboxes[i].number_shafts, 
+                                     'Number of gears': self.gearboxes[i].number_gears,
+                                     'Standard deviation distante input/cluches':self.gearboxes[i].std_clutch_distance,
+                                     'Standard deviation distante input/gears':self.gearboxes[i].std_gears_distance,
+                                     'Density': self.gearboxes[i].density}) 
             if len(elements) == 1:
                 elements.append(elements[0])
             data_sets.append(plot_data.Dataset(elements=elements, tooltip=tooltip, point_style=point_style,
@@ -884,10 +884,15 @@ class Clustering(DessiaObject):
             
         
         return clusters_graph
-    def _displays(self):
+    def _displays(self, **kwargs):
         plot_data = self.plot_clusters()
         displays = []
-        display_ = DisplayObject(type_='plot_data', data=plot_data)
+        if 'reference_path' in kwargs:
+            reference_path = kwargs['reference_path']
+        else:
+            reference_path = ''
+        display_ = DisplayObject(type_='plot_data', data=plot_data, 
+                                 reference_path=reference_path)
         displays.append(display_.to_dict())
         
         return displays

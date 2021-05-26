@@ -10,21 +10,15 @@ import dessia_common.workflow as wf
 
 from dessia_api_client import Client
 import numpy as np
-
+from dessia_common.typings import MethodType
 block_generator = wf.InstanciateModel(objects.GearBoxGenerator, name = 'Gearbox Generator')
-block_generate = wf.ModelMethod(objects.GearBoxGenerator, 'generate', name = 'Generate')
+block_generate = wf.ModelMethod(MethodType(class_ = objects.GearBoxGenerator , name = 'generate'), name = 'Generate')
 block_efficiencymap = wf.InstanciateModel(objects.EfficiencyMap, name= 'Efficiency Map')
 block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
 block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
 block_cluster = wf.InstanciateModel(objects.Clustering, name = 'Clustering')
 
-
 display = wf.Display()
-
-
-
-
-
 
 block_workflow = [block_generator, block_generate, block_gearbox, block_engine, block_efficiencymap,
                   # block_wltpcycle,
@@ -36,6 +30,7 @@ pipe_workflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]),
                   wf.Pipe(block_engine.outputs[0], block_gearbox.inputs[0]), 
                   wf.Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
                    wf.Pipe(block_generate.outputs[0], block_cluster.inputs[0]),
+                   wf.Pipe(block_generate.outputs[0], display.inputs[0]),
                    wf.Pipe(block_cluster.outputs[0], display.inputs[0])
                   ]
 
