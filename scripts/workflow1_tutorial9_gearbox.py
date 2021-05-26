@@ -10,10 +10,10 @@ import dessia_common.workflow as wf
 
 from dessia_api_client import Client
 import numpy as np
-
+from dessia_common.typings import MethodType
 
 block_optimizer = wf.InstanciateModel(objects.GearBoxOptimizer, name='Gearbox Optimizer')
-method_optimize = wf.ModelMethod(objects.GearBoxOptimizer, 'optimize', name='Optimize')
+method_optimize = wf.ModelMethod(MethodType(class_ =objects.GearBoxOptimizer,name= 'optimize'), name='Optimize')
 
 block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
 block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
@@ -161,5 +161,5 @@ input_values = {workflow.index(block_optimizer.inputs[2]): [.5, 4.5],
 
 workflow_run = workflow.run(input_values)
 
-c = Client(api_url = 'https://api.demo.dessia.tech')
-r = c.create_object_from_python_object(workflow_run)
+# c = Client(api_url = 'https://api.demo.dessia.tech')
+# r = c.create_object_from_python_object(workflow_run)

@@ -885,6 +885,7 @@ class Clustering(DessiaObject):
         
         return clusters_graph
     def _displays(self, **kwargs):
+        print('kwargs: ', kwargs)
         plot_data = self.plot_clusters()
         displays = []
         if 'reference_path' in kwargs:
