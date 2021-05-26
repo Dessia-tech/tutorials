@@ -18,8 +18,8 @@ block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
 block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
 block_cluster = wf.InstanciateModel(objects.Clustering, name = 'Clustering')
 
-clustering = objects.Clustering()
-display = wf.Display(inputs =[clustering])
+
+display = wf.Display()
 
 
 
