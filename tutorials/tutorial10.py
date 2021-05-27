@@ -481,13 +481,13 @@ class GearBoxOptimizer(DessiaObject):
 class GearBoxGenerator(DessiaObject):
      _standalone_in_db = True 
      
-     def __init__(self, gearbox: GearBox, number_inputs:int, max_number_shaft_assemblies: int,   max_number_gears: int, name:str = ''):
+     def __init__(self, gearbox: GearBox, number_inputs:int, 
+                  max_number_shaft_assemblies: int,
+                  max_number_gears: int, name:str = ''):
         self.gearbox = gearbox
         self.number_inputs = number_inputs
         self.max_number_shaft_assemblies = max_number_shaft_assemblies
-       
         self.max_number_gears = max_number_gears
-        # self.connections = connections
         DessiaObject.__init__(self,name=name)
         
      def generate_connections(self):
@@ -734,7 +734,8 @@ class GearBoxGenerator(DessiaObject):
                 list_clutch_gearbox_graphs.append(graph_copy)
                 
             
-        return list_gearbox_solutions, list_clutch_gearbox_graphs
+        return list_gearbox_solutions
+    # , list_clutch_gearbox_graphs
     
      def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
@@ -830,7 +831,6 @@ class Clustering(DessiaObject):
         db = DBSCAN(eps=2, min_samples=2, metric='cityblock')
         db.fit(self.df)
         self.labels = list(db.labels_)
-        
                 # Number of clusters in labels, ignoring noise if present.
         self.n_clusters = len(set(self.labels)) - (1 if -1 in self.labels
                                                    else 0)
@@ -857,32 +857,57 @@ class Clustering(DessiaObject):
                                                              'Standard deviation distante input/cluches',
                                                              'Standard deviation distante input/gears', 
                                                              'Density'])
-        edge_style = plot_data.EdgeStyle(color_stroke=WHITE, dashline=[10, 5],)
+        edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5],)
         data_sets=[]
+        all_points = []
+        list_indexes =[]
+        list_gearboxes_indexes = []
+        index = 0
         for j, cluster in enumerate(clusters):
             data_set = []
             elements = []
+            gearboxes_indexes = []
+            indexes = []
             color = colors[j]
             point_style = plot_data.PointStyle(color_fill=color, color_stroke=BLACK,size =5)
+            
             for i, point in enumerate(matrix_mds):
                 if cluster == self.labels[i]:
+                    gearboxes_indexes.append(i)
+                    indexes.append(index)
+                    index += 1
                     elements.append({'x':point[0], 'y': point[1],
-                                     'Average length path':self.gearboxes[i].average_path_length, 
-                                     'Average distance clutch-input':self.gearboxes[i].average_clutch_distance,
-                                     'Number of shafts': self.gearboxes[i].number_shafts, 
-                                     'Number of gears': self.gearboxes[i].number_gears,
-                                     'Standard deviation distante input/cluches':self.gearboxes[i].std_clutch_distance,
-                                     'Standard deviation distante input/gears':self.gearboxes[i].std_gears_distance,
+                                     'Aver path':self.gearboxes[i].average_path_length, 
+                                     'Aver L clutch-input':self.gearboxes[i].average_clutch_distance,
+                                     'Number shafts': self.gearboxes[i].number_shafts, 
+                                     'Number  gears': self.gearboxes[i].number_gears,
+                                     'Std input/cluches':self.gearboxes[i].std_clutch_distance,
+                                     'Std input/gears':self.gearboxes[i].std_gears_distance,
                                      'Density': self.gearboxes[i].density}) 
-            if len(elements) == 1:
-                elements.append(elements[0])
-            data_sets.append(plot_data.Dataset(elements=elements, tooltip=tooltip, point_style=point_style,
-                                 edge_style=edge_style,name = 'Cluster'+str(cluster)))
-            
-        clusters_graph = plot_data.Graph2D(graphs=data_sets, to_disp_attribute_names=to_disp_attribute_names)
+                    
+            # if len(elements) == 1:
+            #     elements.append(elements[0])
+            list_indexes.append(indexes)
+            all_points.extend(elements)
+            # print(all_points)
+            point_families = []
+        for i, indexes in enumerate(list_indexes):
+            color = colors[i]
+            point_families.append(plot_data.PointFamily(point_color=color, point_index = indexes, name = 'Cluster '+str(clusters[j])))
+        # print(point_families)
+        plots = [plot_data.Scatter(tooltip = tooltip, to_disp_attribute_names = to_disp_attribute_names, elements=all_points)]
+        rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
+        plots.append(plot_data.ParallelPlot(elements=all_points, edge_style=edge_style,
+                                              disposition='vertical',to_disp_attribute_names = ['Aver path', 'Aver L clutch-input','Number shafts', 'Number  gears', 'Std input/cluches', 'Std input/gears', 'Density' ],
+                                              rgbs=rgbs))
+        # plot_data.plot_canvas(plots[0])
+        coords = [(0, 0), (0,500)]
+        sizes = [plot_data.Window(width=500, height=500),
+                 plot_data.Window(width = 500, height = 500)]
+        clusters = plot_data.MultiplePlots(plots=plots, coords= coords, sizes = sizes, elements=all_points, point_families=point_families, initial_view_on=True)
             
         
-        return clusters_graph
+        return [clusters]
     def _displays(self, **kwargs):
         print('kwargs: ', kwargs)
         plot_data = self.plot_clusters()
