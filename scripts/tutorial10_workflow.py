@@ -18,7 +18,7 @@ block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
 block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
 block_cluster = wf.InstanciateModel(objects.Clustering, name = 'Clustering')
 
-display = wf.Display()
+display = wf.Display(name='Display')
 
 block_workflow = [block_generator, block_generate, block_gearbox, block_engine, block_efficiencymap,
                   # block_wltpcycle,

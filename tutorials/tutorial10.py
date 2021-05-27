@@ -6,7 +6,7 @@ Created on Tue Mar  2 13:30:58 2021
 @author: wirajan
 """
 
-from dessia_common import DessiaObject, DisplayObject
+from dessia_common import DessiaObject, DisplayObject, is_sequence
 from typing import List,Tuple
 import numpy as np
 from scipy.optimize import minimize
@@ -910,13 +910,17 @@ class Clustering(DessiaObject):
         return [clusters]
     def _displays(self, **kwargs):
         print('kwargs: ', kwargs)
-        plot_data = self.plot_clusters()
+        plot = self.plot_clusters()
+        if is_sequence(plot):
+            print('it is sequence')
+        else:
+            print('not sequence')
         displays = []
         if 'reference_path' in kwargs:
             reference_path = kwargs['reference_path']
         else:
             reference_path = ''
-        display_ = DisplayObject(type_='plot_data', data=plot_data, 
+        display_ = DisplayObject(type_='plot_data', data=plot, 
                                  reference_path=reference_path + '/gearboxes')
         displays.append(display_.to_dict())
         
