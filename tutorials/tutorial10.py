@@ -901,20 +901,16 @@ class Clustering(DessiaObject):
                                               disposition='vertical',to_disp_attribute_names = ['Aver path', 'Aver L clutch-input','Number shafts', 'Number  gears', 'Std input/cluches', 'Std input/gears', 'Density' ],
                                               rgbs=rgbs))
         # plot_data.plot_canvas(plots[0])
-        coords = [(0, 0), (0,500)]
-        sizes = [plot_data.Window(width=500, height=500),
-                 plot_data.Window(width = 500, height = 500)]
+        sizes = [plot_data.Window(width=560, height=300),
+                 plot_data.Window(width=560, height=300)]
+        coords = [(0, 0), (0, 300)]
         clusters = plot_data.MultiplePlots(plots=plots, coords= coords, sizes = sizes, elements=all_points, point_families=point_families, initial_view_on=True)
             
         
-        return [clusters]
+        return clusters
     def _displays(self, **kwargs):
         print('kwargs: ', kwargs)
         plot = self.plot_clusters()
-        if is_sequence(plot):
-            print('it is sequence')
-        else:
-            print('not sequence')
         displays = []
         if 'reference_path' in kwargs:
             reference_path = kwargs['reference_path']
