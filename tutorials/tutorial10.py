@@ -779,7 +779,6 @@ class Clustering(DessiaObject):
     def __init__(self, gearboxes:List[GearBox],clustering_method:str='dbscan', name:str=""):
         self.gearboxes = gearboxes
         self.clustering_method = clustering_method
-        self.gearboxes_ordered = None
         # self.list_data = list_data
         # self.list_features = list_features
         DessiaObject.__init__(self,name=name)
@@ -810,7 +809,7 @@ class Clustering(DessiaObject):
                 clusters.append(label)
         self.clusters = clusters
         encoding_mds = MDS()
-        matrix_mds = encoding_mds.fit_transform(self.df)
+        matrix_mds = [element.tolist() for element in encoding_mds.fit_transform(self.df)]
         list_indexes =[]
         gearboxes_indexes = []
         index = 0
@@ -874,7 +873,7 @@ class Clustering(DessiaObject):
     def dbscan(self):
         db = DBSCAN(eps=2, min_samples=2, metric='cityblock')
         db.fit(self.df)
-        labels = list(db.labels_)
+        labels =[int(label) for label in list(db.labels_)]
                 # Number of clusters in labels, ignoring noise if present.
         n_clusters = len(set(labels)) - (1 if -1 in labels
                                                    else 0)
