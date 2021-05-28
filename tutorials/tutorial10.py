@@ -790,6 +790,9 @@ class Clustering(DessiaObject):
                     dict_features[attr] = [gearbox.graph.graph[attr]]
         self.dict_features = dict_features
         self.df = pd.DataFrame.from_dict(self.dict_features)
+    def update_gearboxes(self,list_gearboxes):
+        self.gearboxes = list_gearboxes
+        
     def normalize(self):
         scaler = MinMaxScaler()
         
@@ -895,7 +898,8 @@ class Clustering(DessiaObject):
         print(gearboxes_indexes)
         for index in gearboxes_indexes:
             new_gearboxes_order.append(self.gearboxes[index])
-        self.gearboxes = new_gearboxes_order
+        self.update_gearboxes(new_gearboxes_order)
+        
         point_families = []
         for i, indexes in enumerate(list_indexes):
             color = colors[i]
