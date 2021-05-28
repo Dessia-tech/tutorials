@@ -288,8 +288,13 @@ class GearBoxResults(DessiaObject):
     _standalone_in_db = True
     
     
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, engine_speeds: List[float], engine_torques: List[float], fuel_consumptions:List[float],
-                 gears: List[float], ratios:List[float], average_fuel_consumption:float, name: str = ''):
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,
+                 engine_speeds: List[float],
+                 engine_torques: List[float], 
+                 fuel_consumptions:List[float],
+                 gears: List[float], ratios:List[float],
+                 average_fuel_consumption:float,
+                 name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.engine_speeds =engine_speeds
@@ -349,42 +354,62 @@ class GearBoxResults(DessiaObject):
         
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['sec', 'gear'])
-        edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
+        edge_style = plot_data.EdgeStyle(line_width=0.5 ,
+                                         color_stroke = list_colors[0])
         elements = []
         for i, gear in enumerate(self.gears):
             elements.append({'sec': cycle_time[i], 'gear': gear})         
-        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
-        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'gear']))
+        dataset = plot_data.Dataset(elements = elements,
+                                    edge_style = edge_style,
+                                    tooltip = tooltip,
+                                    point_style = point_style)
+        graphs2d.append(plot_data.Graph2D(graphs = [dataset],
+                                          to_disp_attribute_names = ['sec', 'gear']))
         
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['sec', 'f_cons (g/kWh)'])
-        edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[0])
+        edge_style = plot_data.EdgeStyle(line_width=0.5 ,
+                                         color_stroke = list_colors[0])
         elements = []
         for i, gear in enumerate(self.gears):
             elements.append({'sec': cycle_time[i], 'f_cons (g/kWh)': self.fuel_consumptions[i]*3.6e9})         
-        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
-        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'f_cons (g/kWh)']))
+        dataset = plot_data.Dataset(elements = elements,
+                                    edge_style = edge_style, 
+                                    tooltip = tooltip, 
+                                    point_style = point_style)
+        graphs2d.append(plot_data.Graph2D(graphs = [dataset],
+                                          to_disp_attribute_names = ['sec', 'f_cons (g/kWh)']))
         
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
          
         tooltip  = plot_data.Tooltip(to_disp_attribute_names=['sec', 'w_e'])
-        edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[2])
+        edge_style = plot_data.EdgeStyle(line_width=0.5 ,
+                                         color_stroke = list_colors[2])
         elements = []
         for i, torque in enumerate(self.wltp_cycle.cycle_torques):
             elements.append({'sec':cycle_time[i], 'w_e':self.engine_speeds[i]})
-        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
-        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'w_e']))
+        dataset = plot_data.Dataset(elements = elements,
+                                    edge_style = edge_style,
+                                    tooltip = tooltip,
+                                    point_style = point_style)
+        graphs2d.append(plot_data.Graph2D(graphs = [dataset], 
+                                          to_disp_attribute_names = ['sec', 'w_e']))
         
         """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
         
         tooltip  = plot_data.Tooltip(to_disp_attribute_names=['sec', 'w_t'])
-        edge_style = plot_data.EdgeStyle(line_width=0.5 ,color_stroke = list_colors[3])
+        edge_style = plot_data.EdgeStyle(line_width=0.5 ,
+                                         color_stroke = list_colors[3])
         elements = []
         for i, torque in enumerate(self.wltp_cycle.cycle_torques):
             elements.append({'sec':cycle_time[i], 'w_t':self.engine_torques[i]})
-        dataset = plot_data.Dataset(elements = elements, edge_style = edge_style, tooltip = tooltip, point_style = point_style)
-        graphs2d.append(plot_data.Graph2D(graphs = [dataset], to_disp_attribute_names = ['sec', 'w_t']))
+        dataset = plot_data.Dataset(elements = elements,
+                                    edge_style = edge_style,
+                                    tooltip = tooltip, 
+                                    point_style = point_style)
+        graphs2d.append(plot_data.Graph2D(graphs = [dataset],
+                                          to_disp_attribute_names = ['sec', 'w_t']))
 
         coords = [(0, 0), (0,187.5), (0,375), (0,562.5)]
         sizes = [plot_data.Window(width=1500, height=187.5),
@@ -399,7 +424,10 @@ class GearBoxResults(DessiaObject):
 class GearBoxOptimizer(DessiaObject):
     _standalone_in_db = True
     
-    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, first_gear_ratio_min_max: Tuple[float,float], coeff_between_gears: List[Tuple[float, float]] = None, name: str = ''):
+    def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,
+                 first_gear_ratio_min_max: Tuple[float,float],
+                 coeff_between_gears: List[Tuple[float, float]] = None, 
+                 name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.coeff_between_gears = coeff_between_gears
@@ -475,7 +503,14 @@ class GearBoxOptimizer(DessiaObject):
                 self.update(list(sol.x))
                 gearbox = self.gearbox.copy()
                 gearbox.ratios = self.gearbox.ratios
-                gearbox_results = GearBoxResults(gearbox, self.wltp_cycle, self.engine_speeds,  self.engine_torques,  self.fuel_consumptions,  self.gears, self.ratios, self.average_fuel_consumption) 
+                gearbox_results = GearBoxResults(gearbox,
+                                                 self.wltp_cycle,
+                                                 self.engine_speeds,
+                                                 self.engine_torques,
+                                                 self.fuel_consumptions,
+                                                 self.gears, 
+                                                 self.ratios,
+                                                 self.average_fuel_consumption) 
                 list_gearbox_results.append(gearbox_results)
                 
         return list_gearbox_results
@@ -503,11 +538,8 @@ class GearBoxGenerator(DessiaObject):
                 if i < j:
                     connections.append((i+1, j+1))
         connections.append(None)
-        # print(connections)
         for gear in range(self.max_number_gears):
             list_node.append(len(connections))
-        nodes =[]
-
         tree = dt.RegularDecisionTree(list_node)
         while not tree.finished:
               valid = True
@@ -515,12 +547,8 @@ class GearBoxGenerator(DessiaObject):
               new_node = []
               for nd in node:
                   if nd != len(connections)-1:
-                      # print(len(connections))
                       new_node.append(nd)
-              # print(len(new_node))
-              
               if len(new_node) >  1:
-                  # print(new_node)
                   if connections[new_node[-1]][0] != connections[new_node[-2]][0]:
                       if connections[new_node[-1]][0] != connections[new_node[-2]][1]:
                           valid = False  
@@ -528,8 +556,6 @@ class GearBoxGenerator(DessiaObject):
                   valid = False
               if len(node) == self.max_number_gears and valid:
                   dict_connections = {}
-                  # print(len(new_node))
-                  # nodes.append(new_node)
                   for i_node, nd in enumerate(new_node):
                       dict_connections['G' + str(i_node+1)] = connections[nd]
                   list_dict_connections.append(dict_connections)
@@ -544,7 +570,6 @@ class GearBoxGenerator(DessiaObject):
         list_counter_paths_between_2shafts = []
         list_dict_connections = []
         for gearbox_connections in list_gearbox_connections:
-            # gearbox_graph = nx.DiGraph()
             gearbox_graph = nx.Graph()
             for gearbox_connection in gearbox_connections:
                 gearbox_graph.add_edge('S'+str(gearbox_connections[gearbox_connection][0]), gearbox_connection)
@@ -552,9 +577,10 @@ class GearBoxGenerator(DessiaObject):
             
             number_shafts = 0
             number_gears = 0
-            input_shaft = 'S'+str(min([shaft for gearbox_connection in gearbox_connections.values() for shaft in gearbox_connection]))
-            output_shaft = 'S' + str(max([shaft for gearbox_connection in gearbox_connections.values() for shaft in gearbox_connection]))
-            # for shaft in range(self.max_number_shaft_assemblies):
+            input_shaft = 'S'+str(min([shaft for gearbox_connection in \
+                                       gearbox_connections.values() for shaft in gearbox_connection]))
+            output_shaft = 'S' + str(max([shaft for gearbox_connection in \
+                                          gearbox_connections.values() for shaft in gearbox_connection]))
             for node in gearbox_graph.nodes():
                 if node == input_shaft:
                     gearbox_graph.nodes()[node]['Node Type'] = 'Input Shaft'
@@ -587,26 +613,10 @@ class GearBoxGenerator(DessiaObject):
                         valid = False
                     if gearbox_graph.nodes()[node]['Node Type'] == 'Gear':
                         gears_path_lengths.append(nx.shortest_path_length(gearbox_graph, input_shaft,node))
-                    
-    
-                # graph_paths_nodes = [node for path in paths for node in path]
-                # counter_paths_between_2shafts = {}
-                # for i in range(self.max_number_shaft_assemblies):
-                #     for j in range(self.max_number_shaft_assemblies):
-                #         if i < j:
-                #             if 'S'+str(i+1) in graph_paths_nodes and 'S'+str(j+1) in graph_paths_nodes:
-                #                 counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = (len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))),\
-                #                                                                                dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
-     
-                # if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_counter_paths_between_2shafts]:
-                #     valid = False
-                
-                
                 for graph in list_gearbox_graphs:
                     node_match = iso.categorical_node_match('Node Type', 'Shaft')
                     if nx.is_isomorphic(gearbox_graph, graph, node_match= node_match):
                         valid = False
-    
                 if valid:
                     gearbox_graph.graph['Average length path'] = mean(average_lengths)
                     gearbox_graph.graph['Number of shafts'] = number_shafts
@@ -616,7 +626,6 @@ class GearBoxGenerator(DessiaObject):
                     list_gearbox_graphs.append(gearbox_graph)
                     list_paths.append(paths)
                     list_paths_edges.append(paths_edges)
-                    # list_counter_paths_between_2shafts.append(counter_paths_between_2shafts)
                     list_dict_connections.append(gearbox_connections)
         
         return list_gearbox_graphs, list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
@@ -651,8 +660,6 @@ class GearBoxGenerator(DessiaObject):
                     # if 'G' in cycle[0]:
                     for i_node, node in enumerate(cycle):
                         if clutch_combination[i_cycle] == node:
-                        
-                            
                             if clutch_combination[i_cycle] == cycle[-1]:
                                 dict_clutch_connections[i_cycle + 1] = (cycle[0], cycle[i_node-1])
                                 graph_copy.nodes()[node]['Clutch'] = True
@@ -677,7 +684,6 @@ class GearBoxGenerator(DessiaObject):
         list_clutch_connections = clutch_analisys[1]
         list_clutch_combinations = [clutch_combination for clutch_combinations in clutch_analisys[2] for clutch_combination in clutch_combinations]
         list_clutch_gearbox_graphs = []
-        # list_average_lengths = []
         for i_graph, graph in enumerate(clutch_gearbox_graphs):
             graph_copy = copy.deepcopy(graph)
             clutch_connections = list_clutch_connections[i_graph]
@@ -689,7 +695,6 @@ class GearBoxGenerator(DessiaObject):
                     for edge in graph.edges():
                                 
                         if node in edge:
-                            
                             clutch_link_values = [value for values in clutch_connections.values() for value in values]
                             if edge[0] in clutch_link_values or edge[1] in clutch_link_values:
                                 graph_copy.remove_edge(edge[0], edge[1])
@@ -699,38 +704,23 @@ class GearBoxGenerator(DessiaObject):
                                 else:
                                     graph_copy.add_edge(edge[0],edge[1]+'-'+edge[0]) 
                                     graph_copy.add_edge(edge[1], edge[1]+'-'+edge[0])
-            # clutches = []
             for node in graph_copy.nodes():
                 if graph_copy.nodes()[node]:
                     if graph_copy.nodes()[node]['Node Type'] == 'Input Shaft':
                         input_shaft = node
                     if graph_copy.nodes()[node]['Node Type'] == 'Output Shaft':
                         output_shaft = node
-                    # if 'Clutch' in list(graph.nodes()[node].keys()):
-                    #     clutches.append(node)
             paths = nx.all_simple_paths(graph_copy, input_shaft, output_shaft) 
             valid = True  
             for path in paths:
                 if not any(('S' in node and 'G' in node) for node in path):
                     valid = False
-            # clutch_path_lengths = []
-            # for clutch in clutches:
-            #     clutch_path_lengths.append(nx.shortest_path_length(graph_copy, input_shaft, clutch))
-            # gears_path_lengths = []
-            # for node in graph_copy.nodes():
-            #     if 'Node Type' in list(graph.nodes()[node].keys()):
-            #         if graph_copy.nodes()[node]['Node Type'] == 'Gear':
-            #             gears_path_lengths.append(nx.shortest_path_length(graph_copy, input_shaft,node))
-            #     if 'Clutch' in list(graph.nodes()[node].keys()):
-            #         clutch_path_lengths.append(nx.shortest_path_length(graph_copy, input_shaft, node))
                 
             for i_shaft, shaft in enumerate(list_clutch_combinations[i_graph]):
-                graph_copy.add_edges_from([(shaft+'-'+ clutch_connections[i_shaft+1][0], shaft+'-'+ clutch_connections[i_shaft+1][1],{'Clucth': True})])
+                graph_copy.add_edges_from([(shaft+'-'+ clutch_connections[i_shaft+1][0],
+                                            shaft+'-'+ clutch_connections[i_shaft+1][1],
+                                            {'Clucth': True})])
             if valid:
-                # graph_copy.graph['Average distance clutch-input'] = mean(clutch_path_lengths)
-                # graph_copy.graph['Standard deviation distante input/cluches'] = np.stack(clutch_path_lengths)
-                
-                
                 gearbox = self.gearbox.copy()
                 gearbox.update_gb_graph(graph_copy)
                 list_gearbox_solutions.append(gearbox)
@@ -738,7 +728,6 @@ class GearBoxGenerator(DessiaObject):
                 
             
         return list_gearbox_solutions
-    # , list_clutch_gearbox_graphs
     
      def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
@@ -779,8 +768,6 @@ class Clustering(DessiaObject):
     def __init__(self, gearboxes:List[GearBox],clustering_method:str='dbscan', name:str=""):
         self.gearboxes = gearboxes
         self.clustering_method = clustering_method
-        # self.list_data = list_data
-        # self.list_features = list_features
         DessiaObject.__init__(self,name=name)
         dict_features = {}
         for gearbox in self.gearboxes:
@@ -829,12 +816,7 @@ class Clustering(DessiaObject):
             new_matrix_mds.append(matrix_mds[index])
         self.gearboxes_ordered = new_gearboxes_order
         self.matrix_mds = new_matrix_mds
-        
-    # def update_gearboxes(self,list_gearboxes):
-    #     self.gearboxes = list_gearboxes
-        
-    def normalize(self):
-        scaler = MinMaxScaler()
+
         
     def num_clusters(self):
         "Defining the number of clusters using the elbow method"
@@ -859,16 +841,9 @@ class Clustering(DessiaObject):
     
     def k_means(self):
         n_clusters = self.num_clusters()
-        # df_scaled = self.normalize()
         
         km = KMeans(n_clusters=n_clusters)
         labels = km.fit_predict(self.df)
-         
-        # self.df['cluster'] = y_predicted
-        # list_k_dfs = []
-        # for n_k in range(k):
-        #     list_k_dfs.append(self.df['cluster']==n_k)
-        
         return labels, n_clusters
     def dbscan(self):
         db = DBSCAN(eps=2, min_samples=2, metric='cityblock')
@@ -881,10 +856,6 @@ class Clustering(DessiaObject):
         return labels, n_clusters
         
     def plot_clusters(self):
-        # clustering =self.dbscan()
-        # encoding_mds = MDS()
-        # matrix_mds = encoding_mds.fit_transform(self.df)
-        # self.matrix_mds = matrix_mds
         colors =[RED, GREEN, BLUE,ORANGE,LIGHTSKYBLUE, ROSE, VIOLET,LIGHTRED,LIGHTGREEN,CYAN,BROWN,GREY,HINT_OF_MINT,GRAVEL]
         
         to_disp_attribute_names = ['x', 'y']
@@ -896,13 +867,7 @@ class Clustering(DessiaObject):
                                                              'Std input/gears', 
                                                              'Density'])
         edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
-        # point_style = plot_data.PointStyle(color_fill=color, color_stroke=BLACK,size =5)
-        # data_sets=[]
         all_points = []
-        # list_indexes =[]
-        # list_gearboxes_indexes = []
-        # gearboxes_indexes = []
-        # index = 0
         for i, point in enumerate(self.matrix_mds):
             all_points.append(
                 {'x':point[0], 'y': point[1],
@@ -914,38 +879,6 @@ class Clustering(DessiaObject):
                  'Std input/gears':self.gearboxes_ordered[i].std_gears_distance,
                  'Density': self.gearboxes_ordered[i].density}
                 )
-        # for j, cluster in enumerate(clusters):
-        #     data_set = []
-        #     elements = []
-           
-        #     indexes = []
-        #     color = colors[j]
-        #     point_style = plot_data.PointStyle(color_fill=color, color_stroke=BLACK,size =5)
-            
-        #     for i, point in enumerate(matrix_mds):
-        #         if cluster == self.labels[i]:
-        #             gearboxes_indexes.append(i)
-        #             indexes.append(index)
-        #             index += 1
-        #             elements.append({'x':point[0], 'y': point[1],
-        #                              'Aver path':self.gearboxes[i].average_path_length, 
-        #                              'Aver L clutch-input':self.gearboxes[i].average_clutch_distance,
-        #                              'Number shafts': self.gearboxes[i].number_shafts, 
-        #                              'Number gears': self.gearboxes[i].number_gears,
-        #                              'Std input/cluches':self.gearboxes[i].std_clutch_distance,
-        #                              'Std input/gears':self.gearboxes[i].std_gears_distance,
-        #                              'Density': self.gearboxes[i].density}) 
-                    
-        #     # if len(elements) == 1:
-        #     #     elements.append(elements[0])
-        #     list_indexes.append(indexes)
-        #     all_points.extend(elements)
-        #     # print(all_points)
-        # new_gearboxes_order = []
-        # for index in gearboxes_indexes:
-        #     new_gearboxes_order.append(self.gearboxes[index])
-        
-        # self.gearboxes_ordered = new_gearboxes_order
         
         point_families = []
         for i, indexes in enumerate(self.list_indexes):
@@ -954,14 +887,26 @@ class Clustering(DessiaObject):
         # print(point_families)
         plots = [plot_data.Scatter(tooltip = tooltip, to_disp_attribute_names = to_disp_attribute_names, elements=all_points)]
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
-        plots.append(plot_data.ParallelPlot(elements=all_points, edge_style=edge_style,
-                                              disposition='vertical',to_disp_attribute_names = ['Aver path', 'Aver L clutch-input','Number shafts', 'Number  gears', 'Std input/cluches', 'Std input/gears', 'Density' ],
-                                              rgbs=rgbs))
-        # plot_data.plot_canvas(plots[0])
+        plots.append(plot_data.ParallelPlot(elements=all_points,
+                                            edge_style=edge_style,
+                                            disposition='vertical',
+                                            to_disp_attribute_names = ['Aver path',
+                                                                       'Aver L clutch-input',
+                                                                       'Number shafts',
+                                                                       'Number  gears',
+                                                                       'Std input/cluches',
+                                                                       'Std input/gears', 
+                                                                       'Density' ],
+                                            rgbs=rgbs))
         sizes = [plot_data.Window(width=560, height=300),
                  plot_data.Window(width=560, height=300)]
         coords = [(0, 0), (0, 300)]
-        clusters = plot_data.MultiplePlots(plots=plots, coords= coords, sizes = sizes, elements=all_points, point_families=point_families, initial_view_on=True)
+        clusters = plot_data.MultiplePlots(plots=plots, 
+                                           coords= coords,
+                                           sizes = sizes,
+                                           elements=all_points,
+                                           point_families=point_families,
+                                           initial_view_on=True)
             
         
         return clusters
@@ -980,406 +925,3 @@ class Clustering(DessiaObject):
         return displays
  
                 
-            
-                
-                      
-                  
-        # print(connections)
-    
-    # def gearbox_graph(self):
-    #     gearbox_graph = nx.Graph()
-    
-    #     for n_gear in range(self.max_number_gears):
-    #         for n_shaft in range(self.max_number_shafts):
-    #                 gearbox_graph.add_edge('G' + str(n_gear+1), 'S' + str(n_shaft+1))
-    #             # if n_gear == n_shaft and n_gear+1 <= self.number_inputs:    
-    #             #     gearbox_graph.add_edge('G' + str(n_gear+1), 'S' + str(n_shaft+1))
-    #             # else:
-    #             #     if n_shaft+1 > self.number_inputs:
-    #             #         gearbox_graph.add_edge('G' + str(n_gear+1), 'S' + str(n_shaft+1))
-    #     return gearbox_graph
-   
-            
-    # def connections_decision_tree(self):
-    #     list_node = []
-    #     list_edges = []
-    #     # gearbox = self.gearbox.copy()
-    #     gearbox_graph = self.gearbox_graph()
-    #     dict_connections = {}
-    #     list_dict_connections = []
-    #     for edge in gearbox_graph.edges():
-    #         list_node.append(len(self.connections))
-    #         list_edges.append(edge)
-    #     edges = []
-    #     for gear in range(self.max_number_gears):
-    #         for shaft in range(self.max_number_shafts):
-    #             if ('G' + str(gear+1), 'S' + str(shaft+1)) in list_edges: 
-    #                 edges.append(('G' + str(gear+1), 'S' + str(shaft+1)))
-    #             if ('S' + str(shaft+1), 'G' + str(gear+1)) in list_edges:
-    #                 edges.append(('S' + str(shaft+1), 'G' + str(gear+1)))
-    #     # for connection in edges:
-    #     #     dict_connections[connection] = 0 
-                
-    #     print(edges)
-    #     print(list_edges)
-        
-        
-    #     tree = dt.RegularDecisionTree(list_node)
-    #     list_gearbox = []
-    #     list_nodes = []
-    #     while not tree.finished:
-    #           valid = True
-    #           node = tree.current_node
-    #           if not len(node)%self.max_number_shafts == 0: 
-    #               if node[self.max_number_shafts*int(len(node)/self.max_number_shafts):].count(0) > 2:
-    #                 valid = False
-    #           else:
-    #               if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) < self.max_number_shafts:
-    #                   if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) != (self.max_number_shafts - 2):
-    #                       valid = False
-    #           if len(node) == len(list_edges) and valid:
-    #               for i_nd, nd in enumerate(node): 
-    #                   dict_connections[edges[i_nd]] = self.connections[nd]
-    #                   self.gearbox.gearbox_connections[edges[i_nd]] = self.connections[nd]
-    #               # gearbox = self.gearbox.copy()
-    #               # gearbox.gearbox_connections = self.gearbox.gearbox_connections
-    #               list_dict_connections.append(copy.copy(dict_connections))
-    #               # list_gearbox.append(gearbox)
-    #           tree.NextNode(valid)
-        
-    #     return list_dict_connections
-      
-              
-    # def solutions(self):
-        
-    #     list_gearbox_connections = self.connections_decision_tree()
-    #     # gearbox_possible_solutions = []
-    #     list_multi_entry_gearbox_graphs = []
-    #     list_multi_entry_paths = []
-    #     list_multi_entry_paths_edges = []
-    #     list_multi_entry_counter_paths_between_2shafts = []
-    #     # list_list_counter_paths_between_2shafts = []
-        
-    #     for gearbox_connections in list_gearbox_connections:
-    #         list_gearbox_graphs = []
-    #         list_paths = []
-    #         list_paths_edges = []
-    #         list_counter_paths_between_2shafts = []
-    #         gearbox_graph = nx.Graph()
-    #         for gearbox_connection in gearbox_connections:
-    #             if gearbox_connections[gearbox_connection] != 'inexistent':
-    #                 gearbox_graph.add_edges_from([(gearbox_connection[0], gearbox_connection[1], {'connection':gearbox_connections[gearbox_connection]})])
-    #             # else:
-    #             #     gearbox_graph.add_nodes_from([gearbox_connection[0], gearbox_connection[1]])
-            
-            
-    #         for n in range(self.number_inputs):
-    #             paths = []
-    #             if 'S' + str(n+1) in gearbox_graph and 'S'+str(self.max_number_shafts) in gearbox_graph:
-    #                 count = 0
-    #                 for path in nx.all_simple_paths(gearbox_graph, source = 'S' + str(n+1), target = 'S'+str(self.max_number_shafts)):
-    #                     count += 1
-    #                     paths.append(path)
-    #                 paths_edges = []
-    #                 for path in map(nx.utils.pairwise, paths):
-    #                     paths_edges.append(list(path))
-    
-                    
-    #                 if count == len(self.gearbox.speed_ranges):
-    #                     valid = True
-    #                     for k in range(self.number_inputs):
-    #                         if k != n:
-    #                             if 'S'+str(k+1) in [path_node for path in paths for path_node in path]:
-    #                                 valid = False
-                        
-    #                     # for node in gearbox_graph.nodes(): 
-    #                     #     if node not in [path_node for path in paths for path_node in path]:
-    #                     #         valid = False 
-                                
-    #                     # if len(list_paths) != 0:
-    #                     #     for j, paths_list in enumerate(list_paths_edges):
-    #                     #         counter = 0
-    #                     #         for path in paths_edges: 
-    #                     #             if path in paths_list:
-    #                     #                 counter +=1
-    #                     #         if counter == count:
-    #                     #             valid = False 
-    #                     graph_paths_nodes = [node for path in paths for node in path]
-    #                     counter_paths_between_2shafts = {}
-    #                     for i in range(self.max_number_shafts):
-    #                         for j in range(self.max_number_shafts):
-    #                             if i < j and j != n:
-    #                                 if 'S'+str(i+1) in graph_paths_nodes and 'S'+str(j+1) in graph_paths_nodes:
-    #                                     counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = (len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))),\
-    #                                                                                                   dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
-    #                                     # print(len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))), dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
-    #                     if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_multi_entry_counter_paths_between_2shafts]:
-    #                         # print('yes')
-    #                         valid = False
-                                        
-                
-    #                     if valid:
-    #                         list_paths.append(paths)
-    #                         list_gearbox_graphs.append(gearbox_graph)
-    #                         list_paths_edges.append(paths_edges)
-    #                         list_counter_paths_between_2shafts.append(counter_paths_between_2shafts)
-    #         # print('here it is, see if it is empty: ',[list(counter.values()) for list_counter in list_multi_entry_counter_paths_between_2shafts for counter in list_counter])
-    #         if len(list_paths) == self.number_inputs:
-    #             list_multi_entry_gearbox_graphs.append(gearbox_graph)
-    #             list_multi_entry_paths.append(list_paths)
-    #             list_multi_entry_paths_edges.append(list_paths_edges)
-    #             list_multi_entry_counter_paths_between_2shafts.extend(list_counter_paths_between_2shafts)
-                   
-    #     return list_multi_entry_gearbox_graphs, list_multi_entry_paths, list_multi_entry_paths_edges, list_multi_entry_counter_paths_between_2shafts
-            
-    
-# def solutions(self):
-    
-#     list_gearbox_connections = self.connections_decision_tree()
-#     # gearbox_possible_solutions = []
-#     list_gearbox_graphs = []
-#     list_paths = []
-#     list_paths_edges = []
-#     list_counter_paths_between_2shafts = []
-#     # list_list_counter_paths_between_2shafts = []
-    
-#     for gearbox_connections in list_gearbox_connections:
-#         gearbox_graph = nx.Graph()
-#         for gearbox_connection in gearbox_connections:
-#             if gearbox_connections[gearbox_connection] != 'inexistent':
-#                 gearbox_graph.add_edges_from([(gearbox_connection[0], gearbox_connection[1], {'connection':gearbox_connections[gearbox_connection]})])
-#             # else:
-#             #     gearbox_graph.add_nodes_from([gearbox_connection[0], gearbox_connection[1]])
-#         count = 0
-#         paths = []
-#         if 'S1' in gearbox_graph and 'S'+str(self.max_number_shafts) in gearbox_graph:
-#             for path in nx.all_simple_paths(gearbox_graph, source = 'S1', target = 'S'+str(self.max_number_shafts)):
-#                 count += 1
-#                 paths.append(path)
-#             paths_edges = []
-#             for path in map(nx.utils.pairwise, paths):
-#                 paths_edges.append(list(path))
-
-            
-#             if count == len(self.gearbox.speed_ranges):
-#                 valid = True
-#                 for node in gearbox_graph.nodes():
-#                     if node not in [path_node for path in paths for path_node in path]:
-#                         valid = False 
-                        
-#                 # if len(list_paths) != 0:
-#                 #     for j, paths_list in enumerate(list_paths_edges):
-#                 #         counter = 0
-#                 #         for path in paths_edges: 
-#                 #             if path in paths_list:
-#                 #                 counter +=1
-#                 #         if counter == count:
-#                 #             valid = False 
-#                 graph_paths_nodes = [node for path in paths for node in path]
-#                 counter_paths_between_2shafts = {}
-#                 for i in range(self.max_number_shafts):
-#                     for j in range(self.max_number_shafts):
-#                         if i < j:
-#                             if 'S'+str(i+1) in graph_paths_nodes and 'S'+str(j+1) in graph_paths_nodes:
-#                                 counter_paths_between_2shafts['S'+str(i+1)+'-S'+str(j+1)] = (len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))),\
-#                                                                                              dict(Counter([len(path) for path  in nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1))])))
-#                                 # print(len(list(nx.all_simple_paths(gearbox_graph, 'S'+str(i+1), 'S'+str(j+1)))))
-#                 if list(counter_paths_between_2shafts.values()) in [list(counter.values()) for counter in list_counter_paths_between_2shafts]:
-#                     valid = False
-                                
-        
-#                 if valid:
-#                     list_paths.append(paths)
-#                     list_gearbox_graphs.append(gearbox_graph)
-#                     list_paths_edges.append(paths_edges)
-#                     list_counter_paths_between_2shafts.append(counter_paths_between_2shafts)
-               
-#     return list_gearbox_graphs, list_paths, list_paths_edges, list_counter_paths_between_2shafts
-              
-    
-    
-        
-        
-        
-        
-        # if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) != (self.max_number_shafts - 2) or node[-self.max_number_shafts:].count(self.connections.index('inexistent')) != (self.max_number_shafts - 3):
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-#         list_node = []
-#         list_gear = []
-#         # gearbox = self.gearbox
-        
-        
-       
-        
-#         for i in range(self.max_number_meshes): 
-#             list_node.append(self.min_max_number_shafts_per_mesh[1] - self.min_max_number_shafts_per_mesh[0])
-#             list_node.append(self.number_connections)
-#             list_gear.append(i + 1)
-        
-        
-#         tree = dt.RegularDecisionTree(list_node)
-#         list_gearbox = []
-#         list_valid_nodes = []
-#         # shafts = []
-        
-#         while not tree.finished:
-#               valid = True
-#               node = tree.current_node
-#               # connections = []
-#               if len(node)%2 == 0: 
-#                   number_shaft = node[-1] 
-              
-#               # if len(node)%2 != 0:
-#               #     shaft = self.list_shafts[node[-1]]
-#               # else: 
-#               #     connections.append(node[-1])
-
-#               # gearbox.gear_connections[len(node) - 1] = node[-1]
-             
-#               if len(node) <= len(list_gear)/2 + 1:
-#                   if node[-1] != 0:
-#                       valid  = False
-#               else:
-#                   if node[-1] == 2:
-#                       valid = False
-             
-#               if len(node)==len(list_gear) and valid:
-#                   list_connections 
-#                   list_gearbox.append(copy.deepcopy(gearbox))
-#                   list_valid_nodes.append(node)
-                 
-#               tree.NextNode(valid)
-             
-#         return list_gearbox, list_valid_nodes
-             
-        
-        
-# # avant j'utilisais les meshes et les arbres pour le noueds, mais je voyais pas commet faire le contrôle après pour le deuxième point que tu avait proposé vendredi, de vérifier si un engrènement n'est connecté que 
-
-
-        
-    
-   # while not tree.finished:
-   #            valid = True
-   #            node = tree.current_node
-   #            dict_connections[edges[len(node)-1]] = self.connections[node[-1]]
-   #            # print(dict_connections)
-   #            # for dict_connection in dict_connections:
-   #            if len(node)%self.max_number_shafts == 0:
-   #            #     print(len(node))
-   #            #     print('passa por aqui sim')
-   #            #     break
-   #            # if len(node)%self.max_number_shafts == 0:
-   #            #     # print(len(node))
-   #            #     print('passa por aqui sim')
-   #            #     count+=1
-   #            #     print('length node: ', len(node))
-   #            #     if count == 10:
-   #            #         break
-   #                 # print('length node: ', len(node))
-   #                 if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) < self.max_number_shafts:
-   #                     if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) != (self.max_number_shafts - 2):
-   #                         valid = False
-   #            #         # else:
-   #            #         #     if node[-self.max_number_shafts:].count(self.connections.index('free')) != 2 or node[-self.max_number_shafts:].count(self.connections.index('fixed')) != 2:
-   #            #         #         valid = False
-
-   #            if len(node) == len(list_edges) and valid:
-                   
-   #                # placer=0
-   #                for i_nd, nd in enumerate(node):
-                       
-   #                #     if (i_nd+1)%self.max_number_shafts == 0:
-   #                #         # if node[placer:i_nd+1].count(self.connections.index('inexistent')) < self.max_number_shafts:
-                              
-   #                #           if node[placer:i_nd+1].count(self.connections.index('inexistent')) != self.max_number_shafts-2:
-   #                #               valid = False
-   #                #           placer += self.max_number_shafts
-   #                # if valid:
-   #                #     list_gearbox.append(gearbox)
-   #                #     list_nodes.append(node)
-                              
-                           
-                           
-   #                     gearbox.gearbox_connections[edges[i_nd]] = self.connections[nd]
-   #                list_gearbox.append(gearbox)
-   #                list_nodes.append(node)
-   #            # print("nexxtnode")
-   #            tree.NextNode(valid)
-        
-   #      return list_gearbox, list_nodes 
-    
-    
-    
-    
-    # def connections_decision_tree(self):
-    #     list_node = []
-    #     list_edges = []
-    #     # gearbox = self.gearbox.copy()
-    #     gearbox_graph = self.gearbox_graph()
-    #     dict_connections = {}
-    #     list_dict_connections = []
-    #     for edge in gearbox_graph.edges():
-    #         list_node.append(len(self.connections))
-    #         list_edges.append(edge)
-    #     edges = []
-    #     for gear in range(self.max_number_gears):
-    #         for shaft in range(self.max_number_shafts):
-    #             if ('G' + str(gear+1), 'S' + str(shaft+1)) in list_edges:
-    #                 edges.append(('G' + str(gear+1), 'S' + str(shaft+1)))
-    #                 dict_connections[('G' + str(gear+1), 'S' + str(shaft+1))] = 0
-    #             if ('S' + str(shaft+1), 'G' + str(gear+1)) in list_edges:
-    #                 edges.append(('S' + str(shaft+1), 'G' + str(gear+1)))
-    #                 dict_connections[('S' + str(shaft+1), 'G' + str(gear+1))] = 0
-    #     print(edges)
-        
-        
-    #     # tree = dt.RegularDecisionTree(list_node)
-    #     # list_gearbox = []
-    #     # list_nodes = []
-    #     # while not tree.finished:
-    #     #       valid = True
-    #     #       node = tree.current_node
-    #     #       if len
-    #     #       if len(node)%self.max_number_shafts == 0:
-    #     #           if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) < self.max_number_shafts:
-    #     #               if node[-self.max_number_shafts:].count(self.connections.index('inexistent')) != (self.max_number_shafts - 2):
-    #     #                   valid = False
-    #     #       if len(node) == len(list_edges) and valid:
-    #     #           for i_nd, nd in enumerate(node): 
-    #     #               dict_connections[edges[i_nd]] = self.connections[nd]
-    #     #               self.gearbox.gearbox_connections[edges[i_nd]] = self.connections[nd]
-    #     #           # gearbox = self.gearbox.copy()
-    #     #           # gearbox.gearbox_connections = self.gearbox.gearbox_connections
-    #     #           list_dict_connections.append(copy.copy(dict_connections))
-    #     #           # list_gearbox.append(gearbox)
-    #     #       tree.NextNode(valid)
-        
-    #     # return list_dict_connections
-    
-    
-    

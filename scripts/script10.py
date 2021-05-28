@@ -150,51 +150,8 @@ list_paths_edges = solutions[2]
 list_dict_connections = solutions[-1]
 clutch_analisys = generator.clutch_analisys()
 clutch_generate = generator.generate()
-# sol1 = clutch_generate[0]
-# plot_data.plot_canvas(sol1.plot_data()[0])
-# generator.draw_graph(clutch_generate[1], 100)
+
 clustering = objects.Clustering(clutch_generate)
 
-# graph = generator.gearbox_graph()
-# edges = generator.connections_decision_tree()
-# solutions = generator.connections_decision_tree() 
-# for i, node in enumerate(solutions[1]):
-#     print(node)
-#     if i >= 15:
-#         break
-# for j, gearbox in enumerate(solutions[0]):
-#     print(gearbox.gearbox_connections)
-#     if j >= 15:
-#         break
-# for j, gearbox_connections in enumerate(solutions[2]):
-#     print(gearbox_connections)
-#     if j >= 15:
-#         break
-# solutions = generator.solutions()
-# list_gearbox_graphs = solutions[0]
-# list_paths = solutions[1]
+plot_data.plot_canvas(clustering.plot_clusters())
 
-# import matplotlib.pyplot as plt
-# import networkx as nx
-
-# for k, graph in enumerate(clutch_analisys):
-#     edge_colors=[]
-#     for edge in graph.edges():
-#         if graph.edges()[edge]:
-#             edge_colors.append('red')
-#         else:
-#             edge_colors.append('black')
-#     nodes_shape = []
-#     nodes_color = []
-#     for node in graph.nodes():
-#         if 'S' in node:
-#             graph.nodes()[node]['node_shape'] = 'o'
-#             nodes_color.append('skyblue')
-#         else:
-#             graph.nodes()[node]['node_shape'] = 's'
-#             nodes_color.append('steelblue')
-            
-#     plt.figure()
-#     nx.draw_kamada_kawai(graph, with_labels = True, node_color=nodes_color, node_size=1000, edge_color=edge_colors)
-#     if k >= 10:
-#         break
