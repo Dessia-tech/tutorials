@@ -727,7 +727,7 @@ class GearBoxGenerator(DessiaObject):
                 list_clutch_gearbox_graphs.append(graph_copy)
                 
             
-        return list_gearbox_solutions
+        return list_gearbox_solutions,list_clutch_gearbox_graphs
     
      def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
@@ -765,6 +765,7 @@ class GearBoxGenerator(DessiaObject):
                     break
                                             
 class Clustering(DessiaObject):
+    standalone_in_db  = True
     def __init__(self, gearboxes:List[GearBox],clustering_method:str='dbscan', name:str=""):
         self.gearboxes = gearboxes
         self.clustering_method = clustering_method
