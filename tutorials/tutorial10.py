@@ -128,6 +128,9 @@ class GearBox(DessiaObject):
         self.average_clutch_distance = None
         self.number_shafts = None
         self.number_gears = None
+        self.std_clutch_distance = None
+        self.std_gears_distance = None
+        self.density = None
 
         # self.graph = graph
         # self.average_path_length = average_path_length
@@ -773,8 +776,10 @@ class GearBoxGenerator(DessiaObject):
                     break
                                             
 class Clustering(DessiaObject):
-    def __init__(self, gearboxes:List[GearBox], name:str=""):
+    def __init__(self, gearboxes:List[GearBox],clustering_method:str='dbscan', name:str=""):
         self.gearboxes = gearboxes
+        self.clustering_method = clustering_method
+        self.gearboxes_ordered = None
         # self.list_data = list_data
         # self.list_features = list_features
         DessiaObject.__init__(self,name=name)
@@ -790,8 +795,44 @@ class Clustering(DessiaObject):
                     dict_features[attr] = [gearbox.graph.graph[attr]]
         self.dict_features = dict_features
         self.df = pd.DataFrame.from_dict(self.dict_features)
-    def update_gearboxes(self,list_gearboxes):
-        self.gearboxes = list_gearboxes
+        
+        if self.clustering_method == 'dbscan':
+            self.labels, self.n_clusters = self.dbscan()
+        elif self.clustering_method == 'k means':
+            self.labels, self.n_clusters = self.k_means()
+        else:
+            print('Method not implemented yet')
+            raise NotImplementedError
+        
+        clusters = []
+        for label in self.labels:
+            if label not in clusters:
+                clusters.append(label)
+        self.clusters = clusters
+        encoding_mds = MDS()
+        matrix_mds = encoding_mds.fit_transform(self.df)
+        list_indexes =[]
+        gearboxes_indexes = []
+        index = 0
+        for j, cluster in enumerate(clusters):
+            indexes = []
+            for i, label in enumerate(self.labels):
+                if cluster == label:
+                    indexes.append(index)
+                    index += 1
+                    gearboxes_indexes.append(i)
+            list_indexes.append(indexes)
+        self.list_indexes = list_indexes
+        new_gearboxes_order =[]
+        new_matrix_mds = []
+        for index in gearboxes_indexes:
+            new_gearboxes_order.append(self.gearboxes[index])
+            new_matrix_mds.append(matrix_mds[index])
+        self.gearboxes_ordered = new_gearboxes_order
+        self.matrix_mds = new_matrix_mds
+        
+    # def update_gearboxes(self,list_gearboxes):
+    #     self.gearboxes = list_gearboxes
         
     def normalize(self):
         scaler = MinMaxScaler()
@@ -814,44 +855,39 @@ class Clustering(DessiaObject):
         plt.xlabel('K')
         plt.ylabel('Sum of square error')
         plt.plot(k_rng,sse)
-        self.number_clusters = k
+    
         return k
     
     def k_means(self):
-        k = self.num_clusters()
+        n_clusters = self.num_clusters()
         # df_scaled = self.normalize()
         
-        km = KMeans(n_clusters=k)
-        y_predicted = km.fit_predict(self.df)
-        self.labels = y_predicted
+        km = KMeans(n_clusters=n_clusters)
+        labels = km.fit_predict(self.df)
+         
         # self.df['cluster'] = y_predicted
         # list_k_dfs = []
         # for n_k in range(k):
         #     list_k_dfs.append(self.df['cluster']==n_k)
         
-        # return list_k_dfs
+        return labels, n_clusters
     def dbscan(self):
         db = DBSCAN(eps=2, min_samples=2, metric='cityblock')
         db.fit(self.df)
-        self.labels = list(db.labels_)
+        labels = list(db.labels_)
                 # Number of clusters in labels, ignoring noise if present.
-        self.n_clusters = len(set(self.labels)) - (1 if -1 in self.labels
+        n_clusters = len(set(labels)) - (1 if -1 in labels
                                                    else 0)
-        print('Estimated number of clusters:', self.n_clusters)
+        print('Estimated number of clusters:', n_clusters)
+        return labels, n_clusters
         
     def plot_clusters(self):
-        clustering =self.dbscan()
-        encoding_mds = MDS()
-        matrix_mds = encoding_mds.fit_transform(self.df)
-        self.matrix_mds = matrix_mds
+        # clustering =self.dbscan()
+        # encoding_mds = MDS()
+        # matrix_mds = encoding_mds.fit_transform(self.df)
+        # self.matrix_mds = matrix_mds
         colors =[RED, GREEN, BLUE,ORANGE,LIGHTSKYBLUE, ROSE, VIOLET,LIGHTRED,LIGHTGREEN,CYAN,BROWN,GREY,HINT_OF_MINT,GRAVEL]
-        # plot with cluster
-        # cmp_f = plt.cm.get_cmap('jet')
-        clusters =[]
-        for label in self.labels:
-            if label not in clusters:
-                clusters.append(label)
-        print(clusters)
+        
         to_disp_attribute_names = ['x', 'y']
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['x', 'y','Aver path'
                                                              'Aver L clutch-input',
@@ -860,50 +896,62 @@ class Clustering(DessiaObject):
                                                              'Std input/cluches',
                                                              'Std input/gears', 
                                                              'Density'])
-        edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5],)
-        data_sets=[]
+        edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
+        # point_style = plot_data.PointStyle(color_fill=color, color_stroke=BLACK,size =5)
+        # data_sets=[]
         all_points = []
-        list_indexes =[]
-        list_gearboxes_indexes = []
-        gearboxes_indexes = []
-        index = 0
-        for j, cluster in enumerate(clusters):
-            data_set = []
-            elements = []
+        # list_indexes =[]
+        # list_gearboxes_indexes = []
+        # gearboxes_indexes = []
+        # index = 0
+        for i, point in enumerate(self.matrix_mds):
+            all_points.append(
+                {'x':point[0], 'y': point[1],
+                 'Aver path':self.gearboxes_ordered[i].average_path_length, 
+                 'Aver L clutch-input':self.gearboxes_ordered[i].average_clutch_distance,
+                 'Number shafts': self.gearboxes_ordered[i].number_shafts, 
+                 'Number gears': self.gearboxes_ordered[i].number_gears,
+                 'Std input/cluches':self.gearboxes_ordered[i].std_clutch_distance,
+                 'Std input/gears':self.gearboxes_ordered[i].std_gears_distance,
+                 'Density': self.gearboxes_ordered[i].density}
+                )
+        # for j, cluster in enumerate(clusters):
+        #     data_set = []
+        #     elements = []
            
-            indexes = []
-            color = colors[j]
-            point_style = plot_data.PointStyle(color_fill=color, color_stroke=BLACK,size =5)
+        #     indexes = []
+        #     color = colors[j]
+        #     point_style = plot_data.PointStyle(color_fill=color, color_stroke=BLACK,size =5)
             
-            for i, point in enumerate(matrix_mds):
-                if cluster == self.labels[i]:
-                    gearboxes_indexes.append(i)
-                    indexes.append(index)
-                    index += 1
-                    elements.append({'x':point[0], 'y': point[1],
-                                     'Aver path':self.gearboxes[i].average_path_length, 
-                                     'Aver L clutch-input':self.gearboxes[i].average_clutch_distance,
-                                     'Number shafts': self.gearboxes[i].number_shafts, 
-                                     'Number gears': self.gearboxes[i].number_gears,
-                                     'Std input/cluches':self.gearboxes[i].std_clutch_distance,
-                                     'Std input/gears':self.gearboxes[i].std_gears_distance,
-                                     'Density': self.gearboxes[i].density}) 
+        #     for i, point in enumerate(matrix_mds):
+        #         if cluster == self.labels[i]:
+        #             gearboxes_indexes.append(i)
+        #             indexes.append(index)
+        #             index += 1
+        #             elements.append({'x':point[0], 'y': point[1],
+        #                              'Aver path':self.gearboxes[i].average_path_length, 
+        #                              'Aver L clutch-input':self.gearboxes[i].average_clutch_distance,
+        #                              'Number shafts': self.gearboxes[i].number_shafts, 
+        #                              'Number gears': self.gearboxes[i].number_gears,
+        #                              'Std input/cluches':self.gearboxes[i].std_clutch_distance,
+        #                              'Std input/gears':self.gearboxes[i].std_gears_distance,
+        #                              'Density': self.gearboxes[i].density}) 
                     
-            # if len(elements) == 1:
-            #     elements.append(elements[0])
-            list_indexes.append(indexes)
-            all_points.extend(elements)
-            # print(all_points)
-        new_gearboxes_order = []
-        print(gearboxes_indexes)
-        for index in gearboxes_indexes:
-            new_gearboxes_order.append(self.gearboxes[index])
-        self.update_gearboxes(new_gearboxes_order)
+        #     # if len(elements) == 1:
+        #     #     elements.append(elements[0])
+        #     list_indexes.append(indexes)
+        #     all_points.extend(elements)
+        #     # print(all_points)
+        # new_gearboxes_order = []
+        # for index in gearboxes_indexes:
+        #     new_gearboxes_order.append(self.gearboxes[index])
+        
+        # self.gearboxes_ordered = new_gearboxes_order
         
         point_families = []
-        for i, indexes in enumerate(list_indexes):
+        for i, indexes in enumerate(self.list_indexes):
             color = colors[i]
-            point_families.append(plot_data.PointFamily(point_color=color, point_index = indexes, name = 'Cluster '+str(clusters[j])))
+            point_families.append(plot_data.PointFamily(point_color=color, point_index = indexes, name = 'Cluster '+str(self.clusters[i])))
         # print(point_families)
         plots = [plot_data.Scatter(tooltip = tooltip, to_disp_attribute_names = to_disp_attribute_names, elements=all_points)]
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
@@ -927,7 +975,7 @@ class Clustering(DessiaObject):
         else:
             reference_path = ''
         display_ = DisplayObject(type_='plot_data', data=plot, 
-                                 reference_path=reference_path + '/gearboxes')
+                                 reference_path=reference_path + '/gearboxes_ordered')
         displays.append(display_.to_dict())
         
         return displays
