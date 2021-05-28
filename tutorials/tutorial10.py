@@ -862,11 +862,12 @@ class Clustering(DessiaObject):
         all_points = []
         list_indexes =[]
         list_gearboxes_indexes = []
+        gearboxes_indexes = []
         index = 0
         for j, cluster in enumerate(clusters):
             data_set = []
             elements = []
-            gearboxes_indexes = []
+           
             indexes = []
             color = colors[j]
             point_style = plot_data.PointStyle(color_fill=color, color_stroke=BLACK,size =5)
@@ -891,7 +892,8 @@ class Clustering(DessiaObject):
             all_points.extend(elements)
             # print(all_points)
         new_gearboxes_order = []
-        for index in [idx for subsets in list_indexes for idx in subsets]:
+        print(gearboxes_indexes)
+        for index in gearboxes_indexes:
             new_gearboxes_order.append(self.gearboxes[index])
         self.gearboxes = new_gearboxes_order
         point_families = []

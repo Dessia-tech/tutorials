@@ -153,7 +153,7 @@ clutch_generate = generator.generate()
 # sol1 = clutch_generate[0]
 # plot_data.plot_canvas(sol1.plot_data()[0])
 # generator.draw_graph(clutch_generate[1], 100)
-clustering = objects.Clustering(clutch_generate[0])
+clustering = objects.Clustering(clutch_generate)
 
 # graph = generator.gearbox_graph()
 # edges = generator.connections_decision_tree()
