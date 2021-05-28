@@ -850,12 +850,12 @@ class Clustering(DessiaObject):
                 clusters.append(label)
         print(clusters)
         to_disp_attribute_names = ['x', 'y']
-        tooltip = plot_data.Tooltip(to_disp_attribute_names=['x', 'y','Average length path',
-                                                             'Average distance clutch-input',
-                                                             'Number of shafts',
-                                                             'Number of gears',
-                                                             'Standard deviation distante input/cluches',
-                                                             'Standard deviation distante input/gears', 
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=['x', 'y','Aver path'
+                                                             'Aver L clutch-input',
+                                                             'Number shafts',
+                                                             'Number gears',
+                                                             'Std input/cluches',
+                                                             'Std input/gears', 
                                                              'Density'])
         edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5],)
         data_sets=[]
@@ -880,7 +880,7 @@ class Clustering(DessiaObject):
                                      'Aver path':self.gearboxes[i].average_path_length, 
                                      'Aver L clutch-input':self.gearboxes[i].average_clutch_distance,
                                      'Number shafts': self.gearboxes[i].number_shafts, 
-                                     'Number  gears': self.gearboxes[i].number_gears,
+                                     'Number gears': self.gearboxes[i].number_gears,
                                      'Std input/cluches':self.gearboxes[i].std_clutch_distance,
                                      'Std input/gears':self.gearboxes[i].std_gears_distance,
                                      'Density': self.gearboxes[i].density}) 
