@@ -131,6 +131,7 @@ class GearBox(DessiaObject):
         self.std_clutch_distance = None
         self.std_gears_distance = None
         self.density = None
+        self.ave_l_ns = None
 
         # self.graph = graph
         # self.average_path_length = average_path_length
@@ -141,13 +142,14 @@ class GearBox(DessiaObject):
     
     def update_gb_graph(self, graph):
         self.graph = graph
+        self.ave_l_ns = graph.graph['Average length path/N shafts']
         self.average_path_length = graph.graph['Average length path']
         self.average_clutch_distance = graph.graph['Average distance clutch-input']
-        self.number_shafts = graph.graph['Number of shafts']
-        self.number_gears = graph.graph['Number of gears']
-        self.std_clutch_distance = graph.graph['Standard deviation distante input/cluches'] 
+        # self.number_shafts = graph.graph['Number of shafts']
+        # self.number_gears = graph.graph['Number of gears']
+        # self.std_clutch_distance = graph.graph['Standard deviation distante input/cluches'] 
         self.std_gears_distance = graph.graph['Standard deviation distante input/gears']
-        self.density = graph.graph['Density']
+        # self.density = graph.graph['Density']
             
     def update(self, x):
         ratios = []
@@ -260,6 +262,7 @@ class GearBox(DessiaObject):
         d['Density'] = self.density
         d['graph'] = nx.readwrite.json_graph.node_link_data(self.graph)
         d['name'] = self.name
+        d['ave_l_ns'] = self.ave_l_ns
         d['object_class'] = 'tutorials.tutorial10.GearBox'
         
         return d
@@ -282,6 +285,7 @@ class GearBox(DessiaObject):
         obj.std_clutch_distance = d['Standard deviation distante input/cluches']
         obj.std_gears_distance = d['Standard deviation distante input/gears']
         obj.density = d['Density']
+        obj.ave_l_ns = d['ave_l_ns']
         return obj
 
 class GearBoxResults(DessiaObject): 
@@ -536,7 +540,7 @@ class GearBoxGenerator(DessiaObject):
         for i in range(self.max_number_shaft_assemblies):
             for j in range(self.max_number_shaft_assemblies):
                 if i < j:
-                    connections.append((i+1, j+1))
+                     connections.append((i+1, j+1))
         connections.append(None)
         for gear in range(self.max_number_gears):
             list_node.append(len(connections))
@@ -567,7 +571,6 @@ class GearBoxGenerator(DessiaObject):
         list_gearbox_graphs = []
         list_paths = []
         list_paths_edges = []
-        list_counter_paths_between_2shafts = []
         list_dict_connections = []
         for gearbox_connections in list_gearbox_connections:
             gearbox_graph = nx.Graph()
@@ -618,9 +621,10 @@ class GearBoxGenerator(DessiaObject):
                     if nx.is_isomorphic(gearbox_graph, graph, node_match= node_match):
                         valid = False
                 if valid:
+                    gearbox_graph.graph['Average length path/N shafts'] = mean(average_lengths)/number_shafts
                     gearbox_graph.graph['Average length path'] = mean(average_lengths)
-                    gearbox_graph.graph['Number of shafts'] = number_shafts
-                    gearbox_graph.graph['Number of gears'] = number_gears
+                    # gearbox_graph.graph['Number of shafts'] = number_shafts
+                    # gearbox_graph.graph['Number of gears'] = number_gears
                     gearbox_graph.graph['Standard deviation distante input/gears'] = np.std(gears_path_lengths)
                     gearbox_graph.graph['Density'] = nx.density(gearbox_graph)
                     list_gearbox_graphs.append(gearbox_graph)
@@ -628,14 +632,14 @@ class GearBoxGenerator(DessiaObject):
                     list_paths_edges.append(paths_edges)
                     list_dict_connections.append(gearbox_connections)
         
-        return list_gearbox_graphs, list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
+        return list_gearbox_graphs#, list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
     
      def clutch_analisys(self):
         new_list_gearbox_graphs = []
         list_clutch_combinations = []
         list_cycles = []
         list_dict_clutch_connections = []
-        list_gearbox_graphs = self.generate_paths()[0]
+        list_gearbox_graphs = self.generate_paths()
         for graph in list_gearbox_graphs:
             for node in graph.nodes():
                 if graph.nodes()[node]:
@@ -796,20 +800,24 @@ class Clustering(DessiaObject):
             if label not in clusters:
                 clusters.append(label)
         self.clusters = clusters
+        df_scaled = self.normalize()
         encoding_mds = MDS()
-        matrix_mds = [element.tolist() for element in encoding_mds.fit_transform(self.df)]
+        matrix_mds = [element.tolist() for element in encoding_mds.fit_transform(df_scaled)]
         list_indexes =[]
         gearboxes_indexes = []
         index = 0
+        new_list_clusters = []
         for j, cluster in enumerate(clusters):
             indexes = []
             for i, label in enumerate(self.labels):
                 if cluster == label:
+                    new_list_clusters.append(label)
                     indexes.append(index)
                     index += 1
                     gearboxes_indexes.append(i)
             list_indexes.append(indexes)
         self.list_indexes = list_indexes
+        self.list_clusters = new_list_clusters
         new_gearboxes_order =[]
         new_matrix_mds = []
         for index in gearboxes_indexes:
@@ -839,16 +847,26 @@ class Clustering(DessiaObject):
         plt.plot(k_rng,sse)
     
         return k
+    def normalize(self):
+        
+        scaler = MinMaxScaler()
+        scaler.fit(self.df)
+        df_scaled = scaler.fit_transform(self.df)
+        
+        return df_scaled
     
     def k_means(self):
         n_clusters = self.num_clusters()
-        
+        df_scaled = self.normalize()
         km = KMeans(n_clusters=n_clusters)
-        labels = km.fit_predict(self.df)
+        labels = [int(label) for label in km.fit_predict(df_scaled)]
         return labels, n_clusters
     def dbscan(self):
-        db = DBSCAN(eps=2, min_samples=2, metric='cityblock')
-        db.fit(self.df)
+        df_scaled = self.normalize()
+        db = DBSCAN(eps=0.525, min_samples=3,
+                    # metric= 'cityblock'
+                    )
+        db.fit(df_scaled)
         labels =[int(label) for label in list(db.labels_)]
                 # Number of clusters in labels, ignoring noise if present.
         n_clusters = len(set(labels)) - (1 if -1 in labels
@@ -862,11 +880,13 @@ class Clustering(DessiaObject):
         to_disp_attribute_names = ['x', 'y']
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['x', 'y','Aver path'
                                                              'Aver L clutch-input',
-                                                             'Number shafts',
-                                                             'Number gears',
+                                                             'ave_l_ns',
+                                                               # 'Number shafts',
+                                                             # 'Number gears',
                                                              'Std input/cluches',
                                                              'Std input/gears', 
-                                                             'Density'])
+                                                             # 'Density'
+                                                             ])
         edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
         all_points = []
         for i, point in enumerate(self.matrix_mds):
@@ -874,11 +894,13 @@ class Clustering(DessiaObject):
                 {'x':point[0], 'y': point[1],
                  'Aver path':self.gearboxes_ordered[i].average_path_length, 
                  'Aver L clutch-input':self.gearboxes_ordered[i].average_clutch_distance,
-                 'Number shafts': self.gearboxes_ordered[i].number_shafts, 
-                 'Number gears': self.gearboxes_ordered[i].number_gears,
-                 'Std input/cluches':self.gearboxes_ordered[i].std_clutch_distance,
+                 'ave_l_ns':self.gearboxes_ordered[i].ave_l_ns,
+                   # 'Number shafts': self.gearboxes_ordered[i].number_shafts, 
+                 # 'Number gears': self.gearboxes_ordered[i].number_gears,
+                 # 'Std input/cluches':self.gearboxes_ordered[i].std_clutch_distance,
                  'Std input/gears':self.gearboxes_ordered[i].std_gears_distance,
-                 'Density': self.gearboxes_ordered[i].density}
+                 # 'Density': self.gearboxes_ordered[i].density, 
+                 'Cluster':self.list_clusters[i]}
                 )
         
         point_families = []
@@ -893,11 +915,13 @@ class Clustering(DessiaObject):
                                             disposition='vertical',
                                             to_disp_attribute_names = ['Aver path',
                                                                        'Aver L clutch-input',
-                                                                       'Number shafts',
-                                                                       'Number  gears',
-                                                                       'Std input/cluches',
+                                                                       'ave_l_ns',
+                                                                        # 'Number shafts',
+                                                                       # 'Number  gears',
+                                                                       # 'Std input/cluches',
                                                                        'Std input/gears', 
-                                                                       'Density' ],
+                                                                       # 'Density' ,
+                                                                       'Cluster'],
                                             rgbs=rgbs))
         sizes = [plot_data.Window(width=560, height=300),
                  plot_data.Window(width=560, height=300)]
