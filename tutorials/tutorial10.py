@@ -149,7 +149,7 @@ class GearBox(DessiaObject):
         # self.number_gears = graph.graph['Number of gears']
         # self.std_clutch_distance = graph.graph['Standard deviation distante input/cluches'] 
         self.std_gears_distance = graph.graph['Standard deviation distante input/gears']
-        # self.density = graph.graph['Density']
+        self.density = graph.graph['Density']
             
     def update(self, x):
         ratios = []
@@ -885,7 +885,7 @@ class Clustering(DessiaObject):
                                                              # 'Number gears',
                                                              'Std input/cluches',
                                                              'Std input/gears', 
-                                                             # 'Density'
+                                                              'Density'
                                                              ])
         edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
         all_points = []
@@ -899,7 +899,7 @@ class Clustering(DessiaObject):
                  # 'Number gears': self.gearboxes_ordered[i].number_gears,
                  # 'Std input/cluches':self.gearboxes_ordered[i].std_clutch_distance,
                  'Std input/gears':self.gearboxes_ordered[i].std_gears_distance,
-                 # 'Density': self.gearboxes_ordered[i].density, 
+                  'Density': self.gearboxes_ordered[i].density, 
                  'Cluster':self.list_clusters[i]}
                 )
         
@@ -920,7 +920,7 @@ class Clustering(DessiaObject):
                                                                        # 'Number  gears',
                                                                        # 'Std input/cluches',
                                                                        'Std input/gears', 
-                                                                       # 'Density' ,
+                                                                        'Density' ,
                                                                        'Cluster'],
                                             rgbs=rgbs))
         sizes = [plot_data.Window(width=560, height=300),
