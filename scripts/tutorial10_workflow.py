@@ -23,15 +23,15 @@ display = wf.Display(name='Display')
 block_workflow = [block_generator, block_generate, block_gearbox, block_engine, block_efficiencymap,
                   # block_wltpcycle,
                   block_cluster,
-                    display
+                  display
                   ]
 pipe_workflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]), 
                   wf.Pipe(block_gearbox.outputs[0], block_generator.inputs[0]), 
                   wf.Pipe(block_engine.outputs[0], block_gearbox.inputs[0]), 
                   wf.Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
-                   wf.Pipe(block_generate.outputs[0], block_cluster.inputs[0]),
+                  wf.Pipe(block_generate.outputs[0], block_cluster.inputs[0]),
                     # wf.Pipe(block_generate.outputs[0], display.inputs[0]),
-                   wf.Pipe(block_cluster.outputs[0], display.inputs[0])
+                  wf.Pipe(block_cluster.outputs[0], display.inputs[0])
                   ]
 
 workflow = wf.Workflow(block_workflow, pipe_workflow, block_generate.outputs[0])
@@ -105,5 +105,5 @@ import json
 object1=json.dumps(d1)
 object2=json.loads(object1)
 
-c = Client(api_url = 'https://api.platform-dev.dessia.tech')
+c = Client(api_url = 'https://api.renault.dessia.tech')
 r = c.create_object_from_python_object(workflow_run)
