@@ -142,15 +142,14 @@ speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_r
 gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 
 generator = objects.GearBoxGenerator(gearbox,number_inputs = 2, max_number_shaft_assemblies=5, max_number_gears = 5 )
-# generate = generator.generate_connections()
-# generate_paths = generator.generate_paths()
-# list_gearbox_graphs = generate_paths
+generate_connections = generator.generate_connections()
+generate_paths = generator.generate_paths(generate_connections)
 # generator.draw_graph(generate_paths, 10)
 # list_paths = generate_paths[1]
 # list_paths_edges = generate_paths[2]
 # list_dict_connections = generate_paths[-1]
-# clutch_analisys = generator.clutch_analisys()
-# generator.draw_graph(clutch_analisys[0], 10)
+clutch_analisys = generator.clutch_analisys(generate_paths)
+generator.draw_graph(clutch_analisys[0], 10)
 clutch_generate = generator.generate()
 # generator.draw_graph(clutch_generate[1], 10)
 
@@ -159,7 +158,7 @@ clutch_generate = generator.generate()
 #     if i>10:
 #         break
 
-clustering = objects.Clustering(clutch_generate[0])
+clustering = objects.Clustering(clutch_generate)
 
 plot_data.plot_canvas(clustering.plot_clusters())
 
