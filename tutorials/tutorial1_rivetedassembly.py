@@ -141,7 +141,7 @@ class Rivet(DessiaObject):
         self.rivet_diameter = rivet_diameter
         self.rivet_length = rivet_length
         self.mass = 7800 * (math.pi * (head_diameter ** 2) / 4 * head_length + math.pi * (
-                    rivet_diameter ** 2) / 4 * rivet_length)
+                rivet_diameter ** 2) / 4 * rivet_length)
 
         DessiaObject.__init__(self, name=name)
 
@@ -161,13 +161,13 @@ class Rivet(DessiaObject):
                        ]
         else:
             p0 = vm.Point2D(0, 0)
-            vectors = [vm.Vector2D(self.rivet_diameter / 2, 0),
-                       vm.Vector2D(self.head_diameter / 2 - self.rivet_diameter / 2, 0),
-                       vm.Vector2D(0, self.head_length),
-                       vm.Vector2D(-self.head_diameter/2, 0),
-                       vm.Vector2D(0, -self.head_length-self.rivet_length),
-                       vm.Vector2D(self.rivet_diameter/2, 0),
-                       vm.Vector2D(0, self.rivet_length),
+            vectors = [vm.Vector2D(0, self.rivet_diameter / 2),
+                       vm.Vector2D(0, self.head_diameter / 2 - self.rivet_diameter / 2),
+                       vm.Vector2D(self.head_length, 0),
+                       vm.Vector2D(0, -self.head_diameter / 2),
+                       vm.Vector2D(-self.head_length - self.rivet_length, 0),
+                       vm.Vector2D(0, self.rivet_diameter / 2),
+                       vm.Vector2D(self.rivet_length, 0),
                        ]
 
         points = []
@@ -176,17 +176,16 @@ class Rivet(DessiaObject):
             p1 = p_init.translation(v, copy=True)
             points.append(p1)
             p_init = p1
-        c = p2d.ClosedRoundedLineSegments2D(points, {})
-        return vm.wires.Contour2D(c.primitives)
+        return vm.wires.ClosedPolygon2D(points)
 
-    def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
-        contour = self.contour(full_contour=False)
-        axis.normalize()
-        y = axis.random_unit_normal_vector()
-        z = axis.cross(y)
-        irc = p3d.RevolvedProfile(center, z, axis, contour, center,
-                                  axis, angle=2 * math.pi, name='Rivet')
-        return [irc]
+    # def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
+    #     contour = self.contour(full_contour=False)
+    #     axis.normalize()
+    #     y = axis.random_unit_normal_vector()
+    #     z = axis.cross(y)
+    #     irc = p3d.RevolvedProfile(center, axis, z, contour, center,
+    #                               axis, angle=2 * math.pi, name='Rivet')
+    #     return [irc]
 
     def plot_data(self, full_contour=True):
         hatching = plot_data.HatchingSet(0.1)
@@ -316,25 +315,25 @@ class PanelAssembly(DessiaObject):
         fatigue = number_hour_worked * ratio_distance * ratio_pressure
         return fatigue
 
-    def volmdlr_primitives(self):
-        primitives = []
-        holes = self.panel_combination.hole(self.grids, self.rivet.rivet_diameter)
-        thickness = vm.O3D
-        for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(),
-                                       holes):
-            center, dir1, dir2 = pan_vm.plane_origin, pan_vm.x, pan_vm.y
-            contour, dir3 = panel.contour(), pan_vm.extrusion_vector
-            thickness += dir3
-
-            pan_hole = p3d.ExtrudedProfile(center, dir1, dir2, contour, hole, dir3,
-                                           name='extrusion')
-            primitives.append(pan_hole)
-
-        for grid in self.grids:
-            pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
-            primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
-
-        return primitives
+    # def volmdlr_primitives(self):
+    #     primitives = []
+    #     holes = self.panel_combination.hole(self.grids, self.rivet.rivet_diameter)
+    #     thickness = vm.O3D
+    #     for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(),
+    #                                    holes):
+    #         center, dir1, dir2 = pan_vm.plane_origin, pan_vm.x, pan_vm.y
+    #         contour, dir3 = panel.contour(), pan_vm.extrusion_vector
+    #         thickness += dir3
+    #
+    #         pan_hole = p3d.ExtrudedProfile(center, dir1, dir2, contour, hole, dir3,
+    #                                        name='extrusion')
+    #         primitives.append(pan_hole)
+    #
+    #     for grid in self.grids:
+    #         pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
+    #         primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
+    #
+    #     return primitives
 
 
 class Generator(DessiaObject):
