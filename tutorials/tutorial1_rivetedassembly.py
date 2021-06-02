@@ -29,7 +29,7 @@ class Panel(DessiaObject):
         self.thickness = thickness
         self.height = height
         self.length = length
-        self.mass = 7800*(thickness*height*length) #If you want to change the volumic mass, change the '7800'.
+        self.mass = 7800 * (thickness * height * length)  # If you want to change the volumic mass, change the '7800'.
         DessiaObject.__init__(self, name=name)
 
     def contour(self):
@@ -39,11 +39,11 @@ class Panel(DessiaObject):
         p3 = vm.Point2D(self.length / 2, -self.height / 2)
         b1 = p2d.ClosedRoundedLineSegments2D([p0, p1, p2, p3], {})
         return vm.wires.Contour2D(b1.primitives)
-    
+
     def hole(self, rivet_panel_position: List[vm.Point2D], diameter):
         circles = []
         for pos in rivet_panel_position:
-            circles.append(vm.wires.Circle2D(pos, diameter/2))
+            circles.append(vm.wires.Circle2D(pos, diameter / 2))
         return circles
 
     def volmdlr_primitives(self, center=vm.O3D, dir1=vm.X3D, dir2=vm.Y3D):
@@ -73,7 +73,7 @@ class PanelCombination(DessiaObject):
     """
     _standalone_in_db = True
 
-    def __init__(self, panels: List[Panel], grids: List[vm.Point3D], mass:float=None,
+    def __init__(self, panels: List[Panel], grids: List[vm.Point3D], mass: float = None,
                  name: str = ''):
         self.grids = grids
         self.panels = panels
@@ -100,17 +100,17 @@ class PanelCombination(DessiaObject):
         c2 = c2.translation(self.grids[1], copy=True)
         sol = c1.cut_by_linesegments(c2.primitives)
         return sol
-    
+
     def hole(self, rivet_position: List[vm.Point2D], diameter):
         dir1, dir2 = vm.X3D, vm.Y3D
         holes = []
-        for panel, grid in zip(self.panels, self.grids) :    
+        for panel, grid in zip(self.panels, self.grids):
             c2d = grid.plane_projection2d(vm.O3D, dir1, dir2)
-            rivet_panel_position = [c-c2d for c in rivet_position]
-            holes.append(panel.hole(rivet_panel_position,diameter))
-            
+            rivet_panel_position = [c - c2d for c in rivet_position]
+            holes.append(panel.hole(rivet_panel_position, diameter))
+
         return holes
-    
+
     def volmdlr_primitives(self):
         primitives = []
         for pan, pt3d in zip(self.panels, self.grids):
@@ -140,37 +140,44 @@ class Rivet(DessiaObject):
         self.head_length = head_length
         self.rivet_diameter = rivet_diameter
         self.rivet_length = rivet_length
-        self.mass = 7800*(math.pi*(head_diameter**2)/4*head_length + math.pi*(rivet_diameter**2)/4*rivet_length)
+        self.mass = 7800 * (math.pi * (head_diameter ** 2) / 4 * head_length + math.pi * (
+                    rivet_diameter ** 2) / 4 * rivet_length)
 
         DessiaObject.__init__(self, name=name)
 
     def contour(self, full_contour=False):
 
-        p0 = vm.Point2D(0, 0)
-        vectors = [vm.Vector2D(self.rivet_diameter / 2, 0),
-                   vm.Vector2D(self.head_diameter / 2 - self.rivet_diameter / 2, 0),
-                   vm.Vector2D(0, self.head_length),
-                   vm.Vector2D(-self.head_diameter, 0),
-                   vm.Vector2D(0, -self.head_length),
-                   vm.Vector2D(self.head_diameter / 2 - self.rivet_diameter / 2, 0),
-                   vm.Vector2D(0, -self.rivet_length),
-                   vm.Vector2D(self.rivet_diameter, 0),
-                   vm.Vector2D(0, self.rivet_length),
-                   ]
+        if full_contour:
+            p0 = vm.Point2D(0, 0)
+            vectors = [vm.Vector2D(self.rivet_diameter / 2, 0),
+                       vm.Vector2D(self.head_diameter / 2 - self.rivet_diameter / 2, 0),
+                       vm.Vector2D(0, self.head_length),
+                       vm.Vector2D(-self.head_diameter, 0),
+                       vm.Vector2D(0, -self.head_length),
+                       vm.Vector2D(self.head_diameter / 2 - self.rivet_diameter / 2, 0),
+                       vm.Vector2D(0, -self.rivet_length),
+                       vm.Vector2D(self.rivet_diameter, 0),
+                       vm.Vector2D(0, self.rivet_length),
+                       ]
+        else:
+            p0 = vm.Point2D(0, 0)
+            vectors = [vm.Vector2D(self.rivet_diameter / 2, 0),
+                       vm.Vector2D(self.head_diameter / 2 - self.rivet_diameter / 2, 0),
+                       vm.Vector2D(0, self.head_length),
+                       vm.Vector2D(-self.head_diameter/2, 0),
+                       vm.Vector2D(0, -self.head_length-self.rivet_length),
+                       vm.Vector2D(self.rivet_diameter/2, 0),
+                       vm.Vector2D(0, self.rivet_length),
+                       ]
+
         points = []
         p_init = p0
         for v in vectors:
             p1 = p_init.translation(v, copy=True)
             points.append(p1)
             p_init = p1
-
         c = p2d.ClosedRoundedLineSegments2D(points, {})
-        if full_contour:
-            return vm.wires.Contour2D(c.primitives)
-        else:
-            line = vm.edges.Line2D(p0, p0.translation(vm.Vector2D(0, -self.rivet_length), copy=True))
-            contour = vm.wires.Contour2D(c.primitives)
-            return contour.cut_by_line(line)[0]
+        return vm.wires.Contour2D(c.primitives)
 
     def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
         contour = self.contour(full_contour=False)
@@ -258,15 +265,15 @@ class PanelAssembly(DessiaObject):
                  rivet: Rivet, grids: List[vm.Point2D],
                  number_rivet1: int, number_rivet2: int,
                  name: str = ''):
-        
+
         self.number_rivet2 = number_rivet2
         self.number_rivet1 = number_rivet1
         self.panel_combination = panel_combination
         self.rivet = rivet
         self.grids = grids
         DessiaObject.__init__(self, name=name)
-        
-        self.number_rivet = number_rivet1*number_rivet2
+
+        self.number_rivet = number_rivet1 * number_rivet2
         self.mass = rivet.mass * self.number_rivet + panel_combination.mass
         self.pressure_applied = self._pressure_applied()
         self.fatigue_resistance = self._fatigue_resistance()
@@ -275,7 +282,7 @@ class PanelAssembly(DessiaObject):
         diameter = self.rivet.rivet_diameter
         circles = []
         for grid in self.grids:
-            circles.append(vm.wires.Circle2D(grid, diameter))        
+            circles.append(vm.wires.Circle2D(grid, diameter))
         return circles
 
     def plot_data(self):
@@ -284,49 +291,51 @@ class PanelAssembly(DessiaObject):
         circles = self.contour()
         plot_datas.extend([c.plot_data(edge_style=edge_style) for c in circles])
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
-    
+
     def _pressure_applied(self):
-        force_applied = 100 #Newton
-        surface_rivet = (math.pi*self.rivet.head_diameter**2)/4
-        pressure_applied = force_applied/(self.number_rivet*surface_rivet)
+        force_applied = 100  # Newton
+        surface_rivet = (math.pi * self.rivet.head_diameter ** 2) / 4
+        pressure_applied = force_applied / (self.number_rivet * surface_rivet)
         return pressure_applied
-        
-    def _fatigue_resistance(self): 
-        number_hour_worked = 5000 #hours
-        test_rivet = 5 #Newton
-        surface_rivet = (math.pi*self.rivet.head_diameter**2)/4
-        pressure_test = test_rivet/surface_rivet
-        
+
+    def _fatigue_resistance(self):
+        number_hour_worked = 5000  # hours
+        test_rivet = 5  # Newton
+        surface_rivet = (math.pi * self.rivet.head_diameter ** 2) / 4
+        pressure_test = test_rivet / surface_rivet
+
         distance_between_riv = []
-        for n,pos in enumerate(self.grids) :
-            if n == len(self.grids)-1:
-                distance_between_riv.append((pos-self.grids[0]).norm())
-            else :
-                distance_between_riv.append((pos-self.grids[n+1]).norm())
-        ratio_distance = min(distance_between_riv)/(4.5*self.rivet.head_diameter)
+        for n, pos in enumerate(self.grids):
+            if n == len(self.grids) - 1:
+                distance_between_riv.append((pos - self.grids[0]).norm())
+            else:
+                distance_between_riv.append((pos - self.grids[n + 1]).norm())
+        ratio_distance = min(distance_between_riv) / (4.5 * self.rivet.head_diameter)
         coeff_security = 3
-        ratio_pressure = (pressure_test/self.pressure_applied)/coeff_security
-        fatigue = number_hour_worked*ratio_distance*ratio_pressure
+        ratio_pressure = (pressure_test / self.pressure_applied) / coeff_security
+        fatigue = number_hour_worked * ratio_distance * ratio_pressure
         return fatigue
 
     def volmdlr_primitives(self):
         primitives = []
         holes = self.panel_combination.hole(self.grids, self.rivet.rivet_diameter)
         thickness = vm.O3D
-        for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(), holes) :
+        for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(),
+                                       holes):
             center, dir1, dir2 = pan_vm.plane_origin, pan_vm.x, pan_vm.y
             contour, dir3 = panel.contour(), pan_vm.extrusion_vector
             thickness += dir3
 
             pan_hole = p3d.ExtrudedProfile(center, dir1, dir2, contour, hole, dir3,
-                                          name='extrusion')
+                                           name='extrusion')
             primitives.append(pan_hole)
-        
-        for grid in self.grids :
-            pos_riv = dir1*grid[0] + dir2*grid[1] + thickness
+
+        for grid in self.grids:
+            pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
             primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
-            
+
         return primitives
+
 
 class Generator(DessiaObject):
     """ 
@@ -361,7 +370,7 @@ class Generator(DessiaObject):
                 grids.append(vm.Point2D(xmin + ratio1 * (n1 + 1), ymin + ratio2 * (n2 + 1)))
         return grids
 
-    def generate(self)->List[PanelAssembly]:
+    def generate(self) -> List[PanelAssembly]:
         contour = self.panel_combination.intersection_area()
         all_possibilities = self.rule.define_number_rivet(contour, self.rivet)
         solutions = []
