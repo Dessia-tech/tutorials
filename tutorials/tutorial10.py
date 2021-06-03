@@ -6,7 +6,7 @@ Created on Tue Mar  2 13:30:58 2021
 @author: wirajan
 """
 
-from dessia_common import DessiaObject, DisplayObject, is_sequence
+from dessia_common import DessiaObject, DisplayObject
 from typing import List,Tuple
 import numpy as np
 from scipy.optimize import minimize
@@ -23,7 +23,7 @@ import networkx.algorithms.isomorphism as iso
 # from collections import Counter
 from itertools import product
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans, DBSCAN
+from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 from sklearn.manifold import MDS
@@ -755,13 +755,10 @@ class GearBoxGenerator(DessiaObject):
         return new_list_gearbox_graphs, list_dict_clutch_connections, list_clutch_combinations, list_cycles
     
      def generate(self):
-         
-         
         generate_connections = self.generate_connections()
         generate_paths = self.generate_paths(generate_connections)
         clutch_analisys = self.clutch_analisys(generate_paths)
         list_gearbox_solutions = []
-        # clutch_analisys = self.clutch_analisys()
         clutch_gearbox_graphs = clutch_analisys[0]
         list_clutch_connections = clutch_analisys[1]
         list_clutch_combinations = [clutch_combination for clutch_combinations in clutch_analisys[2] for clutch_combination in clutch_combinations]
@@ -772,11 +769,12 @@ class GearBoxGenerator(DessiaObject):
             clutch_connections = list_clutch_connections[i_graph]
             for i, connections in enumerate(list(list_clutch_connections[i_graph])):
                 if i!=0:
-                    # print(ist_clutch_connections[i_graph])
                     if list_clutch_connections[i_graph][i+1] ==  list_clutch_connections[i_graph][i]:
                         print(list_clutch_connections[i_graph][i+1],list_clutch_connections[i_graph][i])
                         valid = False
-                        # continue
+                        break
+            if not valid:
+                continue
             for node in graph.nodes():
                 if 'Clutch' in list(graph.nodes()[node].keys()):
                     for edge in graph.edges():
@@ -801,6 +799,7 @@ class GearBoxGenerator(DessiaObject):
             for path in paths:
                 if not any(('S' in node and 'G' in node) for node in path):
                     valid = False
+                    print('problem: ', list_clutch_combinations[i_graph])
                 
             for i_shaft, shaft in enumerate(list_clutch_combinations[i_graph]):
                 graph_copy.add_edges_from([(shaft+'-'+ clutch_connections[i_shaft+1][0],
@@ -813,8 +812,7 @@ class GearBoxGenerator(DessiaObject):
                 list_clutch_gearbox_graphs.append(graph_copy)
                 
             
-        return list_gearbox_solutions
-    # ,list_clutch_gearbox_graphs
+        return list_gearbox_solutions, list_clutch_gearbox_graphs
     
      def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
@@ -838,6 +836,7 @@ class GearBoxGenerator(DessiaObject):
                     edges_clutch.append(edge)
                 else:
                     edges.append(edge)
+                    
             pos = nx.kamada_kawai_layout(graph)
             
             nx.draw_networkx_nodes(graph, pos, shafts, node_color='skyblue', node_size=1000)
@@ -853,9 +852,8 @@ class GearBoxGenerator(DessiaObject):
                                             
 class Clustering(DessiaObject):
     standalone_in_db  = True
-    def __init__(self, gearboxes:List[GearBox], clustering_method:str='dbscan', name:str=""):
+    def __init__(self, gearboxes:List[GearBox], name:str=""):
         self.gearboxes = gearboxes
-        self.clustering_method = clustering_method
         DessiaObject.__init__(self,name=name)
         dict_features = {}
         for gearbox in self.gearboxes:
@@ -868,108 +866,91 @@ class Clustering(DessiaObject):
                     dict_features[attr] = [gearbox.graph.graph[attr]]
         self.dict_features = dict_features
         self.df = pd.DataFrame.from_dict(self.dict_features)
-        
-        if self.clustering_method == 'dbscan':
-            self.labels, self.n_clusters = self.dbscan()
-        elif self.clustering_method == 'k means':
-            self.labels, self.n_clusters = self.k_means()
-        else:
-            print('Method not implemented yet')
-            raise NotImplementedError
-        
-        clusters = []
-        for label in self.labels:
-            if label not in clusters:
-                clusters.append(label)
-        self.clusters = clusters
-        df_scaled = self.normalize()
-        encoding_mds = MDS()
-        matrix_mds = [element.tolist() for element in encoding_mds.fit_transform(df_scaled)]
-        list_indexes =[]
-        gearboxes_indexes = []
-        index = 0
-        new_list_clusters = []
-        for j, cluster in enumerate(clusters):
-            indexes = []
-            for i, label in enumerate(self.labels):
-                if cluster == label:
-                    new_list_clusters.append(label)
-                    indexes.append(index)
-                    index += 1
-                    gearboxes_indexes.append(i)
-            list_indexes.append(indexes)
-        self.list_indexes = list_indexes
-        self.list_clusters = new_list_clusters
-        new_gearboxes_order =[]
-        new_matrix_mds = []
-        for index in gearboxes_indexes:
-            new_gearboxes_order.append(self.gearboxes[index])
-            new_matrix_mds.append(matrix_mds[index])
-        self.gearboxes_ordered = new_gearboxes_order
-        self.matrix_mds = new_matrix_mds
-
-        
-    def num_clusters(self):
-        "Defining the number of clusters using the elbow method"
-        # df_scaled = self.normalize()
-        
-        k_rng = range(1,20)
-        sse = []
-        for k in k_rng:
-            km = KMeans(n_clusters = k)
-            km.fit(self.df)
-            sse.append(km.inertia_)
-        k=1
-        for i in range(len(sse[:-1])):
-            if (sse[i] - sse[i+1]) > 30:
-                k+=1
-        plt.figure()      
-        plt.xlabel('K')
-        plt.ylabel('Sum of square error')
-        plt.plot(k_rng,sse)
-    
-        return k
-    def normalize(self):
+        df_scaled = self.normalize(self.df)
+        self.labels, self.n_clusters = self.dbscan(df_scaled)
+        family_groups = self.family_groups(df_scaled, self.labels)
+        self.clusters = family_groups[0]
+        self.labels_reordered = family_groups[1]
+        self.list_indexes_groups = family_groups[2]
+        self.gearboxes_ordered = family_groups[3]
+        self.matrix_mds = family_groups[4]
+ 
+    def normalize(self, df):
         
         scaler = MinMaxScaler()
-        scaler.fit(self.df)
-        df_scaled = scaler.fit_transform(self.df)
-        
+        scaler.fit(df)
+        df_scaled = scaler.fit_transform(df)
         return df_scaled
+    # def num_clusters(self, df):
+    #     "Defining the number of clusters using the elbow method"
+    #     # df_scaled = self.normalize()
+        
+    #     k_rng = range(1,20)
+    #     sse = []
+    #     for k in k_rng:
+    #         km = KMeans(n_clusters = k)
+    #         km.fit(self.df)
+    #         sse.append(km.inertia_)
+    #     k=1
+    #     for i in range(len(sse[:-1])):
+    #         if (sse[i] - sse[i+1]) > 30:
+    #             k+=1
+    #     plt.figure()      
+    #     plt.xlabel('K')
+    #     plt.ylabel('Sum of square error')
+    #     plt.plot(k_rng,sse)
+    #     return k
     
-    def k_means(self):
-        n_clusters = self.num_clusters()
-        df_scaled = self.normalize()
-        km = KMeans(n_clusters=n_clusters)
-        labels = [int(label) for label in km.fit_predict(df_scaled)]
-        return labels, n_clusters
-    def dbscan(self):
-        df_scaled = self.normalize()
+    
+    # def k_means(self, df):
+    #     n_clusters = self.num_clusters(df)
+    #     km = KMeans(n_clusters=n_clusters)
+    #     labels = [int(label) for label in km.fit_predict(df)]
+    #     return labels, n_clusters
+    def dbscan(self, df):
+        
         db = DBSCAN(eps=0.525, min_samples=3,
                     # metric= 'cityblock'
                     )
-        db.fit(df_scaled)
+        db.fit(df)
         labels =[int(label) for label in list(db.labels_)]
                 # Number of clusters in labels, ignoring noise if present.
         n_clusters = len(set(labels)) - (1 if -1 in labels
                                                    else 0)
         print('Estimated number of clusters:', n_clusters)
         return labels, n_clusters
+    
+    def family_groups(self, df, labels):
+        encoding_mds = MDS()
+        matrix_mds = [element.tolist() for element in encoding_mds.fit_transform(df)]
+        clusters = []
+        list_indexes_groups =[]
+        gearboxes_indexes = []
+        index = 0
+        cluster_labels_reordered = []
+        for label in labels:
+            if label not in clusters:
+                clusters.append(label)
+        for j, cluster in enumerate(clusters):
+            indexes = []
+            for i, label in enumerate(labels):
+                if cluster == label:
+                    cluster_labels_reordered.append(label)
+                    indexes.append(index)
+                    index += 1
+                    gearboxes_indexes.append(i)
+            list_indexes_groups.append(indexes)
+        new_gearboxes_order =[]
+        new_matrix_mds = []
+        for index in gearboxes_indexes:
+            new_gearboxes_order.append(self.gearboxes[index])
+            new_matrix_mds.append(matrix_mds[index])
+        return clusters, cluster_labels_reordered, list_indexes_groups, new_gearboxes_order, new_matrix_mds
         
     def plot_clusters(self):
         colors =[RED, GREEN, BLUE,ORANGE,LIGHTSKYBLUE, ROSE, VIOLET,LIGHTRED,LIGHTGREEN,CYAN,BROWN,GREY,HINT_OF_MINT,GRAVEL]
         
-        to_disp_attribute_names = ['x', 'y']
-        tooltip = plot_data.Tooltip(to_disp_attribute_names=['x', 'y','Aver path'
-                                                             'Aver L clutch-input',
-                                                             'ave_l_ns',
-                                                               # 'Number shafts',
-                                                             # 'Number gears',
-                                                             'Std input/cluches',
-                                                             'Std input/gears', 
-                                                              'Density'
-                                                             ])
-        edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
+        
         all_points = []
         for i, point in enumerate(self.matrix_mds):
             all_points.append(
@@ -979,17 +960,26 @@ class Clustering(DessiaObject):
                  'ave_l_ns':self.gearboxes_ordered[i].ave_l_ns,
                    # 'Number shafts': self.gearboxes_ordered[i].number_shafts, 
                  # 'Number gears': self.gearboxes_ordered[i].number_gears,
-                 # 'Std input/cluches':self.gearboxes_ordered[i].std_clutch_distance,
+                  # 'Std input/cluches':self.gearboxes_ordered[i].std_clutch_distance,
                  'Std input/gears':self.gearboxes_ordered[i].std_gears_distance,
                   'Density': self.gearboxes_ordered[i].density, 
-                 'Cluster':self.list_clusters[i]}
+                 'Cluster':self.labels_reordered[i]}
                 )
         
         point_families = []
-        for i, indexes in enumerate(self.list_indexes):
+        for i, indexes in enumerate(self.list_indexes_groups):
             color = colors[i]
             point_families.append(plot_data.PointFamily(point_color=color, point_index = indexes, name = 'Cluster '+str(self.clusters[i])))
-        # print(point_families)
+        to_disp_attribute_names = ['x', 'y']
+        tooltip = plot_data.Tooltip(to_disp_attribute_names=['x', 'y','Aver path'
+                                                             'Aver L clutch-input',
+                                                             'ave_l_ns',
+                                                               # 'Number shafts',
+                                                             # 'Number gears',
+                                                             # 'Std input/cluches',
+                                                             'Std input/gears', 
+                                                              'Density'])
+        edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
         plots = [plot_data.Scatter(tooltip = tooltip, to_disp_attribute_names = to_disp_attribute_names, elements=all_points)]
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
         plots.append(plot_data.ParallelPlot(elements=all_points,
@@ -1000,11 +990,10 @@ class Clustering(DessiaObject):
                                                                        'ave_l_ns',
                                                                         # 'Number shafts',
                                                                        # 'Number  gears',
-                                                                       # 'Std input/cluches',
+                                                                        # 'Std input/cluches',
                                                                        'Std input/gears', 
                                                                         'Density' ,
-                                                                       'Cluster'],
-                                            rgbs=rgbs))
+                                                                       'Cluster'],rgbs=rgbs))
         sizes = [plot_data.Window(width=560, height=300),
                  plot_data.Window(width=560, height=300)]
         coords = [(0, 0), (0, 300)]

@@ -21,7 +21,6 @@ block_cluster = wf.InstanciateModel(objects.Clustering, name = 'Clustering')
 display = wf.Display(name='Display')
 
 block_workflow = [block_generator, block_generate, block_gearbox, block_engine, block_efficiencymap,
-                  # block_wltpcycle,
                   block_cluster,
                   display
                   ]
@@ -30,7 +29,6 @@ pipe_workflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]),
                   wf.Pipe(block_engine.outputs[0], block_gearbox.inputs[0]), 
                   wf.Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
                   wf.Pipe(block_generate.outputs[0], block_cluster.inputs[0]),
-                    # wf.Pipe(block_generate.outputs[0], display.inputs[0]),
                   wf.Pipe(block_cluster.outputs[0], display.inputs[0])
                   ]
 
@@ -91,9 +89,6 @@ input_values = {workflow.index(block_generator.inputs[1]): 2,
                 workflow.index(block_efficiencymap.inputs[1]):engine_torques, 
                 workflow.index(block_efficiencymap.inputs[2]):mass_flow_rate_kgps, 
                 workflow.index(block_efficiencymap.inputs[3]):fuel_hv, 
-                # workflow.index(block_wltpcycle.inputs[0]):cycle_speeds, 
-                # workflow.index(block_wltpcycle.inputs[1]):car_mass, 
-                # workflow.index(block_wltpcycle.inputs[2]):tire_radius
                 }
 
 workflow_run = workflow.run(input_values)

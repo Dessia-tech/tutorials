@@ -149,16 +149,16 @@ generate_paths = generator.generate_paths(generate_connections)
 # list_paths_edges = generate_paths[2]
 # list_dict_connections = generate_paths[-1]
 clutch_analisys = generator.clutch_analisys(generate_paths)
-generator.draw_graph(clutch_analisys[0], 10)
+# generator.draw_graph(clutch_analisys[0], 10)
 clutch_generate = generator.generate()
-# generator.draw_graph(clutch_generate[1], 10)
+generator.draw_graph(clutch_generate[1], 25)
 
 # for i,gearbox in enumerate(clutch_generate[0]):
 #     plot_data.plot_canvas(gearbox.plot_data()[0])
 #     if i>10:
 #         break
 
-clustering = objects.Clustering(clutch_generate)
+clustering = objects.Clustering(clutch_generate[0], 'k means')
 
 plot_data.plot_canvas(clustering.plot_clusters())
 
