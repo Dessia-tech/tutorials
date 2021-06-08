@@ -799,7 +799,6 @@ class GearBoxGenerator(DessiaObject):
             for path in paths:
                 if not any(('S' in node and 'G' in node) for node in path):
                     valid = False
-                    print('problem: ', list_clutch_combinations[i_graph])
                 
             for i_shaft, shaft in enumerate(list_clutch_combinations[i_graph]):
                 graph_copy.add_edges_from([(shaft+'-'+ clutch_connections[i_shaft+1][0],
