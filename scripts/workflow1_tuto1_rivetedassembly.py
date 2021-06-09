@@ -12,7 +12,9 @@ from dessia_api_client import Client
 import dessia_common.workflow as wf
 
 block_generator = wf.InstanciateModel(tuto.Generator, name='Generator')
-block_generate = wf.ModelMethod(tuto.Generator, 'generate', name='Generator')
+
+generate_method = wf.MethodType(class_=tuto.Generator, name='generate')
+block_generate = wf.ModelMethod(method_=generate_method, name='generate')
 
 list_attribute1 = ['number_rivet1', 'number_rivet2', 'number_rivet', 'mass', 'pressure_applied', 'fatigue_resistance']
 display_reductor = wf.MultiPlot(list_attribute1, 1, name='Display Reductor')
@@ -40,5 +42,5 @@ workflow_run = workflow.run(input_values)
 solution = workflow_run.output_value[0]
 plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
 
-c = Client(api_url='https://api.platform-dev.dessia.tech')
-r = c.create_object_from_python_object(workflow_run)
+# c = Client(api_url='https://api.demo.dessia.tech')
+# r = c.create_object_from_python_object(workflow_run)
