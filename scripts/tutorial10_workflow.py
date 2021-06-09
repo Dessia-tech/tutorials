@@ -33,7 +33,7 @@ pipe_workflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]),
                   ]
 
 workflow = wf.Workflow(block_workflow, pipe_workflow, block_generate.outputs[0])
-
+workflow.plot()
 
 
 
