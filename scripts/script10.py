@@ -151,7 +151,7 @@ generate_paths = generator.generate_paths(generate_connections)
 clutch_analisys = generator.clutch_analisys(generate_paths)
 # generator.draw_graph(clutch_analisys[0], 10)
 clutch_generate = generator.generate()
-generator.draw_graph(clutch_generate[1], 25)
+# generator.draw_graph(clutch_generate[1], 25)
 
 # for i,gearbox in enumerate(clutch_generate[0]):
 #     plot_data.plot_canvas(gearbox.plot_data()[0])

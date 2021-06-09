@@ -145,10 +145,10 @@ class GearBox(DessiaObject):
         self.ave_l_ns = graph.graph['Average length path/N shafts']
         self.average_path_length = graph.graph['Average length path']
         self.average_clutch_distance = graph.graph['Average distance clutch-input']
-        # self.number_shafts = graph.graph['Number of shafts']
-        # self.number_gears = graph.graph['Number of gears']
-        # self.std_clutch_distance = graph.graph['Standard deviation distante input/cluches'] 
-        self.std_gears_distance = graph.graph['Standard deviation distante input/gears']
+        self.number_shafts = graph.graph['Number of shafts']
+        self.number_gears = graph.graph['Number of gears']
+        self.std_clutch_distance = graph.graph['Standard deviation distante input/cluches'] 
+        # self.std_gears_distance = graph.graph['Standard deviation distante input/gears']
         self.density = graph.graph['Density']
             
     def update(self, x):
@@ -623,9 +623,9 @@ class GearBoxGenerator(DessiaObject):
                 if valid:
                     gearbox_graph.graph['Average length path/N shafts'] = mean(average_lengths)/number_shafts
                     gearbox_graph.graph['Average length path'] = mean(average_lengths)
-                    # gearbox_graph.graph['Number of shafts'] = number_shafts
-                    # gearbox_graph.graph['Number of gears'] = number_gears
-                    gearbox_graph.graph['Standard deviation distante input/gears'] = np.std(gears_path_lengths)
+                    gearbox_graph.graph['Number of shafts'] = number_shafts
+                    gearbox_graph.graph['Number of gears'] = number_gears
+                    # gearbox_graph.graph['Standard deviation distante input/gears'] = np.std(gears_path_lengths)
                     gearbox_graph.graph['Density'] = nx.density(gearbox_graph)
                     list_gearbox_graphs.append(gearbox_graph)
                     list_paths.append(paths)
@@ -811,8 +811,7 @@ class GearBoxGenerator(DessiaObject):
                 list_clutch_gearbox_graphs.append(graph_copy)
                 
             
-        return list_gearbox_solutions
-    # , list_clutch_gearbox_graphs
+        return list_gearbox_solutions, list_clutch_gearbox_graphs
     
      def draw_graph(self, graphs_list: List[nx.Graph], max_number_graphs:int = None):
         
@@ -909,7 +908,7 @@ class Clustering(DessiaObject):
     #     return labels, n_clusters
     def dbscan(self, df):
         
-        db = DBSCAN(eps=0.525, min_samples=3,
+        db = DBSCAN(eps=0.7, min_samples=3,
                     # metric= 'cityblock'
                     )
         db.fit(df)
@@ -948,9 +947,7 @@ class Clustering(DessiaObject):
         return clusters, cluster_labels_reordered, list_indexes_groups, new_gearboxes_order, new_matrix_mds
         
     def plot_clusters(self):
-        colors =[RED, GREEN, BLUE,ORANGE,LIGHTSKYBLUE, ROSE, VIOLET,LIGHTRED,LIGHTGREEN,CYAN,BROWN,GREY,HINT_OF_MINT,GRAVEL]
-        
-        
+        colors =[RED, GREEN, ORANGE, BLUE, LIGHTSKYBLUE, ROSE, VIOLET, LIGHTRED, LIGHTGREEN, CYAN, BROWN, GREY, HINT_OF_MINT, GRAVEL]
         all_points = []
         for i, point in enumerate(self.matrix_mds):
             all_points.append(
@@ -958,11 +955,11 @@ class Clustering(DessiaObject):
                  'Aver path':self.gearboxes_ordered[i].average_path_length, 
                  'Aver L clutch-input':self.gearboxes_ordered[i].average_clutch_distance,
                  'ave_l_ns':self.gearboxes_ordered[i].ave_l_ns,
-                   # 'Number shafts': self.gearboxes_ordered[i].number_shafts, 
+                  'Number shafts': self.gearboxes_ordered[i].number_shafts, 
                  # 'Number gears': self.gearboxes_ordered[i].number_gears,
-                  # 'Std input/cluches':self.gearboxes_ordered[i].std_clutch_distance,
-                 'Std input/gears':self.gearboxes_ordered[i].std_gears_distance,
-                  'Density': self.gearboxes_ordered[i].density, 
+                 'Std input/cluches':self.gearboxes_ordered[i].std_clutch_distance,
+                  # 'Std input/gears':self.gearboxes_ordered[i].std_gears_distance,
+                 'Density': self.gearboxes_ordered[i].density, 
                  'Cluster':self.labels_reordered[i]}
                 )
         
@@ -974,10 +971,10 @@ class Clustering(DessiaObject):
         tooltip = plot_data.Tooltip(to_disp_attribute_names=['x', 'y','Aver path'
                                                              'Aver L clutch-input',
                                                              'ave_l_ns',
-                                                               # 'Number shafts',
-                                                             # 'Number gears',
-                                                             # 'Std input/cluches',
-                                                             'Std input/gears', 
+                                                                'Number shafts',
+                                                               'Number gears',
+                                                              'Std input/cluches',
+                                                              # 'Std input/gears', 
                                                               'Density'])
         edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
         plots = [plot_data.Scatter(tooltip = tooltip, to_disp_attribute_names = to_disp_attribute_names, elements=all_points)]
@@ -986,12 +983,12 @@ class Clustering(DessiaObject):
                                             edge_style=edge_style,
                                             disposition='vertical',
                                             to_disp_attribute_names = ['Aver path',
-                                                                       'Aver L clutch-input',
+                                                                        'Number shafts',
                                                                        'ave_l_ns',
-                                                                        # 'Number shafts',
-                                                                       # 'Number  gears',
-                                                                        # 'Std input/cluches',
-                                                                       'Std input/gears', 
+                                                                       # 'Std input/gears',
+                                                                       'Aver L clutch-input',
+                                                                       'Std input/cluches',
+                                                                        'Number  gears',
                                                                         'Density' ,
                                                                        'Cluster'],rgbs=rgbs))
         sizes = [plot_data.Window(width=560, height=300),
