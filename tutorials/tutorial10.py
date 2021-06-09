@@ -633,81 +633,7 @@ class GearBoxGenerator(DessiaObject):
                     list_dict_connections.append(gearbox_connections)
         
         return list_gearbox_graphs#, list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
-     # def clutch_analisys(self):
-     #    new_list_gearbox_graphs = []
-     #    list_clutch_combinations = []
-     #    list_cycles = []
-     #    list_dict_clutch_connections = []
-     #    list_gearbox_graphs = self.generate_paths()
-     #    for graph in list_gearbox_graphs:
-     #        for node in graph.nodes():
-     #            if graph.nodes()[node]:
-     #                if graph.nodes()[node]['Node Type'] == 'Input Shaft':
-     #                    input_shaft = node
-     #                elif graph.nodes()[node]['Node Type'] == 'Output Shaft':
-     #                    output_shaft = node
-     #        cycles = nx.cycle_basis(graph, root = input_shaft)
-     #        list_cycles.append(cycles)
-     #        list_cycle_shafts = []
-            
-     #        for cycle in cycles:
-     #            cycle_shafts = []
-     #            for node in cycle:
-     #                if 'S' in node:
-     #                    cycle_shafts.append(node)
-     #            list_cycle_shafts.append(cycle_shafts)
-     #        clutch_combinations = list(product(*list_cycle_shafts))
-     #        list_clutch_combinations.append(clutch_combinations)
-     #        for clutch_combination in clutch_combinations:
-     #            graph_copy = copy.deepcopy(graph)
-     #            dict_clutch_connections = {}
-     #            list_clutch_connections=[]
-     #            for i_cycle, cycle in enumerate(cycles):
-     #                for i_node, node in enumerate(cycle):
-     #                    if clutch_combination[i_cycle] == node:
-     #                        if clutch_combination[i_cycle] == cycle[-1]:
-     #                            dict_clutch_connections[i_cycle + 1] = (cycle[0], cycle[i_node-1])
-     #                            list_clutch_connections.append((cycle[0], cycle[i_node-1]))
-     #                            graph_copy.nodes()[node]['Clutch'] = True
-     #                            graph_copy.remove_edges_from([(node, cycle[0]), (node,cycle[i_node-1])])
-     #                            graph_copy.add_edges_from([(cycle[0], node+'-'+cycle[0]),
-     #                                                       (cycle[i_node-1], node+'-'+cycle[i_node-1]),
-     #                                                       (node+'-'+cycle[0],node+'-'+cycle[i_node-1]), 
-     #                                                       (node+'-'+cycle[0], node),
-     #                                                       (node+'-'+cycle[i_node-1], node)])
-                                
-     #                        else:
-     #                            dict_clutch_connections[i_cycle + 1] = (cycle[i_node+1], cycle[i_node-1])
-     #                            list_clutch_combinations.append((cycle[i_node+1], cycle[i_node-1]))
-     #                            graph_copy.nodes()[node]['Clutch'] = True
-     #                            graph_copy.remove_edges_from([(node,cycle[i_node+1]), (node,cycle[i_node-1])])
-     #                            graph_copy.add_edges_from([(cycle[i_node+1], node+'-'+cycle[i_node+1]),
-     #                                                       (cycle[i_node-1], node+'-'+cycle[i_node-1]),
-     #                                                       (node+'-'+cycle[i_node+1],node+'-'+cycle[i_node-1]), 
-     #                                                       (node+'-'+cycle[i_node+1], node),
-     #                                                       (node+'-'+cycle[i_node-1], node)])
-     #            valid = True  
-     #            for i, clutch_conneciton in enumerate(list_clutch_connections):
-     #                if i!=0:
-     #                    if clutch_combination == list_clutch_connections[i-1]:
-     #                        valid = False
-                            
-     #            paths = nx.all_simple_paths(graph_copy, input_shaft, output_shaft) 
-     #            for path in paths:
-     #                if not any(('S' in node and 'G' in node) for node in path):
-     #                    valid = False
-                
-                
-     #            clutch_path_lengths = []
-     #            for node in graph_copy.nodes():
-     #                if 'Clutch' in list(graph_copy.nodes()[node].keys()):
-     #                    clutch_path_lengths.append(nx.shortest_path_length(graph_copy, input_shaft, node))
-     #            graph_copy.graph['Average distance clutch-input'] = mean(clutch_path_lengths)
-     #            graph_copy.graph['Standard deviation distante input/cluches'] = np.std(clutch_path_lengths)
-     #            list_dict_clutch_connections.append(dict_clutch_connections)
-     #            new_list_gearbox_graphs.append(graph_copy)
-        
-     #    return new_list_gearbox_graphs, list_dict_clutch_connections, list_clutch_combinations, list_cycles
+
      def clutch_analisys(self, list_path_generated_graphs):
         new_list_gearbox_graphs = []
         list_clutch_combinations = []
@@ -880,32 +806,7 @@ class Clustering(DessiaObject):
         scaler.fit(df)
         df_scaled = scaler.fit_transform(df)
         return df_scaled
-    # def num_clusters(self, df):
-    #     "Defining the number of clusters using the elbow method"
-    #     # df_scaled = self.normalize()
-        
-    #     k_rng = range(1,20)
-    #     sse = []
-    #     for k in k_rng:
-    #         km = KMeans(n_clusters = k)
-    #         km.fit(self.df)
-    #         sse.append(km.inertia_)
-    #     k=1
-    #     for i in range(len(sse[:-1])):
-    #         if (sse[i] - sse[i+1]) > 30:
-    #             k+=1
-    #     plt.figure()      
-    #     plt.xlabel('K')
-    #     plt.ylabel('Sum of square error')
-    #     plt.plot(k_rng,sse)
-    #     return k
-    
-    
-    # def k_means(self, df):
-    #     n_clusters = self.num_clusters(df)
-    #     km = KMeans(n_clusters=n_clusters)
-    #     labels = [int(label) for label in km.fit_predict(df)]
-    #     return labels, n_clusters
+ 
     def dbscan(self, df):
         
         db = DBSCAN(eps=0.7, min_samples=3,
