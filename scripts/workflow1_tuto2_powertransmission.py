@@ -7,14 +7,18 @@ Created on Mon Nov 23 12:36:10 2020
 """
 import tutorials.tutorial2_powertransmission as objects
 import dessia_common.workflow as wf
-import dessia_common.typings as typings
+from dessia_common.typings import MethodType
 from dessia_api_client import Client
 
 block_optimizer = wf.InstanciateModel(objects.Optimizer, name='Optimizer')
-block_optimize = wf.ModelMethod(typings.MethodType(objects.Optimizer, 'optimize'), name='Optimize')
+
+method_type_optimize = MethodType(objects.Optimizer,'optimize')
+block_optimize = wf.ModelMethod(method_type_optimize, name='Optimize')
 
 block_instanciate_reductor = wf.InstanciateModel(objects.InstanciateReductor, name='Instanciate Reductor')
-block_instanciate = wf.ModelMethod(typings.MethodType(objects.InstanciateReductor, 'instanciate'), name='Instanciate')
+
+methode_type_instanciate= MethodType(objects.InstanciateReductor,'instanciate')
+block_instanciate = wf.ModelMethod(methode_type_instanciate, name='Instanciate')
 
 block_motor = wf.InstanciateModel(objects.Motor, name='Motor')
 
@@ -46,5 +50,5 @@ input_values = {workflow.index(block_optimizer.inputs[1]): 500,
 
 workflow_generator_run = workflow.run(input_values)
 
-c = Client(api_url='https://api.platform-dev.dessia.tech')
+c = Client(api_url='https://api.demo.dessia.tech/')
 r = c.create_object_from_python_object(workflow_generator_run)

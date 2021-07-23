@@ -12,35 +12,6 @@ from typing import List
 import random
 
 
-class Graph(DessiaObject):
-    _standalone_in_db = True
-
-    def __init__(self, amplitude: float, number: int, name: str = ''):
-        DessiaObject.__init__(self, name=name)
-        self.number = number
-        self.amplitude = amplitude
-
-        self.x = [i / (2 * math.pi) for i in range(number)]
-        self.y = [self.amplitude * math.sin(i) for i in self.x]
-
-    def data_set(self):
-        to_disp_attribute_names = ['x', 'y']
-        tooltip = plot_data.Tooltip(to_disp_attribute_names=to_disp_attribute_names)
-        point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK)
-        edge_style = plot_data.EdgeStyle(color_stroke=BLUE, dashline=[10, 5])
-        elements = []
-        for x, y in zip(self.x, self.y):
-            elements.append({'x': x, 'y': y})
-        return plot_data.Dataset(elements=elements, name='y = sin(x)', tooltip=tooltip, 
-                                 point_style=point_style, edge_style=edge_style)
-
-    def plot_data(self):
-        to_disp_attribute_names = ['x', 'y']
-        data_sets = [self.data_set()]
-        graphs2d = plot_data.Graph2D(graphs=data_sets, to_disp_attribute_names=to_disp_attribute_names)
-        return graphs2d
-
-
 class Graphs(DessiaObject):
     _standalone_in_db = True
 

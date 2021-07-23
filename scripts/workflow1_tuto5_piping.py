@@ -9,7 +9,7 @@ import tutorials.tutorial5_piping as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
 import dessia_common.workflow as wf
-
+from dessia_common.typings import MethodType
 from dessia_api_client import Client
 
 f1 = vm.Frame3D(vm.Point3D(0.05, 0.1, 0), vm.Vector3D(1, 0, 0), vm.Vector3D(0, 1, 0), vm.Vector3D(0, 0, 1))
@@ -83,7 +83,10 @@ for i in range(30):
 # solutions = opti1.optimize(assemblies=[assembly1], number_solution_per_assembly=2)
 
 block_optimizer = wf.InstanciateModel(tuto.Optimizer, name='Optimizer')
-block_optimize = wf.ModelMethod(tuto.Optimizer, 'optimize', name='optimize')
+
+
+method_type_optimize = MethodType(tuto.Optimizer,'optimize')
+block_optimize = wf.ModelMethod(method_type_optimize, name='optimize')
 
 list_attribute1 = ['length', 'min_radius', 'max_radius', 'distance_input', 'straight_line']
 display_reductor = wf.ParallelPlot(list_attribute1, 1, name='Display')
