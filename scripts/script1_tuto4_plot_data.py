@@ -2,7 +2,7 @@ import tutorials.tutorial4_plot_data as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
 
-# g1 = tuto.Graph(2, 50)
+# g1 = tuto.Graph(3, 150)
 # pdt = g1.plot_data()
 # plot_data.plot_canvas(plot_data_object=pdt, canvas_id='canvas')
 
@@ -11,18 +11,22 @@ import volmdlr as vm
 # plot_data.plot_canvas(plot_data_object=pdt, canvas_id='canvas')
 
 # s1 = tuto.ScatterPlot(2, 2)
-# # print(s1)
+# print(s1)
 # plot_data.plot_canvas(plot_data_object=s1.plot_data(), canvas_id='canvas')
+
+g1 = tuto.Graph(1, 50) #Graph(amplitude, number of point)
+pdt = g1.plot_data()
+plot_data.plot_canvas(plot_data_object=pdt, canvas_id='canvas')
 
 # p1 = tuto.ParallelPlot(2, 2)
 # plot_data.plot_canvas(plot_data_object=p1.plot_data(), canvas_id='canvas')
 
-# m1 = tuto.MultiPlot(2, 2)
-# plot_data.plot_canvas(plot_data_object=m1.plot_data(), canvas_id='canvas')
+m1 = tuto.MultiPlot(2, 2)
+plot_data.plot_canvas(plot_data_object=m1.plot_data(), canvas_id='canvas')
 
-shape1 = tuto.SimpleShape(3, 2)
-plot_data.plot_canvas(plot_data_object=shape1.plot_data(), canvas_id='canvas')
-
+# shape1 = tuto.SimpleShape(3, 2)
+# plot_data.plot_canvas(plot_data_object=shape1.plot_data(), canvas_id='canvas')
+#
 
 # s1 = tuto.ScatterPlot_list([0,1,2,3,4,5], [1,0,2,5,4,3])
 # plot_data.plot_canvas(plot_data_object=s1.plot_data(), canvas_id='canvas')
