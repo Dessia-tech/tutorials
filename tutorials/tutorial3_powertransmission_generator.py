@@ -370,6 +370,7 @@ class Generator(DessiaObject):
         list_node = []
         list_gear = []
         reductor = self.instanciate()
+        
         for meshe in reductor.meshes:
             for gear in  [meshe.gear1, meshe.gear2]:
                 list_node.append(self.z_min_max[1]-self.z_min_max[0])
