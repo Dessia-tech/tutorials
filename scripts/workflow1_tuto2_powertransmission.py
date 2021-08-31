@@ -7,27 +7,34 @@ Created on Mon Nov 23 12:36:10 2020
 """
 import tutorials.tutorial2_powertransmission as objects
 import dessia_common.workflow as wf
+from dessia_common.typings import MethodType
 
 from dessia_api_client import Client
 
-block_optimizer = wf.InstanciateModel(objects.Optimizer, name='Optimizer')
-block_optimize = wf.ModelMethod(objects.Optimizer, 'optimize', name='Optimize')
+block_optimizer = wf.InstantiateModel(objects.Optimizer, name='Optimizer')
+method_type = MethodType(class_=objects.Optimizer, name='optimize')
+block_optimize = wf.ModelMethod(method_type=method_type, name='Optimize')
+block_instanciate_reductor = wf.InstantiateModel(objects.InstanciateReductor,
+                                                 name='Instanciate Reductor')
+method_type = MethodType(class_=objects.InstanciateReductor,
+                         name='instanciate')
+block_instanciate = wf.ModelMethod(method_type=method_type, name='Instanciate')
 
-block_instanciate_reductor = wf.InstanciateModel(objects.InstanciateReductor, name='Instanciate Reductor')
-block_instanciate = wf.ModelMethod(objects.InstanciateReductor, 'instanciate', name='Instanciate')
-
-block_motor = wf.InstanciateModel(objects.Motor, name='Motor')
+block_motor = wf.InstantiateModel(objects.Motor, name='Motor')
 
 list_attribute1 = ['mass_reductor', 'number_solution']
 display_reductor = wf.MultiPlot(list_attribute1, 1, name='Display Reductor')
 
-block_workflow = [block_optimizer, block_optimize, block_instanciate_reductor, block_instanciate, block_motor,
-                  display_reductor]
+block_workflow = [block_optimizer, block_optimize, block_instanciate_reductor,
+                  block_instanciate, block_motor, display_reductor]
 
 pipe_worflow = [wf.Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
-                wf.Pipe(block_instanciate_reductor.outputs[0], block_instanciate.inputs[0]),
-                wf.Pipe(block_motor.outputs[0], block_instanciate_reductor.inputs[0]),
-                wf.Pipe(block_instanciate.outputs[0], block_optimizer.inputs[0]),
+                wf.Pipe(block_instanciate_reductor.outputs[0],
+                        block_instanciate.inputs[0]),
+                wf.Pipe(block_motor.outputs[0],
+                        block_instanciate_reductor.inputs[0]),
+                wf.Pipe(block_instanciate.outputs[0],
+                        block_optimizer.inputs[0]),
                 wf.Pipe(block_optimize.outputs[0], display_reductor.inputs[0])]
 
 workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0])

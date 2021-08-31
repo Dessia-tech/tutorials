@@ -16,8 +16,6 @@ import plot_data
 from plot_data.colors import *
 from scipy.optimize import LinearConstraint
 
-    
-    
 
 class EfficiencyMap(DessiaObject):
     _standalone_in_db = True
@@ -263,22 +261,22 @@ class GearBoxResults(DessiaObject):
     
 class GearBoxOptimizer(DessiaObject):
     _standalone_in_db = True
-    
+
     def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle, firstgear_ratio_min_max: Tuple[float,float], coeff_between_gears: List[Tuple[float, float]] = None, name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.coeff_between_gears = coeff_between_gears
         self.firstgear_ratio_min_max = firstgear_ratio_min_max
         DessiaObject.__init__(self,name=name)
-        
+
         if self.coeff_between_gears == None:
             self.coeff_between_gears = (len(self.gearbox.speed_ranges)-1)*[[0.5,1]]
- 
+
         bounds=[]
         for i in range(len(self.gearbox.speed_ranges)):
             if i == 0:
                 bounds.append([self.firstgear_ratio_min_max[0],self.firstgear_ratio_min_max[1]])
-            else: 
+            else:
                 bounds.append([self.coeff_between_gears[i-1][0], self.coeff_between_gears[i-1][1]])
         self.bounds = bounds
   
@@ -323,7 +321,7 @@ class GearBoxOptimizer(DessiaObject):
                 x0.append((interval[1]-interval[0])*float(np.random.random(1))+interval[0])
         return x0
     
-    def optimize(self, max_loops = 1000): 
+    def optimize(self, max_loops: float = 1000):
         valid = True
         count = 0
         list_gearbox_results = []
