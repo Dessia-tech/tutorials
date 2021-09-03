@@ -1,9 +1,5 @@
 import volmdlr as vm
-import volmdlr.primitives2d as p2d
 import volmdlr.primitives3d as p3d
-import plot_data.core as plot_data
-import math
-from itertools import product
 from random import random
 import cma
 
@@ -25,12 +21,12 @@ class Housing(DessiaObject):
             face.translation(self.origin, copy=False)
         return self.faces
 
+
 class Frame(DessiaObject):
     _standalone_in_db = False
 
     def __init__(self, start: vm.Point3D, end: vm.Point3D,
-                 position: vm.Point3D=None,
-                 name: str = ''):
+                 position: vm.Point3D = None, name: str = ''):
         self.position = position
         self.start = start
         self.end = end
@@ -39,8 +35,10 @@ class Frame(DessiaObject):
 
     def define_waypoints(self, pourcentage_abs_curv=float):
         length = self.line.length()
-        self.position = self.line.point_at_abscissa(pourcentage_abs_curv*length)
+        abscissa = pourcentage_abs_curv*length
+        self.position = self.line.point_at_abscissa(abscissa)
         return self.position
+
 
 class Piping(DessiaObject):
     _standalone_in_db = True
@@ -58,14 +56,17 @@ class Piping(DessiaObject):
         self.end = end
         DessiaObject.__init__(self, name=name)
 
-    def update_waypoints(self, new_points : List[vm.Point3D]):
+    def update_waypoints(self, new_points: List[vm.Point3D]):
         direction_start = self.direction_start.copy()
         direction_start.normalize()
         pt_start_connector = self.start + self.length_connector*direction_start
         direction_end = self.direction_end.copy()
         direction_end.normalize()
         pt_end_connector = self.end + self.length_connector * direction_end
-        return [self.start, pt_start_connector] + new_points + [pt_end_connector, self.end]
+
+        start_wpts = [self.start, pt_start_connector]
+        end_wpts = [pt_end_connector, self.end]
+        return start_wpts + new_points + end_wpts
 
     def route(self, points: List[vm.Point3D]):
         lines = []
@@ -79,12 +80,15 @@ class Piping(DessiaObject):
             length += line.length()
         return length
 
-    def genere_neutral_fiber(self, points:List[vm.Point3D]):
-        radius = {i: self.minimum_radius for i in [j + 1 for j in range(len(points) - 2)]}
-        rl = p3d.OpenRoundedLineSegments3D(points, radius, adapt_radius=True, name='wire')
+    def genere_neutral_fiber(self, points: List[vm.Point3D]):
+        point_indices = [j + 1 for j in range(len(points) - 2)]
+        radius = {i: self.minimum_radius for i in point_indices}
+        rl = p3d.OpenRoundedLineSegments3D(points, radius,
+                                           adapt_radius=True, name='wire')
         return rl
 
-    def generate_sweep(self, points:List[vm.Point3D], color=(248/255, 205/255, 70/255), alpha=0.8):
+    def generate_sweep(self, points: List[vm.Point3D],
+                       color=(248/255, 205/255, 70/255), alpha=0.8):
         contour = vm.wires.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
         rl = self.genere_neutral_fiber(points)
         # contour = vm.wires.Contour2D([c])
@@ -94,11 +98,11 @@ class Piping(DessiaObject):
 
 class Assembly(DessiaObject):
     _standalone_in_db = True
-    _non_data_eq_attributes = ['length', 'min_radius', 'max_radius', 'distance_input',
-                               'straight_line', 'routes']
+    _non_data_eq_attributes = ['length', 'min_radius', 'max_radius',
+                               'distance_input', 'straight_line', 'routes']
 
     def __init__(self, frames: List[Frame], piping: Piping, housing: Housing,
-                 waypoints: List[vm.Point3D]=None, name: str = ''):
+                 waypoints: List[vm.Point3D] = None, name: str = ''):
 
         DessiaObject.__init__(self, name=name)
         self.housing = housing
@@ -124,7 +128,6 @@ class Assembly(DessiaObject):
             if not isinstance(primitive, vm.edges.Arc3D):
                 length += primitive.length()
         self.straight_line = length
-
 
     def update_waypoints(self, pourcentages: List[float]):
         abs_points = []
@@ -152,14 +155,15 @@ class Optimizer(DessiaObject):
     def __init__(self, name: str = ''):
         DessiaObject.__init__(self, name=name)
 
-    def optimize(self, assemblies: List[Assembly], number_solution_per_assembly:int)->List[Assembly]:
+    def optimize(self, assemblies: List[Assembly],
+                 number_solution_per_assembly: int) -> List[Assembly]:
         solutions = []
         for assembly in assemblies:
             self.assembly = assembly
 
             x0a = [random() for i in range(len(self.assembly.frames))]
 
-            check =True
+            check = True
             compt = 0
             number_solution = 0
             while check:
