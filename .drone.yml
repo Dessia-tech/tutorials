@@ -1,0 +1,25 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: install, build doc run scripts
+  image: python:3.8
+  commands:
+  - git fetch --tags
+  - python setup.py install
+  - python tests.py
+
+- name: notify by email
+  when:
+    status:
+    - failure
+  image: drillster/drone-email
+  settings:
+    host: mail.dessia.tech
+    username: technical@dessia.tech
+    password:
+      from_secret: email_password
+    from: technical@dessia.tech
+    recipients: [ root@dessia.tech ]
