@@ -152,7 +152,7 @@ Results
 
 results = optimizer.optimize(1)
 for result in results:
-    print('Ratios: ',result.gearbox.ratios)
+    print('Ratios: ',result[0].gearbox.ratios)
     plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
     plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
     
