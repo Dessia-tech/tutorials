@@ -158,7 +158,7 @@ clutch_generate = generator.generate()
 #     if i>10:
 #         break
 
-clustering = objects.Clustering(clutch_generate[0], 'k means')
+clustering = objects.Clustering(clutch_generate, 'k means')
 
 plot_data.plot_canvas(clustering.plot_clusters())
 
