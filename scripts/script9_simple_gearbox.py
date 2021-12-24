@@ -126,7 +126,7 @@ tire_radius = 0.1905                                                        # ti
 cycle_speeds = [speed*1000/3600 for speed in cycle_speeds] #cycle speed in m/s
 wltp_cycle = objects.WLTPCycle(cycle_speeds = cycle_speeds, car_mass = car_mass, tire_radius = tire_radius)
 
-
+# %%
 """
 Engine 
 """
@@ -145,7 +145,7 @@ gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 GearBox Optimizer
 """
 
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, first_gear_ratio_min_max = [.5, 4.5])
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, firstgear_ratio_min_max = [.5, 4.5])
 """
 Results
 """
