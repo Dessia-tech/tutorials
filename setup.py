@@ -58,10 +58,10 @@ def version_from_git_describe(version):
 
 # Just testing if get_version works well
 assert version_from_git_describe('v0.1.7.post2') == '0.1.7.post2'
-assert version_from_git_describe('v0.0.1-25-gaf0bf53') == '0.0.2.dev25'
-assert version_from_git_describe('v0.1-15-zsdgaz') == '0.1.1.dev15'
+assert version_from_git_describe('v0.0.1-25-gaf0bf53') == '0.0.2.dev25+gaf0bf53'
+assert version_from_git_describe('v0.1-15-zsdgaz') == '0.1.1.dev15+zsdgaz'
 assert version_from_git_describe('v1') == '1'
-assert version_from_git_describe('v1-3-aqsfjbo') == '1.0.1.dev3'
+assert version_from_git_describe('v1-3-aqsfjbo') == '1.0.1.dev3+aqsfjbo'
 
 
 def get_version():
