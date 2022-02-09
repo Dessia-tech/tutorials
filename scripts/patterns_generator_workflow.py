@@ -39,5 +39,5 @@ input_values = {workflow.input_index(block_generator.inputs[0]):
 
 workflow_run = workflow.run(input_values)
 
-c = Client(api_url=' https://api.platform-dev.dessia.tech')
-r = c.create_object_from_python_object(workflow_run)
+# c = Client(api_url=' https://api.platform-dev.dessia.tech')
+# r = c.create_object_from_python_object(workflow_run)
