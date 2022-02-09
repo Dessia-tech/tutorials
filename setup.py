@@ -99,7 +99,7 @@ setup(
     author_email='root@dessia.tech',
     install_requires=['cma', 'dectree', 'dessia_common>=0.5.1',
                       'plot_data>=0.6', 'volmdlr>=0.2.12',
-                      'dessia_api_client', 'xlcalculator'],
+                      'dessia_api_client'],
     python_requires='>=3.7',
     packages=['tutorials'],
 )
