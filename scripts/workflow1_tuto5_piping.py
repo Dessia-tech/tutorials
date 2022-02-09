@@ -6,11 +6,11 @@ Created on Mon Nov 23 12:36:10 2020
 @author: dumouchel
 """
 import tutorials.tutorial5_piping as tuto
-import plot_data.core as plot_data
+# import plot_data.core as plot_data
 import volmdlr as vm
 import dessia_common.workflow as wf
 from dessia_common.typings import MethodType
-from dessia_api_client import Client
+# from dessia_api_client import Client
 
 f1 = vm.Frame3D(vm.Point3D(0.05, 0.1, 0), vm.Vector3D(1, 0, 0), vm.Vector3D(0, 1, 0), vm.Vector3D(0, 0, 1))
 p1 = vm.faces.Plane3D(f1)
@@ -104,5 +104,5 @@ input_values = {workflow.index(block_optimize.inputs[1]): assemblies,
 
 workflow_run = workflow.run(input_values)
 
-c = Client(api_url='https://api.platform-dev.dessia.tech')
-r = c.create_object_from_python_object(workflow_run)
+# c = Client(api_url='https://api.platform-dev.dessia.tech')
+# r = c.create_object_from_python_object(workflow_run)
