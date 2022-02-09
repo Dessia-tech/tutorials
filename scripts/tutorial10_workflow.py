@@ -8,7 +8,7 @@ Created on Tue May 18 13:11:55 2021
 import tutorials.tutorial10 as objects
 import dessia_common.workflow as wf
 
-from dessia_api_client import Client
+# from dessia_api_client import Client
 import numpy as np
 from dessia_common.typings import MethodType
 block_generator = wf.InstanciateModel(objects.GearBoxGenerator, name = 'Gearbox Generator')
@@ -100,5 +100,5 @@ import json
 object1=json.dumps(d1)
 object2=json.loads(object1)
 
-c = Client(api_url = 'https://api.renault.dessia.tech')
-r = c.create_object_from_python_object(workflow_run)
+# c = Client(api_url = 'https://api.renault.dessia.tech')
+# r = c.create_object_from_python_object(workflow_run)

@@ -4,10 +4,10 @@ Created on Thu Mar  4 11:29:57 2021
 
 @author: wiraj
 """
-import tutorials.tutorial9_simple_gearbox as objects
+import tutorials.tutorial9_simple_3ratios_gearbox as objects
 import numpy as np
 import plot_data
-from dessia_api_client import Client
+# from dessia_api_client import Client
 
 """
 Engine efficiency map
@@ -126,7 +126,7 @@ tire_radius = 0.1905                                                        # ti
 cycle_speeds = [speed*1000/3600 for speed in cycle_speeds] #cycle speed in m/s
 wltp_cycle = objects.WLTPCycle(cycle_speeds = cycle_speeds, car_mass = car_mass, tire_radius = tire_radius)
 
-
+# %%
 """
 Engine 
 """
@@ -145,14 +145,14 @@ gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
 GearBox Optimizer
 """
 
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, first_gear_ratio_min_max = [.5, 4.5])
+optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, firstgear_ratio_min_max = [.5, 4.5])
 """
 Results
 """
 
 results = optimizer.optimize(1)
 for result in results:
-    print('Ratios: ',result.gearbox.ratios)
+    print('Ratios: ',result[0].gearbox.ratios)
     plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
     plot_data.plot_canvas(plot_data_object = result.plot_data()[1], canvas_id = 'canvas')
     

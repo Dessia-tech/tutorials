@@ -7,7 +7,7 @@ Created on Thu Mar  4 11:29:57 2021
 import tutorials.tutorial10 as objects
 import numpy as np
 import plot_data
-from dessia_api_client import Client
+# from dessia_api_client import Client
 
 """
 Engine efficiency map
@@ -158,7 +158,7 @@ clutch_generate = generator.generate()
 #     if i>10:
 #         break
 
-clustering = objects.Clustering(clutch_generate[0], 'k means')
+clustering = objects.Clustering(clutch_generate, 'k means')
 
 plot_data.plot_canvas(clustering.plot_clusters())
 
