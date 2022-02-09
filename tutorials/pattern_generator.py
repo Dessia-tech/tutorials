@@ -15,6 +15,12 @@ import numpy as np
 
 
 class Piece(DessiaObject):
+    _standalone_in_db = False
+    _eq_is_data_eq = True
+    _non_serializable_attributes = []
+    _non_eq_attributes = ['name']
+    _non_hash_attributes = ['name']
+
     """Peace used in the pattern"""
     def __init__(self, position: volmdlr.Point2D,
                  diameter: float, name: str = ''):
@@ -66,6 +72,11 @@ class Piece(DessiaObject):
 
 
 class Pattern(DessiaObject):
+    _standalone_in_db = True
+    _eq_is_data_eq = True
+    _non_serializable_attributes = []
+    _non_eq_attributes = ['name']
+    _non_hash_attributes = ['name']
     """defines a pattern on an elipse format"""
     def __init__(self, minor_axis_size_in_mm: float,
                  excentricity: float = None,
@@ -240,6 +251,11 @@ class Pattern(DessiaObject):
 
 
 class PatternGenerator(DessiaObject):
+    _standalone_in_db = True
+    _eq_is_data_eq = True
+    _non_serializable_attributes = []
+    _non_eq_attributes = ['name']
+    _non_hash_attributes = ['name']
     """Responsable for Generating Patterns"""
     def __init__(self, minor_axis_size_in_mm: float,
                  diameters: List[float],
