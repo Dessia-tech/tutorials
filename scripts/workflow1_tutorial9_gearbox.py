@@ -5,10 +5,10 @@ Created on Mon Mar 29 11:52:37 2021
 
 @author: dasilva
 """
-import tutorials.tutorial9_simple_gearbox as objects
+import tutorials.tutorial9_simple_3ratios_gearbox as objects
 import dessia_common.workflow as wf
 
-from dessia_api_client import Client
+# from dessia_api_client import Client
 import numpy as np
 from dessia_common.typings import MethodType
 

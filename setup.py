@@ -48,7 +48,7 @@ def version_from_git_describe(version):
             split_versions.extend(['0', '0'])
         split_versions[-1] = str(int(split_versions[-1]) + 1)
         split_versions = '.'.join(split_versions)
-        return '{}.dev{}'.format(split_versions, number_commits_ahead)
+        return '{}.dev{}+{}'.format(split_versions, number_commits_ahead, commit_hash)
     else:
         if suffix is not None:
             split_versions.append(suffix)
@@ -58,10 +58,10 @@ def version_from_git_describe(version):
 
 # Just testing if get_version works well
 assert version_from_git_describe('v0.1.7.post2') == '0.1.7.post2'
-assert version_from_git_describe('v0.0.1-25-gaf0bf53') == '0.0.2.dev25'
-assert version_from_git_describe('v0.1-15-zsdgaz') == '0.1.1.dev15'
+assert version_from_git_describe('v0.0.1-25-gaf0bf53') == '0.0.2.dev25+gaf0bf53'
+assert version_from_git_describe('v0.1-15-zsdgaz') == '0.1.1.dev15+zsdgaz'
 assert version_from_git_describe('v1') == '1'
-assert version_from_git_describe('v1-3-aqsfjbo') == '1.0.1.dev3'
+assert version_from_git_describe('v1-3-aqsfjbo') == '1.0.1.dev3+aqsfjbo'
 
 
 def get_version():
@@ -95,10 +95,11 @@ setup(
     name='tutorials',
     description='tutorials for DessIA platform',
     long_description='',
-    author='Lucas',
-    author_email='launay@dessia.tech',
-    install_requires=['cma', 'dectree', 'dessia_common',
-                      'plot_data>=0.6', 'volmdlr>=0.2.7'],
+    author='Dessia Technologies sAS',
+    author_email='root@dessia.tech',
+    install_requires=['cma', 'dectree', 'dessia_common>=0.5.1',
+                      'plot_data>=0.6', 'volmdlr>=0.2.12',
+                      'dessia_api_client', 'sklearn'],
     python_requires='>=3.7',
     packages=['tutorials'],
 )

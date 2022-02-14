@@ -14,7 +14,7 @@ import volmdlr as vm
 # print(s1)
 # plot_data.plot_canvas(plot_data_object=s1.plot_data(), canvas_id='canvas')
 
-g1 = tuto.Graph(1, 50) #Graph(amplitude, number of point)
+g1 = tuto.Graphs(1, 50) #Graph(amplitude, number of point)
 pdt = g1.plot_data()
 plot_data.plot_canvas(plot_data_object=pdt, canvas_id='canvas')
 

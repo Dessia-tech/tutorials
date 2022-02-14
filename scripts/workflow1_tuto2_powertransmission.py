@@ -9,7 +9,6 @@ import tutorials.tutorial2_powertransmission as objects
 import dessia_common.workflow as wf
 from dessia_common.typings import MethodType
 
-from dessia_api_client import Client
 
 block_optimizer = wf.InstantiateModel(objects.Optimizer, name='Optimizer')
 method_type = MethodType(class_=objects.Optimizer, name='optimize')
@@ -53,5 +52,6 @@ input_values = {workflow.index(block_optimizer.inputs[1]): 500,
 
 workflow_generator_run = workflow.run(input_values)
 
-c = Client(api_url='https://api.platform-dev.dessia.tech')
-r = c.create_object_from_python_object(workflow_generator_run)
+# from dessia_api_client import Client
+# c = Client(api_url='https://api.platform-dev.dessia.tech')
+# r = c.create_object_from_python_object(workflow_generator_run)
