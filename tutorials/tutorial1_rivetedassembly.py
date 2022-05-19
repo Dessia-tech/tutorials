@@ -88,7 +88,7 @@ class PanelCombination(DessiaObject):
 
         for panel, grid in zip(self.panels, self.grids):
             c = panel.contour()
-            contour = c.translation(grid, copy=True)
+            contour = c.translation(grid)
             plot_datas.append(contour.plot_data(edge_style=edge_style, surface_style=surface_style))
         contour_inter = self.intersection_area()
         plot_datas.append(contour_inter.plot_data(edge_style=edge_style, surface_style=plot_data.SurfaceStyle()))
@@ -97,7 +97,7 @@ class PanelCombination(DessiaObject):
     def intersection_area(self):
         c1 = self.panels[0].contour()
         c2 = self.panels[1].contour()
-        c2 = c2.translation(self.grids[1], copy=True)
+        c2 = c2.translation(self.grids[1])
         sol = c1.cut_by_linesegments(c2.primitives)
         return sol
 

@@ -8,10 +8,10 @@ Created on Mon Nov 23 12:36:10 2020
 import tutorials.tutorial1_rivetedassembly as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
-from dessia_api_client import Client
+from dessia_api_client.users import PlatformUser
 import dessia_common.workflow as wf
 
-block_generator = wf.InstanciateModel(tuto.Generator, name='Generator')
+block_generator = wf.InstantiateModel(tuto.Generator, name='Generator')
 
 generate_method = wf.MethodType(class_=tuto.Generator, name='generate')
 block_generate = wf.ModelMethod(method_type=generate_method, name='generate')
@@ -42,5 +42,5 @@ workflow_run = workflow.run(input_values)
 solution = workflow_run.output_value[0]
 plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
 
-# c = Client(api_url='https://api.platform-dev.dessia.tech')
-# r = c.create_object_from_python_object(workflow_run)
+# c = PlatformUser(api_url='https://api.platform-testing.dessia.tech',)
+# r = c.objects.create_object_from_python_object(workflow_run)
