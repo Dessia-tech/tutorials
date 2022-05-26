@@ -101,5 +101,7 @@ setup(
                       'plot_data>=0.6', 'volmdlr>=0.2.12',
                       'dessia_api_client', 'sklearn'],
     python_requires='>=3.7',
-    packages=['tutorials'],
+    packages=['tutorials',
+              'tutorials.models',
+              'tutorials.models.workflows',],
 )
