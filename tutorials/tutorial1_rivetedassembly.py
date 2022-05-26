@@ -5,12 +5,12 @@ import plot_data.core as plot_data
 import math
 from itertools import product
 
-from dessia_common import DessiaObject
+from dessia_common import DessiaObject, PhysicalObject
 from typing import List
 from plot_data.colors import *
 
 
-class Panel(DessiaObject):
+class Panel(PhysicalObject):
     """ 
     :param length: A value corresponding to the panel length.
     :type length: float
@@ -30,7 +30,7 @@ class Panel(DessiaObject):
         self.height = height
         self.length = length
         self.mass = 7800 * (thickness * height * length)  # If you want to change the volumic mass, change the '7800'.
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
 
     def contour(self):
         p0 = vm.Point2D(-self.length / 2, -self.height / 2)
@@ -62,7 +62,7 @@ class Panel(DessiaObject):
         return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
 
 
-class PanelCombination(DessiaObject):
+class PanelCombination(PhysicalObject):
     """ 
     :param panels: List of Panel representing a combination of panels.
     :type panels: List[Panel]
@@ -78,7 +78,7 @@ class PanelCombination(DessiaObject):
         self.grids = grids
         self.panels = panels
         self.mass = sum([p.mass for p in panels])
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
 
     def plot_data(self):
         plot_datas = []
@@ -118,7 +118,7 @@ class PanelCombination(DessiaObject):
         return primitives
 
 
-class Rivet(DessiaObject):
+class Rivet(PhysicalObject):
     """ 
     :param rivet_diameter: A value corresponding to the rivet body diameter.
     :type rivet_diameter: float
@@ -143,7 +143,7 @@ class Rivet(DessiaObject):
         self.mass = 7800 * (math.pi * (head_diameter ** 2) / 4 * head_length + math.pi * (
                 rivet_diameter ** 2) / 4 * rivet_length)
 
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
 
     def contour(self, full_contour=False):
 
@@ -242,7 +242,7 @@ class Rule(DessiaObject):
         return all_possibilities
 
 
-class PanelAssembly(DessiaObject):
+class PanelAssembly(PhysicalObject):
     """ 
     :param panel_combination: The PanelCombination used as work base.
     :type panel_combination: PanelCombination
@@ -270,7 +270,7 @@ class PanelAssembly(DessiaObject):
         self.panel_combination = panel_combination
         self.rivet = rivet
         self.grids = grids
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
 
         self.number_rivet = number_rivet1 * number_rivet2
         self.mass = rivet.mass * self.number_rivet + panel_combination.mass
