@@ -25,7 +25,7 @@ class Panel(PhysicalObject):
 
     def __init__(self, length: float, height: float,
                  thickness: float, mass: float = None,
-                 color: Tuple[int, int, int] = None, alpha: float = 0.3, name: str = ''):
+                 color: Tuple[float, float, float] = None, alpha: float = 0.3, name: str = ''):
         self.thickness = thickness
         self.height = height
         self.length = length
