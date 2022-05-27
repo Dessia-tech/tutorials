@@ -6,7 +6,7 @@ import math
 from itertools import product
 
 from dessia_common import DessiaObject, PhysicalObject
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from plot_data.colors import *
 
 
@@ -25,7 +25,7 @@ class Panel(PhysicalObject):
 
     def __init__(self, length: float, height: float,
                  thickness: float, mass: float = None,
-                 color: Tuple[float, float, float] = None, alpha: float = 0.3, name: str = ''):
+                 color: Dict[str, float] = {'R':0, 'G':0, 'B':1}, alpha: float = 0.3, name: str = ''):
         self.thickness = thickness
         self.height = height
         self.length = length
