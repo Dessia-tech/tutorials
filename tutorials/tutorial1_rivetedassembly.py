@@ -25,11 +25,13 @@ class Panel(PhysicalObject):
 
     def __init__(self, length: float, height: float,
                  thickness: float, mass: float = None,
-                 name: str = ''):
+                 color: tuple = None, alpha: float = 0.3, name: str = ''):
         self.thickness = thickness
         self.height = height
         self.length = length
         self.mass = 7800 * (thickness * height * length)  # If you want to change the volumic mass, change the '7800'.
+        self.color = color
+        self.alpha = alpha
         PhysicalObject.__init__(self, name=name)
 
     def contour(self):
@@ -47,10 +49,14 @@ class Panel(PhysicalObject):
         return circles
 
     def volmdlr_primitives(self, center=vm.O3D, dir1=vm.X3D, dir2=vm.Y3D):
+        if self.color is None:
+            color = (0, 0, 1)
+        else:
+            color = self.color
         contour = self.contour()
         dir3 = dir1.cross(dir2)
         profile = p3d.ExtrudedProfile(center, dir1, dir2, contour, [], self.thickness * dir3,
-                                      name='extrusion')
+                                      name='extrusion', color=color, alpha=self.alpha)
         return [profile]
 
     def plot_data(self):
@@ -173,19 +179,19 @@ class Rivet(PhysicalObject):
         points = []
         p_init = p0
         for v in vectors:
-            p1 = p_init.translation(v, copy=True)
+            p1 = p_init.translation(v)
             points.append(p1)
             p_init = p1
         return vm.wires.ClosedPolygon2D(points)
 
-    # def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
-    #     contour = self.contour(full_contour=False)
-    #     axis.normalize()
-    #     y = axis.random_unit_normal_vector()
-    #     z = axis.cross(y)
-    #     irc = p3d.RevolvedProfile(center, axis, z, contour, center,
-    #                               axis, angle=2 * math.pi, name='Rivet')
-    #     return [irc]
+    def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
+        contour = self.contour(full_contour=False)
+        axis.normalize()
+        y = axis.random_unit_normal_vector()
+        z = axis.cross(y)
+        irc = p3d.RevolvedProfile(center, axis, z, contour, center,
+                                  axis, angle=2 * math.pi, name='Rivet')
+        return [irc]
 
     def plot_data(self, full_contour=True):
         hatching = plot_data.HatchingSet(0.1)
@@ -315,25 +321,27 @@ class PanelAssembly(PhysicalObject):
         fatigue = number_hour_worked * ratio_distance * ratio_pressure
         return fatigue
 
-    # def volmdlr_primitives(self):
-    #     primitives = []
-    #     holes = self.panel_combination.hole(self.grids, self.rivet.rivet_diameter)
-    #     thickness = vm.O3D
-    #     for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(),
-    #                                    holes):
-    #         center, dir1, dir2 = pan_vm.plane_origin, pan_vm.x, pan_vm.y
-    #         contour, dir3 = panel.contour(), pan_vm.extrusion_vector
-    #         thickness += dir3
-    #
-    #         pan_hole = p3d.ExtrudedProfile(center, dir1, dir2, contour, hole, dir3,
-    #                                        name='extrusion')
-    #         primitives.append(pan_hole)
-    #
-    #     for grid in self.grids:
-    #         pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
-    #         primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
-    #
-    #     return primitives
+    def volmdlr_primitives(self):
+        pan_vm = self.panel_combination.volmdlr_primitives()
+        primitives = pan_vm
+        center, dir1, dir2 = pan_vm[0].plane_origin, pan_vm[0].x, pan_vm[0].y
+        # holes = self.panel_combination.hole(self.grids, self.rivet.rivet_diameter)
+        thickness = vm.O3D + 2*pan_vm[0].extrusion_vector
+        # for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(),
+        #                                holes):
+        #     center, dir1, dir2 = pan_vm.plane_origin, pan_vm.x, pan_vm.y
+        #     contour, dir3 = panel.contour(), pan_vm.extrusion_vector
+        #     thickness += dir3
+        #
+        #     pan_hole = p3d.ExtrudedProfile(center, dir1, dir2, contour, [], dir3,
+        #                                    name='extrusion')
+        #     primitives.append(pan_hole)
+
+        for grid in self.grids:
+            pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
+            primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
+
+        return primitives
 
 
 class Generator(DessiaObject):

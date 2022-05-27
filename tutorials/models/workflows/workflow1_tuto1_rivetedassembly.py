@@ -24,7 +24,8 @@ block_workflow = [block_generator, block_generate, display_reductor]
 pipe_worflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]),
                 wf.Pipe(block_generate.outputs[0], display_reductor.inputs[0])]
 
-workflow = wf.Workflow(block_workflow, pipe_worflow, block_generate.outputs[0])
+workflow = wf.Workflow(block_workflow, pipe_worflow, block_generate.outputs[0],
+                       name='workflow tuto1')
 
 p1 = tuto.Panel(1, 1, 0.01)
 p2 = tuto.Panel(1.1, 1, 0.01)
