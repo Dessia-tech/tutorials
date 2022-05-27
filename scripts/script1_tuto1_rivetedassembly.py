@@ -2,8 +2,8 @@ import tutorials.tutorial1_rivetedassembly as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
 
-p1 = tuto.Panel(1, 1, 0.01, color=(1, 0, 0), alpha = 0.3)
-p2 = tuto.Panel(1.1, 1, 0.01, color=(0, 0, 1), alpha = 0.3)
+p1 = tuto.Panel(1, 1, 0.01, color=tuto.Color(1, 0, 0), alpha = 0.3)
+p2 = tuto.Panel(1.1, 1, 0.01, color=tuto.Color(1, 1, 0), alpha = 0.3)
 # p1.babylonjs()
 
 # c = p1.plot_data()

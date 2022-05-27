@@ -9,6 +9,18 @@ from dessia_common import DessiaObject, PhysicalObject
 from typing import List, Tuple, Dict
 from plot_data.colors import *
 
+class Color(DessiaObject):
+    _standalone_in_db = False
+
+    def __init__(self, red: float,
+                 green: float, blue: float, name: str = ''):
+        self.red = red
+        self.green = green
+        self.blue = blue
+        DessiaObject.__init__(self, name=name)
+
+    def to_tuple(self):
+        return (self.red, self.green, self.blue)
 
 class Panel(PhysicalObject):
     """ 
@@ -25,7 +37,7 @@ class Panel(PhysicalObject):
 
     def __init__(self, length: float, height: float,
                  thickness: float, mass: float = None,
-                 color: Dict[str, float] = {'R':0, 'G':0, 'B':1}, alpha: float = 0.3, name: str = ''):
+                 color: Color = Color(0, 0, 1), alpha: float = 0.3, name: str = ''):
         self.thickness = thickness
         self.height = height
         self.length = length
@@ -52,7 +64,7 @@ class Panel(PhysicalObject):
         if self.color is None:
             color = (0, 0, 1)
         else:
-            color = self.color
+            color = self.color.to_tuple()
         contour = self.contour()
         dir3 = dir1.cross(dir2)
         profile = p3d.ExtrudedProfile(center, dir1, dir2, contour, [], self.thickness * dir3,
