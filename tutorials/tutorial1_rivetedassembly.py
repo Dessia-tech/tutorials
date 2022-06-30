@@ -375,7 +375,7 @@ class Generator(DessiaObject):
         self.rule = rule
         self.panel_combination = panel_combination
         self.rivet = rivet
-        DessiaObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name
 
     def define_grid(self, contour: vm.wires.Contour2D, number_rivet1: int, number_rivet2: int):
         xmin, xmax, ymin, ymax = contour.bounding_rectangle()
