@@ -397,6 +397,7 @@ class Generator(DessiaObject):
         if all_possibilities is not False:
             for i, p in enumerate(all_possibilities):
                 progress_callback(i/size_all_possibilities)
+                print('{} %'.format(i/size_all_possibilities*100))
                 grids = self.define_grid(contour, p[0], p[1])
                 solutions.append(PanelAssembly(self.panel_combination, self.rivet, grids, p[0], p[1]))
         return solutions
