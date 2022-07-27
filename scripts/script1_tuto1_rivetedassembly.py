@@ -2,20 +2,22 @@ import tutorials.tutorial1_rivetedassembly as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
 
-p1 = tuto.Panel(1, 1, 0.01)
-p2 = tuto.Panel(1.1, 1, 0.01)
-# p1.babylonjs()
+panel1 = tuto.Panel(1, 1, 0.01)
+panel2 = tuto.Panel(1.1, 1, 0.01)
+panel1.babylonjs()
+# panel2.babylonjs()
 
-# c = p1.plot_data()
+# c = panel1.plot_data()
 # plot_data.plot_canvas(c[0], canvas_id='canvas')
 
-r1 = tuto.Rivet(0.01, 0.05, 0.012, 0.005)
-# r1.babylonjs()
+rivet1 = tuto.Rivet(0.01, 0.05, 0.012, 0.005)
+rivet1.babylonjs()
 
-# c = r1.plot_data(True)
+# c = rivet1.plot_data(True)
 # plot_data.plot_canvas(c[0], canvas_id='canvas')
 
-pc1 = tuto.PanelCombination([p1, p2], [vm.Point3D(0, 0, 0), vm.Point3D(0.7, 0.2, 0.01)])
+pc1 = tuto.PanelCombination([panel1, panel2], [vm.Point3D(0, 0, 0), vm.Point3D(0.7, 0.2, 0.01)])
+pc1.babylonjs()
 sol = pc1.intersection_area()
 c3 = sol.plot_data()
 cs = pc1.plot_data()
@@ -23,12 +25,15 @@ cs = pc1.plot_data()
 # plot_data.plot_canvas(primitives, canvas_id='canvas')
 
 rule1 = tuto.Rule(0.1, 0.2)
-all_possibilities = rule1.define_number_rivet(sol, r1)
+all_possibilities = rule1.define_number_rivet(sol, rivet1)
 
-g1 = tuto.Generator(pc1, r1, rule1)
+g1 = tuto.Generator(pc1, rivet1, rule1)
 solutions = g1.generate()
+solutions[0].babylonjs()
 
-solutions[-1].babylonjs()
+# to see the method to apply : print(dir(solutions[-1]))
+# print(dir(solutions[0]))
+
 
 cs = solutions[-1].plot_data()
 plot_data.plot_canvas(cs[0], canvas_id='canvas')

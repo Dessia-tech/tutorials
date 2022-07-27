@@ -1,0 +1,43 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="W292" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N802" />
+          <option value="N801" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="volmdlr.core.VolumeModel" />
+          <option value="volmdlr.*" />
+          <option value="Immersion_pro.questionnaire.Question.__getitem__" />
+          <option value="str.poser" />
+          <option value="str.decode" />
+          <option value="Immersion_pro.questionnaire.Questionnaire.__getitem__" />
+          <option value="Immersion_pro.questionnaire.Questionnaire.__setitem__" />
+          <option value="Immersion_pro.questionnaire.from_json_data.lancer" />
+          <option value="property.setter" />
+          <option value="tutorials.tutorial1_rivetedassembly" />
+          <option value="tutorials.tutorial2_powertransmission" />
+          <option value="tutorials.tutorial2_powertransmission_1" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
+      <option name="processCode" value="true" />
+      <option name="processLiterals" value="true" />
+      <option name="processComments" value="true" />
+    </inspection_tool>
+  </profile>
+</component>
