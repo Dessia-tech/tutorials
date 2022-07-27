@@ -3,22 +3,22 @@ import volmdlr.primitives3d as p3d
 from random import random
 import cma
 
-from dessia_common import DessiaObject
+from dessia_common import DessiaObject, PhysicalObject
 from typing import List
 
 
-class Housing(DessiaObject):
+class Housing(PhysicalObject):
     _standalone_in_db = False
 
     def __init__(self, faces: List[vm.faces.Face3D], origin: vm.Point3D,
                  name: str = ''):
         self.origin = origin
         self.faces = faces
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
 
     def volmdlr_primitives(self):
         for face in self.faces:
-            face.translation(self.origin, copy=False)
+            face.translation_inplace(self.origin)
         return self.faces
 
 
@@ -96,7 +96,7 @@ class Piping(DessiaObject):
         return [sweep]
 
 
-class Assembly(DessiaObject):
+class Assembly(PhysicalObject):
     _standalone_in_db = True
     _non_data_eq_attributes = ['length', 'min_radius', 'max_radius',
                                'distance_input', 'straight_line', 'routes']
@@ -104,7 +104,7 @@ class Assembly(DessiaObject):
     def __init__(self, frames: List[Frame], piping: Piping, housing: Housing,
                  waypoints: List[vm.Point3D] = None, name: str = ''):
 
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
         self.housing = housing
         self.piping = piping
         self.frames = frames

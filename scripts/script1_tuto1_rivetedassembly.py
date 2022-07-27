@@ -2,10 +2,12 @@ import tutorials.tutorial1_rivetedassembly as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
 
-panel1 = tuto.Panel(1, 1, 0.01)
-panel2 = tuto.Panel(1.1, 1, 0.01)
+
+panel1 = tuto.Panel(1, 1, 0.01, color=tuto.Color(1, 0, 0), alpha = 0.3)
+panel2 = tuto.Panel(1.1, 1, 0.01, color=tuto.Color(1, 1, 0), alpha = 0.3)
 panel1.babylonjs()
 # panel2.babylonjs()
+
 
 # c = panel1.plot_data()
 # plot_data.plot_canvas(c[0], canvas_id='canvas')

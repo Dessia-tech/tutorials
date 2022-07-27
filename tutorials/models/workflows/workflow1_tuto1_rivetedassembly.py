@@ -24,7 +24,8 @@ block_workflow = [block_generator, block_generate, display_reductor]
 pipe_worflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]),
                 wf.Pipe(block_generate.outputs[0], display_reductor.inputs[0])]
 
-workflow = wf.Workflow(block_workflow, pipe_worflow, block_generate.outputs[0])
+workflow = wf.Workflow(block_workflow, pipe_worflow, block_generate.outputs[0],
+                       name='workflow tuto1')
 
 p1 = tuto.Panel(1, 1, 0.01)
 p2 = tuto.Panel(1.1, 1, 0.01)
@@ -38,9 +39,4 @@ input_values = {workflow.index(block_generator.inputs[0]): pc1,
                 workflow.index(block_generator.inputs[2]): rule1,
                 }
 
-workflow_run = workflow.run(input_values)
-solution = workflow_run.output_value[0]
-plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
-
-# c = PlatformUser(api_url='https://api.demo.dessia.ovh',)
-# r = c.objects.create_object_from_python_object(workflow_run)
+# workflow_run = workflow.run(input_values)
