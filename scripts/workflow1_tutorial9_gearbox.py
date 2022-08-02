@@ -5,6 +5,8 @@ Created on Mon Mar 29 11:52:37 2021
 
 @author: dasilva
 """
+import plot_data.core as plot_data
+
 import tutorials.tutorial9_simple_3ratios_gearbox as objects
 import dessia_common.workflow as wf
 
@@ -12,14 +14,14 @@ import dessia_common.workflow as wf
 import numpy as np
 from dessia_common.typings import MethodType
 
-block_optimizer = wf.InstanciateModel(objects.GearBoxOptimizer, name='Gearbox Optimizer')
+block_optimizer = wf.InstantiateModel(objects.GearBoxOptimizer, name='Gearbox Optimizer')
 method_optimize = wf.ModelMethod(MethodType(class_ =objects.GearBoxOptimizer,name= 'optimize'), name='Optimize')
 
-block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
-block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
+block_gearbox = wf.InstantiateModel(objects.GearBox, name='Gearbox')
+block_engine = wf.InstantiateModel(objects.Engine, name= 'Engine')
 
-block_efficiencymap = wf.InstanciateModel(objects.EfficiencyMap, name= 'Efficiency Map')
-block_wltpcycle = wf.InstanciateModel(objects.WLTPCycle, name = 'WLTP Cycle')
+block_efficiencymap = wf.InstantiateModel(objects.EfficiencyMap, name= 'Efficiency Map')
+block_wltpcycle = wf.InstantiateModel(objects.WLTPCycle, name = 'WLTP Cycle')
 
 list_attribute = ['average_fuel_consumption', 'average_engine_speed', 'average_engine_torque', 'ratio_min', 'ratio_max', 'average_ratio']
 display = wf.MultiPlot(list_attribute, order = 1, name= 'Display')

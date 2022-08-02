@@ -2,19 +2,19 @@ import tutorials.tutorial9_simple_3ratios_gearbox as objects
 import dessia_common.workflow as wf
 import numpy as np
 # from dessia_api_client import Client
+import plot_data.core as plot_data
 
 
-
-block_optimizer = wf.InstanciateModel(objects.GearBoxOptimizer, name='Gearbox Optimizer')
+block_optimizer = wf.InstantiateModel(objects.GearBoxOptimizer, name='Gearbox Optimizer')
 
 method_type_optimize = wf.MethodType(objects.GearBoxOptimizer,'optimize')
 method_optimize = wf.ModelMethod(method_type_optimize, name='Optimize')
 
-block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
-block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
+block_gearbox = wf.InstantiateModel(objects.GearBox, name='Gearbox')
+block_engine = wf.InstantiateModel(objects.Engine, name= 'Engine')
 
-block_efficiencymap = wf.InstanciateModel(objects.EfficiencyMap, name= 'Efficiency Map')
-block_wltpcycle = wf.InstanciateModel(objects.WLTPCycle, name = 'WLTP Cycle')
+block_efficiencymap = wf.InstantiateModel(objects.EfficiencyMap, name= 'Efficiency Map')
+block_wltpcycle = wf.InstantiateModel(objects.WLTPCycle, name = 'WLTP Cycle')
 
 list_attribute = ['average_fuel_consumption', 'average_engine_speed', 'average_engine_torque', 'ratio_min', 'ratio_max', 'average_ratio']
 display = wf.MultiPlot(list_attribute, order = 1, name= 'Display')
