@@ -5,6 +5,8 @@ Created on Mon Nov 23 12:36:10 2020
 
 @author: dumouchel
 """
+import plot_data
+
 import tutorials.tutorial5_piping as tuto
 # import plot_data.core as plot_data
 import volmdlr as vm
@@ -82,14 +84,14 @@ for i in range(30):
 # opti1 = tuto.Optimizer()
 # solutions = opti1.optimize(assemblies=[assembly1], number_solution_per_assembly=2)
 
-block_optimizer = wf.InstanciateModel(tuto.Optimizer, name='Optimizer')
+block_optimizer = wf.InstantiateModel(tuto.Optimizer, name='Optimizer')
 
 
 method_type_optimize = MethodType(tuto.Optimizer,'optimize')
 block_optimize = wf.ModelMethod(method_type_optimize, name='optimize')
 
 list_attribute1 = ['length', 'min_radius', 'max_radius', 'distance_input', 'straight_line']
-display_reductor = wf.ParallelPlot(list_attribute1, 1, name='Display')
+display_reductor = wf.MultiPlot(list_attribute1, 1, name='Display')
 
 block_workflow = [block_optimizer, block_optimize, display_reductor]
 
@@ -97,12 +99,12 @@ pipe_worflow = [wf.Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
                 wf.Pipe(block_optimize.outputs[0], display_reductor.inputs[0])]
 
 workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0], name="workflowpipe")
+workflow.plot()
 
 input_values = {workflow.index(block_optimize.inputs[1]): assemblies,
                 workflow.index(block_optimize.inputs[2]): 1,
                 }
 
 workflow_run = workflow.run(input_values)
-
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
 # r = c.create_object_from_python_object(workflow_run)

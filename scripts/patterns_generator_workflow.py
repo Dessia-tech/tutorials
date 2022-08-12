@@ -1,10 +1,12 @@
+import plot_data
+
 import tutorials.pattern_generator as patterns
 import dessia_common.workflow as wf
 
 from dessia_api_client.users import PlatformUser
 from dessia_common.typings import MethodType
 
-block_generator = wf.InstanciateModel(patterns.PatternGenerator,
+block_generator = wf.InstantiateModel(patterns.PatternGenerator,
                                       name='Pattern Generator')
 block_generate = wf.ModelMethod(MethodType(class_=patterns.PatternGenerator,
                                            name='generate'), name='Generate')
@@ -38,6 +40,5 @@ input_values = {workflow.input_index(block_generator.inputs[0]):
                     diameter_percetage_clearence_min_max}
 
 workflow_run = workflow.run(input_values)
-
 # c = PlatformUser(api_url='https://api.platform-dev.dessia.tech')
 # r = c.objects.create_object_from_python_object(workflow)

@@ -5,6 +5,8 @@ Created on Mon Nov 23 12:36:10 2020
 
 @author: launay
 """
+import plot_data
+
 import tutorials.tutorial2_powertransmission as objects
 import dessia_common.workflow as wf
 from dessia_common.typings import MethodType
@@ -51,7 +53,8 @@ input_values = {workflow.index(block_optimizer.inputs[1]): 500,
                 }
 
 workflow_generator_run = workflow.run(input_values)
-
+solution = workflow_generator_run.output_value[0]
+plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
 # from dessia_api_client import Client
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
 # r = c.create_object_from_python_object(workflow_generator_run)

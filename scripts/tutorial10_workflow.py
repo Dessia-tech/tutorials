@@ -5,18 +5,20 @@ Created on Tue May 18 13:11:55 2021
 
 @author: dasilva
 """
+import plot_data
+
 import tutorials.tutorial10 as objects
 import dessia_common.workflow as wf
 
 # from dessia_api_client import Client
 import numpy as np
 from dessia_common.typings import MethodType
-block_generator = wf.InstanciateModel(objects.GearBoxGenerator, name = 'Gearbox Generator')
+block_generator = wf.InstantiateModel(objects.GearBoxGenerator, name = 'Gearbox Generator')
 block_generate = wf.ModelMethod(MethodType(class_ = objects.GearBoxGenerator , name = 'generate'), name = 'Generate')
-block_efficiencymap = wf.InstanciateModel(objects.EfficiencyMap, name= 'Efficiency Map')
-block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
-block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
-block_cluster = wf.InstanciateModel(objects.Clustering, name = 'Clustering')
+block_efficiencymap = wf.InstantiateModel(objects.EfficiencyMap, name= 'Efficiency Map')
+block_engine = wf.InstantiateModel(objects.Engine, name= 'Engine')
+block_gearbox = wf.InstantiateModel(objects.GearBox, name='Gearbox')
+block_cluster = wf.InstantiateModel(objects.Clustering, name = 'Clustering')
 
 display = wf.Display(name='Display')
 
@@ -33,7 +35,6 @@ pipe_workflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]),
                   ]
 
 workflow = wf.Workflow(block_workflow, pipe_workflow, block_generate.outputs[0])
-workflow.plot()
 
 
 
@@ -57,7 +58,7 @@ for list_mass_flow_rate in mass_flow_rate:
     list_mass_flow = []
     for mass_flow in list_mass_flow_rate:
         list_mass_flow.append(mass_flow/1000)                                                                #mass flow rate in kg/s
-    mass_flow_rate_kgps.append(list_mass_flow) 
+    mass_flow_rate_kgps.append(list_mass_flow)
 fuel_hv = 0.012068709                                                       # in kWh/g
 fuel_hv = fuel_hv*3.6e9                                                    # in J/kg
 
@@ -92,6 +93,8 @@ input_values = {workflow.index(block_generator.inputs[1]): 2,
                 }
 
 workflow_run = workflow.run(input_values)
+# solution = workflow_run.output_value[0]
+# plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
 
 
 d1 = workflow_run.to_dict()
