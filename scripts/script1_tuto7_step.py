@@ -7,7 +7,6 @@
 import volmdlr as vm
 import volmdlr.step
 import volmdlr.step as STEP
-from pathlib import Path
 
 
 # step = STEP.Step('export_bis.stp')
@@ -27,9 +26,5 @@ def from_step_file(path):
     model.babylonjs()
 
 
-DIR = Path(__file__).resolve().parent / 'datas' / 'model_step.step'
-# EX :  DIR = Path.home() / 'Documents' / ...
-
-
-from_step_file(path=DIR)
+from_step_file(path='datas/model_step.step')
 
