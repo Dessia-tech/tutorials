@@ -26,5 +26,5 @@ def from_step_file(path):
     model.babylonjs()
 
 
-from_step_file(path='datas/model_step.step')
+# from_step_file(path='datas/model_step.step')
 
