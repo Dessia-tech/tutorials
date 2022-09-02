@@ -5,7 +5,7 @@ Created on Mon Nov 23 12:36:10 2020
 
 @author: dumouchel
 """
-import plot_data
+
 
 import tutorials.tutorial5_piping as tuto
 # import plot_data.core as plot_data
@@ -13,6 +13,7 @@ import volmdlr as vm
 import dessia_common.workflow as wf
 from dessia_common.typings import MethodType
 # from dessia_api_client import Client
+import plot_data
 
 f1 = vm.Frame3D(vm.Point3D(0.05, 0.1, 0), vm.Vector3D(1, 0, 0), vm.Vector3D(0, 1, 0), vm.Vector3D(0, 0, 1))
 p1 = vm.faces.Plane3D(f1)
@@ -87,8 +88,7 @@ for i in range(30):
 block_optimizer = wf.InstantiateModel(tuto.Optimizer, name='Optimizer')
 
 
-method_type_optimize = MethodType(tuto.Optimizer,'optimize')
-block_optimize = wf.ModelMethod(method_type_optimize, name='optimize')
+block_optimize = wf.ModelMethod(method_type=MethodType(tuto.Optimizer, 'optimize'), name='Optimize')
 
 list_attribute1 = ['length', 'min_radius', 'max_radius', 'distance_input', 'straight_line']
 display_reductor = wf.MultiPlot(list_attribute1, 1, name='Display')
@@ -98,7 +98,7 @@ block_workflow = [block_optimizer, block_optimize, display_reductor]
 pipe_worflow = [wf.Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
                 wf.Pipe(block_optimize.outputs[0], display_reductor.inputs[0])]
 
-workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0], name="workflowpipe")
+workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0], name="workflow pipe")
 workflow.plot()
 
 input_values = {workflow.index(block_optimize.inputs[1]): assemblies,
