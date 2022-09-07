@@ -22,5 +22,5 @@ for j, shaft in enumerate(shafts):
 meshes.append(objects.Mesh(gear2, gear))
 reductor = objects.Reductor(motor, shafts, meshes)
 
-optimizer = objects.Optimizer(reductor=reductor, speed_output=500, x_min_max=[-1, 1], y_min_max=[-1, 1])
+optimizer = objects.Optimizer(reductor=reductor, speed_output=500, x_min_max=(-1, 1), y_min_max=(-1, 1))
 list_reductor = optimizer.optimize()
