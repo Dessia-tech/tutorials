@@ -23,7 +23,7 @@ class Housing(DessiaObject):
 
     def volmdlr_primitives(self):
         for face in self.faces:
-            face.translation_inplace(self.origin)
+            face.translation(self.origin)
         return self.faces
 
 

@@ -2,6 +2,7 @@ import volmdlr as vm
 import volmdlr.primitives3d as p3d
 from random import random
 import cma
+import volmdlr.faces
 
 from dessia_common import DessiaObject, PhysicalObject
 from typing import List
@@ -18,7 +19,7 @@ class Housing(PhysicalObject):
 
     def volmdlr_primitives(self):
         for face in self.faces:
-            face.translation_inplace(self.origin)
+            face.translation(self.origin)
         return self.faces
 
 
@@ -35,7 +36,7 @@ class Frame(DessiaObject):
 
     def define_waypoints(self, pourcentage_abs_curv=float):
         length = self.line.length()
-        abscissa = pourcentage_abs_curv*length
+        abscissa = pourcentage_abs_curv * length
         self.position = self.line.point_at_abscissa(abscissa)
         return self.position
 
