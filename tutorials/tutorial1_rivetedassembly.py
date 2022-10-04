@@ -337,17 +337,7 @@ class PanelAssembly(PhysicalObject):
         pan_vm = self.panel_combination.volmdlr_primitives()
         primitives = pan_vm
         center, dir1, dir2 = pan_vm[0].plane_origin, pan_vm[0].x, pan_vm[0].y
-        # holes = self.panel_combination.hole(self.grids, self.rivet.rivet_diameter)
         thickness = vm.O3D + 2*pan_vm[0].extrusion_vector
-        # for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(),
-        #                                holes):
-        #     center, dir1, dir2 = pan_vm.plane_origin, pan_vm.x, pan_vm.y
-        #     contour, dir3 = panel.contour(), pan_vm.extrusion_vector
-        #     thickness += dir3
-        #
-        #     pan_hole = p3d.ExtrudedProfile(center, dir1, dir2, contour, [], dir3,
-        #                                    name='extrusion')
-        #     primitives.append(pan_hole)
 
         for grid in self.grids:
             pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
