@@ -5,12 +5,24 @@ import plot_data.core as plot_data
 import math
 from itertools import product
 
-from dessia_common import DessiaObject
-from typing import List
+from dessia_common import DessiaObject, PhysicalObject
+from typing import List, Tuple, Dict
 from plot_data.colors import *
 
+class Color(DessiaObject):
+    _standalone_in_db = False
 
-class Panel(DessiaObject):
+    def __init__(self, red: float,
+                 green: float, blue: float, name: str = ''):
+        self.red = red
+        self.green = green
+        self.blue = blue
+        DessiaObject.__init__(self, name=name)
+
+    def to_tuple(self):
+        return (self.red, self.green, self.blue)
+
+class Panel(PhysicalObject):
     """ 
     :param length: A value corresponding to the panel length.
     :type length: float
@@ -25,12 +37,14 @@ class Panel(DessiaObject):
 
     def __init__(self, length: float, height: float,
                  thickness: float, mass: float = None,
-                 name: str = ''):
+                 color: Color = Color(0, 0, 1), alpha: float = 0.3, name: str = ''):
         self.thickness = thickness
         self.height = height
         self.length = length
         self.mass = 7800 * (thickness * height * length)  # If you want to change the volumic mass, change the '7800'.
-        DessiaObject.__init__(self, name=name)
+        self.color = color
+        self.alpha = alpha
+        PhysicalObject.__init__(self, name=name)
 
     def contour(self):
         p0 = vm.Point2D(-self.length / 2, -self.height / 2)
@@ -47,10 +61,14 @@ class Panel(DessiaObject):
         return circles
 
     def volmdlr_primitives(self, center=vm.O3D, dir1=vm.X3D, dir2=vm.Y3D):
+        if self.color is None:
+            color = (0, 0, 1)
+        else:
+            color = self.color.to_tuple()
         contour = self.contour()
         dir3 = dir1.cross(dir2)
         profile = p3d.ExtrudedProfile(center, dir1, dir2, contour, [], self.thickness * dir3,
-                                      name='extrusion')
+                                      name='extrusion', color=color, alpha=self.alpha)
         return [profile]
 
     def plot_data(self):
@@ -62,7 +80,7 @@ class Panel(DessiaObject):
         return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
 
 
-class PanelCombination(DessiaObject):
+class PanelCombination(PhysicalObject):
     """ 
     :param panels: List of Panel representing a combination of panels.
     :type panels: List[Panel]
@@ -78,7 +96,7 @@ class PanelCombination(DessiaObject):
         self.grids = grids
         self.panels = panels
         self.mass = sum([p.mass for p in panels])
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
 
     def plot_data(self):
         plot_datas = []
@@ -88,7 +106,7 @@ class PanelCombination(DessiaObject):
 
         for panel, grid in zip(self.panels, self.grids):
             c = panel.contour()
-            contour = c.translation(grid, copy=True)
+            contour = c.translation(grid)
             plot_datas.append(contour.plot_data(edge_style=edge_style, surface_style=surface_style))
         contour_inter = self.intersection_area()
         plot_datas.append(contour_inter.plot_data(edge_style=edge_style, surface_style=plot_data.SurfaceStyle()))
@@ -97,7 +115,7 @@ class PanelCombination(DessiaObject):
     def intersection_area(self):
         c1 = self.panels[0].contour()
         c2 = self.panels[1].contour()
-        c2 = c2.translation(self.grids[1], copy=True)
+        c2 = c2.translation(self.grids[1])
         sol = c1.cut_by_linesegments(c2.primitives)
         return sol
 
@@ -118,7 +136,7 @@ class PanelCombination(DessiaObject):
         return primitives
 
 
-class Rivet(DessiaObject):
+class Rivet(PhysicalObject):
     """ 
     :param rivet_diameter: A value corresponding to the rivet body diameter.
     :type rivet_diameter: float
@@ -143,7 +161,7 @@ class Rivet(DessiaObject):
         self.mass = 7800 * (math.pi * (head_diameter ** 2) / 4 * head_length + math.pi * (
                 rivet_diameter ** 2) / 4 * rivet_length)
 
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
 
     def contour(self, full_contour=False):
 
@@ -173,19 +191,19 @@ class Rivet(DessiaObject):
         points = []
         p_init = p0
         for v in vectors:
-            p1 = p_init.translation(v, copy=True)
+            p1 = p_init.translation(v)
             points.append(p1)
             p_init = p1
         return vm.wires.ClosedPolygon2D(points)
 
-    # def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
-    #     contour = self.contour(full_contour=False)
-    #     axis.normalize()
-    #     y = axis.random_unit_normal_vector()
-    #     z = axis.cross(y)
-    #     irc = p3d.RevolvedProfile(center, axis, z, contour, center,
-    #                               axis, angle=2 * math.pi, name='Rivet')
-    #     return [irc]
+    def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
+        contour = self.contour(full_contour=False)
+        axis.normalize()
+        y = axis.random_unit_normal_vector()
+        z = axis.cross(y)
+        irc = p3d.RevolvedProfile(center, axis, z, contour, center,
+                                  axis, angle=2 * math.pi, name='Rivet')
+        return [irc]
 
     def plot_data(self, full_contour=True):
         hatching = plot_data.HatchingSet(0.1)
@@ -242,7 +260,7 @@ class Rule(DessiaObject):
         return all_possibilities
 
 
-class PanelAssembly(DessiaObject):
+class PanelAssembly(PhysicalObject):
     """ 
     :param panel_combination: The PanelCombination used as work base.
     :type panel_combination: PanelCombination
@@ -270,7 +288,7 @@ class PanelAssembly(DessiaObject):
         self.panel_combination = panel_combination
         self.rivet = rivet
         self.grids = grids
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
 
         self.number_rivet = number_rivet1 * number_rivet2
         self.mass = rivet.mass * self.number_rivet + panel_combination.mass
@@ -315,25 +333,17 @@ class PanelAssembly(DessiaObject):
         fatigue = number_hour_worked * ratio_distance * ratio_pressure
         return fatigue
 
-    # def volmdlr_primitives(self):
-    #     primitives = []
-    #     holes = self.panel_combination.hole(self.grids, self.rivet.rivet_diameter)
-    #     thickness = vm.O3D
-    #     for panel, pan_vm, hole in zip(self.panel_combination.panels, self.panel_combination.volmdlr_primitives(),
-    #                                    holes):
-    #         center, dir1, dir2 = pan_vm.plane_origin, pan_vm.x, pan_vm.y
-    #         contour, dir3 = panel.contour(), pan_vm.extrusion_vector
-    #         thickness += dir3
-    #
-    #         pan_hole = p3d.ExtrudedProfile(center, dir1, dir2, contour, hole, dir3,
-    #                                        name='extrusion')
-    #         primitives.append(pan_hole)
-    #
-    #     for grid in self.grids:
-    #         pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
-    #         primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
-    #
-    #     return primitives
+    def volmdlr_primitives(self):
+        pan_vm = self.panel_combination.volmdlr_primitives()
+        primitives = pan_vm
+        center, dir1, dir2 = pan_vm[0].plane_origin, pan_vm[0].x, pan_vm[0].y
+        thickness = vm.O3D + 2*pan_vm[0].extrusion_vector
+
+        for grid in self.grids:
+            pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
+            primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
+
+        return primitives
 
 
 class Generator(DessiaObject):
@@ -369,12 +379,15 @@ class Generator(DessiaObject):
                 grids.append(vm.Point2D(xmin + ratio1 * (n1 + 1), ymin + ratio2 * (n2 + 1)))
         return grids
 
-    def generate(self) -> List[PanelAssembly]:
+    def generate(self, progress_callback=lambda x: 0) -> List[PanelAssembly]:
         contour = self.panel_combination.intersection_area()
         all_possibilities = self.rule.define_number_rivet(contour, self.rivet)
         solutions = []
+        size_all_possibilities = len(all_possibilities)
         if all_possibilities is not False:
-            for p in all_possibilities:
+            for i, p in enumerate(all_possibilities):
+                progress_callback(i/size_all_possibilities)
+                print('{} %'.format(i/size_all_possibilities*100))
                 grids = self.define_grid(contour, p[0], p[1])
                 solutions.append(PanelAssembly(self.panel_combination, self.rivet, grids, p[0], p[1]))
         return solutions

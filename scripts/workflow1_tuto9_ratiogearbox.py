@@ -1,33 +1,34 @@
 import tutorials.tutorial9_simple_3ratios_gearbox as objects
-import dessia_common.workflow as wf
+from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, MethodType, MultiPlot
+from dessia_common.workflow.core import Workflow, Pipe
 import numpy as np
 # from dessia_api_client import Client
+import plot_data.core as plot_data
 
 
+block_optimizer = InstantiateModel(objects.GearBoxOptimizer, name='Gearbox Optimizer')
 
-block_optimizer = wf.InstanciateModel(objects.GearBoxOptimizer, name='Gearbox Optimizer')
+method_type_optimize = MethodType(objects.GearBoxOptimizer,'optimize')
+method_optimize = ModelMethod(method_type_optimize, name='Optimize')
 
-method_type_optimize = wf.MethodType(objects.GearBoxOptimizer,'optimize')
-method_optimize = wf.ModelMethod(method_type_optimize, name='Optimize')
+block_gearbox = InstantiateModel(objects.GearBox, name='Gearbox')
+block_engine = InstantiateModel(objects.Engine, name= 'Engine')
 
-block_gearbox = wf.InstanciateModel(objects.GearBox, name='Gearbox')
-block_engine = wf.InstanciateModel(objects.Engine, name= 'Engine')
-
-block_efficiencymap = wf.InstanciateModel(objects.EfficiencyMap, name= 'Efficiency Map')
-block_wltpcycle = wf.InstanciateModel(objects.WLTPCycle, name = 'WLTP Cycle')
+block_efficiencymap = InstantiateModel(objects.EfficiencyMap, name= 'Efficiency Map')
+block_wltpcycle = InstantiateModel(objects.WLTPCycle, name = 'WLTP Cycle')
 
 list_attribute = ['average_fuel_consumption', 'average_engine_speed', 'average_engine_torque', 'ratio_min', 'ratio_max', 'average_ratio']
-display = wf.MultiPlot(list_attribute, order = 1, name= 'Display')
+display = MultiPlot(list_attribute, order = 1, name= 'Display')
 
 block_workflow = [block_optimizer, method_optimize, block_gearbox, block_engine, block_efficiencymap, block_wltpcycle, display]
-pipe_workflow = [wf.Pipe(block_optimizer.outputs[0], method_optimize.inputs[0]),
-                 wf.Pipe(block_gearbox.outputs[0], block_optimizer.inputs[0]),
-                 wf.Pipe(block_wltpcycle.outputs[0], block_optimizer.inputs[1]),
-                 wf.Pipe(block_engine.outputs[0], block_gearbox.inputs[0]),
-                 wf.Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
-                 wf.Pipe(method_optimize.outputs[0], display.inputs[0])]
+pipe_workflow = [Pipe(block_optimizer.outputs[0], method_optimize.inputs[0]),
+                 Pipe(block_gearbox.outputs[0], block_optimizer.inputs[0]),
+                 Pipe(block_wltpcycle.outputs[0], block_optimizer.inputs[1]),
+                 Pipe(block_engine.outputs[0], block_gearbox.inputs[0]),
+                 Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
+                 Pipe(method_optimize.outputs[0], display.inputs[0])]
 
-workflow = wf.Workflow(block_workflow, pipe_workflow, method_optimize.outputs[0])
+workflow = Workflow(block_workflow, pipe_workflow, method_optimize.outputs[0])
 
 engine_speeds = list(np.linspace(500, 6000, num = 12)) #Engine speed in rpm
 engine_speeds = [float(i)*(np.pi/30) for i in engine_speeds]  # in rad/s

@@ -16,11 +16,11 @@ for j, shaft in enumerate(shafts):
     if j == 1:
         gear1 = objects.Gear(diameter=0.1, length=0.01, shaft=shaft)
         gear2 = objects.Gear(diameter=0.1, length=0.01, shaft=shaft)
-        meshes.append(objects.Mesh(gear1, gear2))
+        meshes.append(objects.Mesh(gear, gear1))
     else:
         gear = objects.Gear(diameter=0.1, length=0.01, shaft=shaft)
 meshes.append(objects.Mesh(gear2, gear))
 reductor = objects.Reductor(motor, shafts, meshes)
 
-optimizer = objects.Optimizer(reductor=reductor, speed_output=500, x_min_max=[-1, 1], y_min_max=[-1, 1])
+optimizer = objects.Optimizer(reductor=reductor, speed_output=500, x_min_max=(-1, 1), y_min_max=(-1, 1))
 list_reductor = optimizer.optimize()

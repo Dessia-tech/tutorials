@@ -8,7 +8,7 @@ from random import random
 import cma
 import networkx as nx
 
-from dessia_common import DessiaObject
+from dessia_common import DessiaObject, PhysicalObject
 from typing import List
 
 
@@ -23,7 +23,7 @@ class Housing(DessiaObject):
 
     def volmdlr_primitives(self):
         for face in self.faces:
-            face.translation(self.origin, copy=False)
+            face.translation(self.origin)
         return self.faces
 
 
@@ -145,7 +145,7 @@ class SlavePiping(Piping):
 
 
 #
-class Assembly(DessiaObject):
+class Assembly(PhysicalObject):
     _standalone_in_db = True
     _non_data_eq_attributes = ['length', 'min_radius', 'max_radius', 'distance_input',
                                'straight_line', 'routes']
@@ -153,7 +153,7 @@ class Assembly(DessiaObject):
     def __init__(self, frame: Frame, pipings: List[Piping], housing: Housing,
                  waypoint: vm.Point3D = None, name: str = ''):
 
-        DessiaObject.__init__(self, name=name)
+        PhysicalObject.__init__(self, name=name)
         self.housing = housing
         self.pipings = pipings
         self.frame = frame
