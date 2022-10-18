@@ -376,6 +376,7 @@ class Generator(DessiaObject):
             valid = True
             node = tree.current_node
             list_gear[len(node) - 1].z = node[-1] + self.z_min_max[0]
+            print(f"Constructing node : {node}")
             if len(node) == 2 or len(node) == 4:
                 if self.speed_input < self.speed_output:
                     if node[-2] <= node[-1]:
@@ -389,6 +390,8 @@ class Generator(DessiaObject):
 
             if len(node) == len(list_gear) and valid:
                 if self.speed_output * (1 - self.precision) < reductor.speed_output() < self.speed_output * (1 + self.precision):
+
+                    print(f"Valid node : {node}")
                     list_reductor.append(copy.deepcopy(reductor))
                 else:
                     valid = False

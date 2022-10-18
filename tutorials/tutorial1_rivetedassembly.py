@@ -368,7 +368,7 @@ class Generator(DessiaObject):
         DessiaObject.__init__(self, name=name)
 
     def define_grid(self, contour: vm.wires.Contour2D, number_rivet1: int, number_rivet2: int):
-        xmin, xmax, ymin, ymax = contour.bounding_rectangle()
+        xmin, xmax, ymin, ymax = contour.bounding_rectangle().bounds()
         dir1 = xmax - xmin
         dir2 = ymax - ymin
         ratio1 = dir1 / (number_rivet1 + 1)
