@@ -148,18 +148,18 @@ speed_ranges = [[0, 30], [20 ,40], [30,50], [45, 70]] # in km/h
 speed_ranges = [[speed_range[0]*(1000*2)/(3600*tire_radius), speed_range[1]*(1000*2)/(3600*tire_radius)] for speed_range in speed_ranges] #in rad/s
 
 
-input_values = {workflow.index(block_optimizer.inputs[2]): [.5, 4.5], 
-                workflow.index(method_optimize.inputs[1]): 30, 
-                workflow.index(block_gearbox.inputs[1]):speed_ranges, 
-                workflow.index(block_engine.inputs[1]):setpoint_speed,
-                workflow.index(block_engine.inputs[2]):setpoint_torque,
-                workflow.index(block_efficiencymap.inputs[0]):engine_speeds,
-                workflow.index(block_efficiencymap.inputs[1]):engine_torques, 
-                workflow.index(block_efficiencymap.inputs[2]):mass_flow_rate_kgps, 
-                workflow.index(block_efficiencymap.inputs[3]):fuel_hv, 
-                workflow.index(block_wltpcycle.inputs[0]):cycle_speeds, 
-                workflow.index(block_wltpcycle.inputs[1]):car_mass, 
-                workflow.index(block_wltpcycle.inputs[2]):tire_radius}
+input_values = {workflow.input_index(block_optimizer.inputs[2]): [.5, 4.5],
+                workflow.input_index(method_optimize.inputs[1]): 30,
+                workflow.input_index(block_gearbox.inputs[1]):speed_ranges,
+                workflow.input_index(block_engine.inputs[1]):setpoint_speed,
+                workflow.input_index(block_engine.inputs[2]):setpoint_torque,
+                workflow.input_index(block_efficiencymap.inputs[0]):engine_speeds,
+                workflow.input_index(block_efficiencymap.inputs[1]):engine_torques,
+                workflow.input_index(block_efficiencymap.inputs[2]):mass_flow_rate_kgps,
+                workflow.input_index(block_efficiencymap.inputs[3]):fuel_hv,
+                workflow.input_index(block_wltpcycle.inputs[0]):cycle_speeds,
+                workflow.input_index(block_wltpcycle.inputs[1]):car_mass,
+                workflow.input_index(block_wltpcycle.inputs[2]):tire_radius}
 
 workflow_run = workflow.run(input_values)
 

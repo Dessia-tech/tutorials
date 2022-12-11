@@ -68,7 +68,6 @@ piping2 = tuto.Piping(start=p1, end=p2,
                       direction_start=vm.Vector3D(0, 0, 1), direction_end=vm.Vector3D(1, 0, 1),
                       diameter=0.005, length_connector=0.1, minimum_radius=0.05)
 
-# assembly1 = tuto.Assembly(frames=[frame1, frame3, frame4, frame2], piping=piping1, housing=housing)
 assemblies = []
 minimum_radius = 0.02
 for i in range(30):
@@ -82,8 +81,6 @@ for i in range(30):
                               diameter=0.005, length_connector=0.1, minimum_radius=0.03)
         assemblies.append(tuto.Assembly(frames=[frame1, frame3, frame4, frame2], piping=piping1, housing=housing))
 
-# opti1 = tuto.Optimizer()
-# solutions = opti1.optimize(assemblies=[assembly1], number_solution_per_assembly=2)
 
 block_optimizer = wf.InstantiateModel(tuto.Optimizer, name='Optimizer')
 
@@ -101,10 +98,13 @@ pipe_worflow = [wf.Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
 workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0], name="workflow pipe")
 workflow.plot()
 
-input_values = {workflow.index(block_optimize.inputs[1]): assemblies,
-                workflow.index(block_optimize.inputs[2]): 1,
+input_values = {workflow.input_index(block_optimize.inputs[1]): assemblies,
+                workflow.input_index(block_optimize.inputs[2]): 1,
                 }
 
 workflow_run = workflow.run(input_values)
+solution = workflow_run.output_value[0]
+solution.babylonjs()
+
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
 # r = c.create_object_from_python_object(workflow_run)
