@@ -5,7 +5,7 @@ import plot_data.core as plot_data
 import math
 from itertools import product
 
-from dessia_common import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List, Tuple, Dict
 from plot_data.colors import *
 
