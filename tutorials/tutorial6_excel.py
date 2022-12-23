@@ -7,7 +7,7 @@
 # from random import random
 # import cma
 
-from dessia_common import DessiaObject
+from dessia_common.core import DessiaObject
 # from typing import List
 
 
