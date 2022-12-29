@@ -10,8 +10,8 @@ Created on Mon Nov 23 12:36:10 2020
 import tutorials.tutorial5_piping as tuto
 # import plot_data.core as plot_data
 import volmdlr as vm
-import dessia_common.workflow as wf
-from dessia_common.typings import MethodType
+from dessia_common.workflow.core import Pipe, Workflow
+from dessia_common.workflow.blocks import MethodType, InstantiateModel, MultiPlot, ModelMethod
 # from dessia_api_client import Client
 import plot_data
 
@@ -82,20 +82,20 @@ for i in range(30):
         assemblies.append(tuto.Assembly(frames=[frame1, frame3, frame4, frame2], piping=piping1, housing=housing))
 
 
-block_optimizer = wf.InstantiateModel(tuto.Optimizer, name='Optimizer')
+block_optimizer = InstantiateModel(tuto.Optimizer, name='Optimizer')
 
 
-block_optimize = wf.ModelMethod(method_type=MethodType(tuto.Optimizer, 'optimize'), name='Optimize')
+block_optimize = ModelMethod(method_type=MethodType(tuto.Optimizer, 'optimize'), name='Optimize')
 
 list_attribute1 = ['length', 'min_radius', 'max_radius', 'distance_input', 'straight_line']
-display_reductor = wf.MultiPlot(list_attribute1, 1, name='Display')
+display_reductor = MultiPlot(list_attribute1, 1, name='Display')
 
 block_workflow = [block_optimizer, block_optimize, display_reductor]
 
-pipe_worflow = [wf.Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
-                wf.Pipe(block_optimize.outputs[0], display_reductor.inputs[0])]
+pipe_worflow = [Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
+                Pipe(block_optimize.outputs[0], display_reductor.inputs[0])]
 
-workflow = wf.Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0], name="workflow pipe")
+workflow = Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0], name="workflow pipe")
 workflow.plot()
 
 input_values = {workflow.input_index(block_optimize.inputs[1]): assemblies,

@@ -8,34 +8,35 @@ Created on Tue May 18 13:11:55 2021
 import plot_data
 
 import tutorials.tutorial10 as objects
-import dessia_common.workflow as wf
+from dessia_common.workflow.core import Workflow, Pipe, WorkflowRun
+from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, Display
 
 # from dessia_api_client import Client
 import numpy as np
 from dessia_common.typings import MethodType
 
-block_generator = wf.InstantiateModel(objects.GearBoxGenerator, name='Gearbox Generator')
-block_generate = wf.ModelMethod(MethodType(class_=objects.GearBoxGenerator, name='generate'), name='Generate')
-block_efficiencymap = wf.InstantiateModel(objects.EfficiencyMap, name='Efficiency Map')
-block_engine = wf.InstantiateModel(objects.Engine, name='Engine')
-block_gearbox = wf.InstantiateModel(objects.GearBox, name='Gearbox')
-block_cluster = wf.InstantiateModel(objects.Clustering, name='Clustering')
+block_generator = InstantiateModel(objects.GearBoxGenerator, name='Gearbox Generator')
+block_generate = ModelMethod(MethodType(class_=objects.GearBoxGenerator, name='generate'), name='Generate')
+block_efficiencymap = InstantiateModel(objects.EfficiencyMap, name='Efficiency Map')
+block_engine = InstantiateModel(objects.Engine, name='Engine')
+block_gearbox = InstantiateModel(objects.GearBox, name='Gearbox')
+block_cluster = InstantiateModel(objects.Clustering, name='Clustering')
 
-display = wf.Display(name='Display')
+display = Display(name='Display')
 
 block_workflow = [block_generator, block_generate, block_gearbox, block_engine, block_efficiencymap,
                   block_cluster,
                   display
                   ]
-pipe_workflow = [wf.Pipe(block_generator.outputs[0], block_generate.inputs[0]),
-                 wf.Pipe(block_gearbox.outputs[0], block_generator.inputs[0]),
-                 wf.Pipe(block_engine.outputs[0], block_gearbox.inputs[0]),
-                 wf.Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
-                 wf.Pipe(block_generate.outputs[0], block_cluster.inputs[0]),
-                 wf.Pipe(block_cluster.outputs[0], display.inputs[0])
+pipe_workflow = [Pipe(block_generator.outputs[0], block_generate.inputs[0]),
+                 Pipe(block_gearbox.outputs[0], block_generator.inputs[0]),
+                 Pipe(block_engine.outputs[0], block_gearbox.inputs[0]),
+                 Pipe(block_efficiencymap.outputs[0], block_engine.inputs[0]),
+                 Pipe(block_generate.outputs[0], block_cluster.inputs[0]),
+                 Pipe(block_cluster.outputs[0], display.inputs[0])
                  ]
 
-workflow = wf.Workflow(block_workflow, pipe_workflow, block_generate.outputs[0])
+workflow = Workflow(block_workflow, pipe_workflow, block_generate.outputs[0])
 
 engine_speeds = list(np.linspace(500, 6000, num=12))  # Engine speed in rpm
 engine_speeds = [float(i) * (np.pi / 30) for i in engine_speeds]  # in rad/s
@@ -101,7 +102,7 @@ workflow_run = workflow.run(input_values)
 
 
 d1 = workflow_run.to_dict()
-obj = wf.WorkflowRun.dict_to_object(d1)
+obj = WorkflowRun.dict_to_object(d1)
 import json
 
 object1 = json.dumps(d1)
