@@ -1,6 +1,6 @@
 import volmdlr
 
-from dessia_common import DessiaObject
+from dessia_common.core import DessiaObject
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import math
@@ -11,7 +11,6 @@ import plot_data
 from plot_data.colors import BLACK, CYAN
 import numpy as np
 # from scipy.optimize import bisect
-
 
 
 class Piece(DessiaObject):
