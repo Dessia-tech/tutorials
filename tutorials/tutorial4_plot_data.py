@@ -3,7 +3,7 @@ import plot_data.core as plot_data
 import math
 from plot_data.colors import *
 
-from dessia_common import DessiaObject
+from dessia_common.core import DessiaObject
 from typing import List
 import random
 

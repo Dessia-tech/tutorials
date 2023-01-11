@@ -10,7 +10,7 @@ from matplotlib import patches
 import math
 import volmdlr as vm
 import volmdlr.primitives3d as p3d
-from dessia_common import DessiaObject
+from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List, Tuple
 import numpy as npy
 from scipy.optimize import minimize
@@ -139,7 +139,7 @@ class Mesh(DessiaObject):
 # =============================================================================
 
 
-class Reductor(DessiaObject):
+class Reductor(PhysicalObject):
     _standalone_in_db = True
 
     def __init__(self, motor: Motor, shafts: List[Shaft], meshes: List[Mesh], number_solution: int = 0, name: str = ''):

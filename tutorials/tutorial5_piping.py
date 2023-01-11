@@ -4,7 +4,7 @@ from random import random
 import cma
 import volmdlr.faces
 
-from dessia_common import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List
 
 

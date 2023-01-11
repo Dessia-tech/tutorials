@@ -35,9 +35,9 @@ pc1 = tuto.PanelCombination([p1, p2], [vm.Point3D(0, 0, 0), vm.Point3D(0.7, 0.2,
 rule1 = tuto.Rule(0.1, 0.2)
 
 
-input_values = {workflow.index(block_generator.inputs[0]): pc1,
-                workflow.index(block_generator.inputs[1]): r1,
-                workflow.index(block_generator.inputs[2]): rule1,
+input_values = {workflow.input_index(block_generator.inputs[0]): pc1,
+                workflow.input_index(block_generator.inputs[1]): r1,
+                workflow.input_index(block_generator.inputs[2]): rule1,
                 }
 
 workflow_run = workflow.run(input_values)

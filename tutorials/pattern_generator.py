@@ -1,6 +1,6 @@
 import volmdlr
 
-from dessia_common import DessiaObject
+from dessia_common.core import DessiaObject
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import math
@@ -11,7 +11,6 @@ import plot_data
 from plot_data.colors import BLACK, CYAN
 import numpy as np
 # from scipy.optimize import bisect
-
 
 
 class Piece(DessiaObject):
@@ -197,7 +196,7 @@ class Pattern(DessiaObject):
                                  self.piece_diameter + self.clearence)
         bspline1 = vme.BSplineCurve2D.from_points_interpolation([point1, point2, point3], 2)
         edges = []
-        points = bspline1.polygon_points(40)
+        points = bspline1.discretization_points(number_points=40)
         for i in range(0, len(points) - 1):
             edges.append(volmdlr.edges.LineSegment2D(points[i], points[i + 1]))
         contour2 = vmw.Contour2D(edges)
