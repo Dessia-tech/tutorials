@@ -5,7 +5,7 @@ import plot_data.core as plot_data
 import math
 from itertools import product
 
-from dessia_common import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List, Tuple, Dict
 from plot_data.colors import *
 
@@ -188,13 +188,13 @@ class Rivet(PhysicalObject):
                        vm.Vector2D(self.rivet_length, 0),
                        ]
 
-        points = []
+        points = set()
         p_init = p0
         for v in vectors:
             p1 = p_init.translation(v)
-            points.append(p1)
+            points.add(p1)
             p_init = p1
-        return vm.wires.ClosedPolygon2D(points)
+        return vm.wires.ClosedPolygon2D(list(points))
 
     def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
         contour = self.contour(full_contour=False)

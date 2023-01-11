@@ -10,7 +10,7 @@ from matplotlib import patches
 import math
 import volmdlr as vm
 import volmdlr.primitives3d as p3d
-from dessia_common import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List, Tuple
 import numpy as npy
 from scipy.optimize import minimize

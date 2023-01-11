@@ -40,21 +40,22 @@ pipe_worflow = [Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
 
 workflow = Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0])
 
-input_values = {workflow.index(block_optimizer.inputs[1]): 500,
-                workflow.index(block_optimizer.inputs[2]): [-1, 1],
-                workflow.index(block_optimizer.inputs[3]): [-1, 1],
+input_values = {workflow.input_index(block_optimizer.inputs[1]): 500,
+                workflow.input_index(block_optimizer.inputs[2]): [-1, 1],
+                workflow.input_index(block_optimizer.inputs[3]): [-1, 1],
 
-                workflow.index(block_instanciate_reductor.inputs[1]): 0.01,
+                workflow.input_index(block_instanciate_reductor.inputs[1]): 0.01,
 
-                workflow.index(block_motor.inputs[0]): 0.1,
-                workflow.index(block_motor.inputs[1]): 0.2,
-                workflow.index(block_motor.inputs[2]): 150
+                workflow.input_index(block_motor.inputs[0]): 0.1,
+                workflow.input_index(block_motor.inputs[1]): 0.2,
+                workflow.input_index(block_motor.inputs[2]): 150
 
                 }
 
 workflow_generator_run = workflow.run(input_values)
 solution = workflow_generator_run.output_value[0]
 plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
+
 # from dessia_api_client import Client
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
 # r = c.create_object_from_python_object(workflow_generator_run)

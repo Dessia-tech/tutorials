@@ -8,7 +8,7 @@ from random import random
 import cma
 import networkx as nx
 
-from dessia_common import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List
 
 
