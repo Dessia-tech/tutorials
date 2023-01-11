@@ -10,6 +10,18 @@ steps:
   - git fetch --tags
   - python setup.py install
   - python tests.py
+  
+- name: weekly install, build doc run scripts
+  image: python:3.8
+  commands:
+  - git fetch --tags
+  - python setup.py install
+  - python tests.py
+  when:
+    event: 
+      - cron
+    cron:
+      - weekly 
 
 - name: notify by email
   when:
