@@ -379,7 +379,7 @@ class Generator(DessiaObject):
                 grids.append(vm.Point2D(xmin + ratio1 * (n1 + 1), ymin + ratio2 * (n2 + 1)))
         return grids
 
-    def generate(self, progress_callback=lambda x: 0) -> List[PanelAssembly]:
+    def generate(self, progress_callback=lambda x: 0):
         contour = self.panel_combination.intersection_area()
         all_possibilities = self.rule.define_number_rivet(contour, self.rivet)
         solutions = []
@@ -390,4 +390,4 @@ class Generator(DessiaObject):
                 print('{} %'.format(i/size_all_possibilities*100))
                 grids = self.define_grid(contour, p[0], p[1])
                 solutions.append(PanelAssembly(self.panel_combination, self.rivet, grids, p[0], p[1]))
-        return solutions
+        return solutions[0]
