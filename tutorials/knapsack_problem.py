@@ -6,6 +6,7 @@ from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D
 
 
 class Item(PhysicalObject):
+    _standalone_in_db = True
 
     def __init__(self, mass: float, price: float, name: str):
         self.mass = mass
@@ -32,6 +33,7 @@ class Item(PhysicalObject):
 
 
 class Knapsack(PhysicalObject):
+    _standalone_in_db = True
 
     def __init__(self, allowed_mass: float, name: str):
         self.allowed_mass = allowed_mass
@@ -52,6 +54,7 @@ class Knapsack(PhysicalObject):
 
 class KnapsackPackage(Knapsack):
     _vector_features = ["allowed_mass", "mass", "price"]
+    _standalone_in_db = True
 
     def __init__(self, items: List[Item], allowed_mass: float, name: str):
         self.items = items
@@ -76,6 +79,7 @@ class Results(Dataset):
 
 
 class Generator(DessiaObject):
+    _standalone_in_db = True
 
     def __init__(self, items: List[Item], knapsack: Knapsack, name: str):
         self.items = items
@@ -109,21 +113,21 @@ class Generator(DessiaObject):
         return Results(knapsack_packages=solutions, name='results')
 
 
-items = [
-    Item(mass=1, price=15, name='item 1'),
-    Item(mass=2, price=35, name='item 2'),
-    Item(mass=3, price=10, name='item 3'),
-    Item(mass=1, price=30, name='item 4'),
-    Item(mass=2, price=20, name='item 5'),
-    Item(mass=3, price=25, name='item 6'),
-    Item(mass=1, price=5, name='item 7'),
-    Item(mass=2, price=10, name='item 8'),
-    Item(mass=3, price=40, name='item 9')]
-
-knapsack = Knapsack(allowed_mass=10, name='knapsack 10kg')
-
-generator = Generator(items=items, knapsack=knapsack, name='generator 1')
-solutions = generator.generate()
+# items = [
+#     Item(mass=1, price=15, name='item 1'),
+#     Item(mass=2, price=35, name='item 2'),
+#     Item(mass=3, price=10, name='item 3'),
+#     Item(mass=1, price=30, name='item 4'),
+#     Item(mass=2, price=20, name='item 5'),
+#     Item(mass=3, price=25, name='item 6'),
+#     Item(mass=1, price=5, name='item 7'),
+#     Item(mass=2, price=10, name='item 8'),
+#     Item(mass=3, price=40, name='item 9')]
+#
+# knapsack = Knapsack(allowed_mass=10, name='knapsack 10kg')
+#
+# generator = Generator(items=items, knapsack=knapsack, name='generator 1')
+# solutions = generator.generate()
 
 # solutions.sort(key=lambda x: x.price)
 # best_solution = solutions[-1]
