@@ -21,7 +21,7 @@ class Item(PhysicalObject):
         else:
             color = (255/255, 215/255, 0/255)  # Gold color
         height_vector = self.mass * Z3D / 2
-        frame = Frame3D(origin=O3D + height_vector/2 + z_offset*Z3D,
+        frame = Frame3D(origin=O3D + height_vector / 2 + z_offset * Z3D,
                         u=X3D,
                         v=Y3D,
                         w=height_vector,
@@ -41,10 +41,10 @@ class Knapsack(PhysicalObject):
 
     def volmdlr_primitives(self):
         height_vector = self.allowed_mass * Z3D / 2
-        frame = Frame3D(origin=O3D + height_vector/2,
+        frame = Frame3D(origin=O3D + height_vector / 2,
                         u=1.1 * X3D,
                         v=1.1 * Y3D,
-                        w=height_vector + 0.1*Z3D,
+                        w=height_vector + 0.1 * Z3D,
                         name='frame ' + self.name)
         primitives = [Block(frame=frame,
                             alpha=0.3,
@@ -53,7 +53,7 @@ class Knapsack(PhysicalObject):
 
 
 class KnapsackPackage(Knapsack):
-    _vector_features = ["allowed_mass", "mass", "price"]
+    _vector_features = ["mass", "price"]
     _standalone_in_db = True
 
     def __init__(self, items: List[Item], allowed_mass: float, name: str):
@@ -81,10 +81,10 @@ class Results(Dataset):
 class Generator(DessiaObject):
     _standalone_in_db = True
 
-    def __init__(self, items: List[Item], knapsack: Knapsack, name: str):
+    def __init__(self, items: List[Item], knapsack: Knapsack):
         self.items = items
         self.knapsack = knapsack
-        DessiaObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name='generator')
 
     def generate(self, maximum: int = None):
         solutions = []
@@ -113,21 +113,22 @@ class Generator(DessiaObject):
         return Results(knapsack_packages=solutions, name='results')
 
 
-# items = [
-#     Item(mass=1, price=15, name='item 1'),
-#     Item(mass=2, price=35, name='item 2'),
-#     Item(mass=3, price=10, name='item 3'),
-#     Item(mass=1, price=30, name='item 4'),
-#     Item(mass=2, price=20, name='item 5'),
-#     Item(mass=3, price=25, name='item 6'),
-#     Item(mass=1, price=5, name='item 7'),
-#     Item(mass=2, price=10, name='item 8'),
-#     Item(mass=3, price=40, name='item 9')]
-#
-# knapsack = Knapsack(allowed_mass=10, name='knapsack 10kg')
-#
-# generator = Generator(items=items, knapsack=knapsack, name='generator 1')
-# solutions = generator.generate()
+items = [
+    Item(mass=1, price=15, name='item 1'),
+    Item(mass=2, price=35, name='item 2'),
+    Item(mass=3, price=10, name='item 3'),
+    Item(mass=1, price=30, name='item 4'),
+    Item(mass=2, price=20, name='item 5'),
+    Item(mass=3, price=25, name='item 6'),
+    Item(mass=1, price=5, name='item 7'),
+    Item(mass=2, price=10, name='item 8'),
+    Item(mass=3, price=40, name='item 9')]
+
+knapsack = Knapsack(allowed_mass=10, name='knapsack 10kg')
+
+generator = Generator(items=items, knapsack=knapsack)
+solutions = generator.generate(10)
+# solutions.plot()
 
 # solutions.sort(key=lambda x: x.price)
 # best_solution = solutions[-1]
