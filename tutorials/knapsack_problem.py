@@ -75,6 +75,7 @@ class KnapsackPackage(Knapsack):
 class Results(Dataset):
 
     def __init__(self, knapsack_packages: List[KnapsackPackage], name: str):
+        self.knapsack_packages = knapsack_packages
         Dataset.__init__(self, dessia_objects=knapsack_packages, name=name)
 
 
@@ -111,26 +112,3 @@ class Generator(DessiaObject):
                 solutions.append(solution)
 
         return Results(knapsack_packages=solutions, name='results')
-
-
-items = [
-    Item(mass=1, price=15, name='item 1'),
-    Item(mass=2, price=35, name='item 2'),
-    Item(mass=3, price=10, name='item 3'),
-    Item(mass=1, price=30, name='item 4'),
-    Item(mass=2, price=20, name='item 5'),
-    Item(mass=3, price=25, name='item 6'),
-    Item(mass=1, price=5, name='item 7'),
-    Item(mass=2, price=10, name='item 8'),
-    Item(mass=3, price=40, name='item 9')]
-
-knapsack = Knapsack(allowed_mass=10, name='knapsack 10kg')
-
-generator = Generator(items=items, knapsack=knapsack)
-solutions = generator.generate(10)
-# solutions.plot()
-
-# solutions.sort(key=lambda x: x.price)
-# best_solution = solutions[-1]
-#
-# best_solution.babylonjs()
