@@ -1,8 +1,8 @@
 from dessia_common.core import PhysicalObject, DessiaObject
-from dessia_common.datatools.dataset import Dataset
 from typing import List
 from volmdlr.primitives3d import Block
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D
+from itertools import combinations
 
 
 class Item(PhysicalObject):
@@ -13,13 +13,18 @@ class Item(PhysicalObject):
         self.price = price
         PhysicalObject.__init__(self, name=name)
 
-    def volmdlr_primitives(self, z_offset: float = 0.):
-        if self.price <= 10:
-            color = (97/255, 78/255, 26/255)  # Bronze color
-        elif 10 < self.price <= 25:
-            color = (192/255, 192/255, 192/255)  # Silver color
+        self.price_per_kg = price / mass
+        if self.price_per_kg <= 5:
+            self.color = 'bronze'
+            self.rgb = (97/255, 78/255, 26/255)  # Bronze color
+        elif 5 < self.price_per_kg < 15:
+            self.color = 'silver'
+            self.rgb = (192/255, 192/255, 192/255)  # Silver color
         else:
-            color = (255/255, 215/255, 0/255)  # Gold color
+            self.color = 'gold'
+            self.rgb = (255/255, 215/255, 0/255)  # Gold color
+
+    def volmdlr_primitives(self, z_offset: float = 0.):
         height_vector = self.mass * Z3D / 2
         frame = Frame3D(origin=O3D + height_vector / 2 + z_offset * Z3D,
                         u=X3D,
@@ -27,7 +32,7 @@ class Item(PhysicalObject):
                         w=height_vector,
                         name='frame ' + self.name)
         primitives = [Block(frame=frame,
-                            color=color,
+                            color=self.rgb,
                             name='block ' + self.name)]
         return primitives
 
@@ -40,7 +45,7 @@ class Knapsack(PhysicalObject):
         PhysicalObject.__init__(self, name=name)
 
     def volmdlr_primitives(self):
-        height_vector = self.allowed_mass * Z3D / 2
+        height_vector = (self.allowed_mass + 0.5) * Z3D / 2
         frame = Frame3D(origin=O3D + height_vector / 2,
                         u=1.1 * X3D,
                         v=1.1 * Y3D,
@@ -58,9 +63,20 @@ class KnapsackPackage(Knapsack):
 
     def __init__(self, items: List[Item], allowed_mass: float, name: str):
         self.items = items
+        Knapsack.__init__(self, allowed_mass=allowed_mass, name=name)
+
         self.mass = sum(item.mass for item in items)
         self.price = sum(item.price for item in items)
-        Knapsack.__init__(self, allowed_mass=allowed_mass, name=name)
+        self.golds = 0
+        self.silvers = 0
+        self.bronzes = 0
+        for item in items:
+            if item.color == 'gold':
+                self.golds += 1
+            elif item.color == 'silver':
+                self.silvers += 1
+            elif item.color == 'bronze':
+                self.bronzes += 1
 
     def volmdlr_primitives(self):
         primitives = super().volmdlr_primitives()
@@ -68,15 +84,8 @@ class KnapsackPackage(Knapsack):
         for item in self.items:
             item_primitives = item.volmdlr_primitives(z_offset=z_offset)
             primitives.extend(item_primitives)
-            z_offset += item.mass / 2
+            z_offset += item.mass / 2 + 0.05
         return primitives
-
-
-class Results(Dataset):
-
-    def __init__(self, knapsack_packages: List[KnapsackPackage], name: str):
-        self.knapsack_packages = knapsack_packages
-        Dataset.__init__(self, dessia_objects=knapsack_packages, name=name)
 
 
 class Generator(DessiaObject):
@@ -87,28 +96,27 @@ class Generator(DessiaObject):
         self.knapsack = knapsack
         DessiaObject.__init__(self, name='generator')
 
-    def generate(self, maximum: int = None):
+    def generate(self, min_mass: float, max_gold: int = None,
+                 max_iter: int = None):
         solutions = []
-        for i in range(2**len(self.items)):
-
-            if maximum is not None and i == maximum:
-                break
-
-            binary = format(i, 'b')
-
-            selected_items = []
-            selected_mass = 0
-            for j in range(len(binary)):
-                if binary[j] == '1':
-                    selected_item = self.items[j]
-                    selected_items.append(selected_item)
-                    selected_mass += selected_item.mass
-
-            if selected_mass <= self.knapsack.allowed_mass:
+        count = 0
+        for i in range(1, len(self.items)+1):
+            for combination in combinations(self.items, i):
                 solution = KnapsackPackage(
-                    items=selected_items,
+                    items=combination,
                     allowed_mass=self.knapsack.allowed_mass,
                     name=f'Package {i}')
-                solutions.append(solution)
 
-        return Results(knapsack_packages=solutions, name='results')
+                if min_mass <= solution.mass <= self.knapsack.allowed_mass:
+                    if max_gold is not None:
+                        if solution.golds <= max_gold:
+                            solutions.append(solution)
+                            count += 1
+                    else:
+                        solutions.append(solution)
+                        count += 1
+
+                if max_iter is not None and count == max_iter:
+                    return solutions
+
+        return solutions
