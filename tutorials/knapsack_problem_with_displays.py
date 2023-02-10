@@ -24,6 +24,18 @@ class Item(PhysicalObject):
             self.color = 'gold'
             self.rgb = (255/255, 215/255, 0/255)  # Gold color
 
+    def volmdlr_primitives(self, z_offset: float = 0.):
+        height_vector = self.mass * Z3D / 2
+        frame = Frame3D(origin=O3D + height_vector / 2 + z_offset * Z3D,
+                        u=X3D,
+                        v=Y3D,
+                        w=height_vector,
+                        name='frame ' + self.name)
+        primitives = [Block(frame=frame,
+                            color=self.rgb,
+                            name='block ' + self.name)]
+        return primitives
+
 
 class Knapsack(PhysicalObject):
     _standalone_in_db = True
@@ -31,6 +43,18 @@ class Knapsack(PhysicalObject):
     def __init__(self, allowed_mass: float, name: str):
         self.allowed_mass = allowed_mass
         PhysicalObject.__init__(self, name=name)
+
+    def volmdlr_primitives(self):
+        height_vector = (self.allowed_mass + 0.5) * Z3D / 2
+        frame = Frame3D(origin=O3D + height_vector / 2,
+                        u=1.1 * X3D,
+                        v=1.1 * Y3D,
+                        w=height_vector + 0.1 * Z3D,
+                        name='frame ' + self.name)
+        primitives = [Block(frame=frame,
+                            alpha=0.3,
+                            name='block ' + self.name)]
+        return primitives
 
 
 class KnapsackPackage(Knapsack):
@@ -53,6 +77,15 @@ class KnapsackPackage(Knapsack):
                 self.silvers += 1
             elif item.color == 'bronze':
                 self.bronzes += 1
+
+    def volmdlr_primitives(self):
+        primitives = super().volmdlr_primitives()
+        z_offset = 0
+        for item in self.items:
+            item_primitives = item.volmdlr_primitives(z_offset=z_offset)
+            primitives.extend(item_primitives)
+            z_offset += item.mass / 2 + 0.05
+        return primitives
 
 
 class Generator(DessiaObject):
