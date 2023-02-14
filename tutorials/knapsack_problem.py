@@ -34,7 +34,7 @@ class Knapsack(PhysicalObject):
 
 
 class KnapsackPackage(Knapsack):
-    _vector_features = ["mass", "price", "golds", "silvers", "bronze"]
+    _vector_features = ["mass", "price", "golds", "silvers", "bronzes"]
     _standalone_in_db = True
 
     def __init__(self, items: List[Item], allowed_mass: float, name: str):
