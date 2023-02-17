@@ -1,8 +1,10 @@
-from dessia_common.core import PhysicalObject, DessiaObject
-from typing import List
-from volmdlr.primitives3d import Block
-from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D
 from itertools import combinations
+from typing import List
+from plot_data import PrimitiveGroup, Text, TextStyle, EdgeStyle, SurfaceStyle
+from dessia_common.core import PhysicalObject, DessiaObject
+from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
+from volmdlr.wires import ClosedPolygon2D
+from volmdlr.primitives3d import Block
 
 
 class Item(PhysicalObject):
@@ -35,6 +37,35 @@ class Item(PhysicalObject):
                             color=self.rgb,
                             name='block ' + self.name)]
         return primitives
+
+    def plot_data(self, y_offset: float = 0.):
+        contour = ClosedPolygon2D([
+            Point2D(-0.5, -0.5 + y_offset),
+            Point2D(0.5, -0.5 + y_offset),
+            Point2D(0.5, 0.5 + y_offset),
+            Point2D(-0.5, 0.5 + y_offset)])
+        surface_style = SurfaceStyle(
+            color_fill=f'rgb({self.rgb[0]*255},{self.rgb[1]*255},{self.rgb[2]*255}')
+        primitive1 = contour.plot_data(surface_style=surface_style)
+        text_style = TextStyle(text_color='rgb(0, 0, 0)',
+                               font_size=None,
+                               text_align_x='center',
+                               text_align_y='middle')
+        primitive2 = Text(comment=f'{self.mass} kg',
+                          position_x=0,
+                          position_y=0.25 + y_offset,
+                          text_style=text_style,
+                          text_scaling=True,
+                          max_width=0.5,
+                          multi_lines=False)
+        primitive3 = Text(comment=f'{self.price} €',
+                          position_x=0,
+                          position_y=-0.25 + y_offset,
+                          text_style=text_style,
+                          text_scaling=True,
+                          max_width=0.5,
+                          multi_lines=False)
+        return [PrimitiveGroup(primitives=[primitive1, primitive2, primitive3])]
 
 
 class Knapsack(PhysicalObject):
@@ -86,6 +117,34 @@ class KnapsackPackage(Knapsack):
             primitives.extend(item_primitives)
             z_offset += item.mass / 2 + 0.05
         return primitives
+
+    def plot_data(self):
+        primitives = []
+        y_offset = 0
+        for item in self.items:
+            primitive_groups = item.plot_data(y_offset=y_offset)
+            primitives.extend(primitive_groups[0].primitives)
+            y_offset += 1.1
+        text_style = TextStyle(text_color='rgb(0, 0, 0)',
+                               font_size=None,
+                               text_align_x='center',
+                               text_align_y='middle')
+        primitive1 = Text(comment=f'{self.mass} kg',
+                          position_x=0,
+                          position_y=-1.5,
+                          text_style=text_style,
+                          text_scaling=True,
+                          max_width=1,
+                          multi_lines=False)
+        primitive2 = Text(comment=f'{self.price} €',
+                          position_x=0,
+                          position_y=-2,
+                          text_style=text_style,
+                          text_scaling=True,
+                          max_width=1,
+                          multi_lines=False)
+        primitives.extend([primitive1, primitive2])
+        return [PrimitiveGroup(primitives=primitives)]
 
 
 class Generator(DessiaObject):
