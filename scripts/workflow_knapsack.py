@@ -37,14 +37,14 @@ pipes = [pipe_0, pipe_1, pipe_2, pipe_3, pipe_4, pipe_5, pipe_6, pipe_7, pipe_8]
 workflow = Workflow(blocks, pipes, output=block_3.outputs[0], name='WORKFLOW KNAPSACK PROBLEM_Display')
 
 
-def generate_random_item():
+def generate_random_item(i: int):
     mass = random.uniform(0.1, 1)
     price = random.uniform(0.5, 1000)
-    name = f'Item {random.randint(1, 100)}'
+    name = f'Item_{i}'
     return Item(mass=mass, price=price, name=name)
 
 
-items = [generate_random_item() for _ in range(10)]
+items = [generate_random_item(i=i) for i in range(10)]
 
 value_0_0 = items
 value_0_1 = Knapsack(allowed_mass=30, name="knapsack")

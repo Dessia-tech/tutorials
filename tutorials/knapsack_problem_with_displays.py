@@ -38,7 +38,7 @@ class Item(PhysicalObject):
                             name='block ' + self.name)]
         return primitives
 
-    def plot_data(self, y_offset: float = 0.):
+    def plot_data(self, reference_path: str = "#", y_offset: float = 0., **kwargs):
         contour = ClosedPolygon2D([
             Point2D(-0.5, -0.5 + y_offset),
             Point2D(0.5, -0.5 + y_offset),
@@ -118,7 +118,7 @@ class KnapsackPackage(Knapsack):
             z_offset += item.mass / 2 + 0.05
         return primitives
 
-    def plot_data(self):
+    def plot_data(self, reference_path: str = "#", **kwargs):
         primitives = []
         y_offset = 0
         for item in self.items:
