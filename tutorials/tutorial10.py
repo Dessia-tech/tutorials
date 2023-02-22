@@ -6,25 +6,26 @@ Created on Tue Mar  2 13:30:58 2021
 @author: wirajan
 """
 
-from dessia_common.core import DessiaObject, DisplayObject
-from typing import List, Tuple
-import numpy as np
-from scipy.optimize import minimize
-from scipy.interpolate import interp2d
-from statistics import mean
-import plot_data 
-from plot_data.colors import *
-import dectree as dt
-import plot_data.graph 
 import copy
+from itertools import product
+from statistics import mean
+from typing import List, Tuple
+
+import dectree as dt
+import matplotlib.pyplot as plt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
-from itertools import product
-import matplotlib.pyplot as plt
-from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 import pandas as pd
+import plot_data
+import plot_data.graph
+from dessia_common.core import DessiaObject, DisplayObject
+from plot_data.colors import *
+from scipy.interpolate import interp2d
+from scipy.optimize import minimize
+from sklearn.cluster import DBSCAN
 from sklearn.manifold import MDS
+from sklearn.preprocessing import MinMaxScaler
 
 
 class EfficiencyMap(DessiaObject):
@@ -32,6 +33,7 @@ class EfficiencyMap(DessiaObject):
     Build the engine map and then determine its efficiency
     """
     _standalone_in_db = True
+
     def __init__(self, engine_speeds: List[float], engine_torques: List[float],
                  mass_flow_rate: List[List[float]], fuel_hv: float, name: str = ''):
         self.engine_speeds = engine_speeds  # in rad/s
@@ -39,22 +41,22 @@ class EfficiencyMap(DessiaObject):
         self.mass_flow_rate = mass_flow_rate
         self.fuel_hv = fuel_hv  # fuel lower heating value in J/kg
 
-        DessiaObject.__init__(self,name=name)
+        DessiaObject.__init__(self, name=name)
 
         BSFC = []
         for i, engine_speed in enumerate(self.engine_speeds):
             list_bsfc = []
             for j, engine_torque in enumerate(self.engine_torques):
-                bsfc = self.mass_flow_rate[i][j]/(engine_speed*engine_torque)  # in kg/J
+                bsfc = self.mass_flow_rate[i][j] / (engine_speed * engine_torque)  # in kg/J
                 list_bsfc.append(bsfc)
             BSFC.append(list_bsfc)
         self.bsfc = BSFC
 
-        efficiencies=[]
+        efficiencies = []
         for list_bsfc in BSFC:
-            list_efficiencies=[]
+            list_efficiencies = []
             for bsfc in list_bsfc:
-                efficiency = 1/(bsfc*self.fuel_hv)
+                efficiency = 1 / (bsfc * self.fuel_hv)
                 list_efficiencies.append(efficiency)
             efficiencies.append(list_efficiencies)
         self.efficiencies = efficiencies
@@ -65,48 +67,49 @@ class WLTPCycle(DessiaObject):
     """
     WLTP cycle paremeters and wheel torque calculations
     """
+
     def __init__(self, cycle_speeds: List[float], car_mass: float,
                  tire_radius: float, dt: float = 1, name: str = ''):
         self.cycle_speeds = cycle_speeds
         self.car_mass = car_mass
         self.tire_radius = tire_radius
         self.dt = dt
-        DessiaObject.__init__(self,name=name)
-        
+        DessiaObject.__init__(self, name=name)
+
         accelerations = []
         for i in range(len(self.cycle_speeds[:-1])):
-            acceleration = (self.cycle_speeds[i + 1] - self.cycle_speeds[i]) / dt   # acceleration in m/s^2
+            acceleration = (self.cycle_speeds[i + 1] - self.cycle_speeds[i]) / dt  # acceleration in m/s^2
             if acceleration < 0:
                 acceleration *= -1
             accelerations.append(acceleration)
-    
-        cycle_torques=[]
+
+        cycle_torques = []
         for acceleration in accelerations:
-            torque = acceleration*car_mass*tire_radius/2  #torque in Nm
+            torque = acceleration * car_mass * tire_radius / 2  # torque in Nm
             cycle_torques.append(torque)
-            
-        self.cycle_torques = cycle_torques 
+
+        self.cycle_torques = cycle_torques
 
 
 class Engine(DessiaObject):
     _standalone_in_db = True
 
-    def __init__(self, efficiency_map : EfficiencyMap, setpoint_speed: float,
+    def __init__(self, efficiency_map: EfficiencyMap, setpoint_speed: float,
                  setpoint_torque: float, name: str = ''):
         self.efficiency_map = efficiency_map
         self.setpoint_speed = setpoint_speed
         self.setpoint_torque = setpoint_torque
 
-        DessiaObject.__init__(self,name=name)
-    
-    def efficiency(self, speed:float, torque:float):
+        DessiaObject.__init__(self, name=name)
+
+    def efficiency(self, speed: float, torque: float):
         interpolate = interp2d(self.efficiency_map.engine_torques,
                                self.efficiency_map.engine_speeds,
                                self.efficiency_map.efficiencies)
         interpolate_efficiency = interpolate(torque, speed)
         return interpolate_efficiency[0]
-    
-    def consumption_efficiency(self, speed:float, torque: float):
+
+    def consumption_efficiency(self, speed: float, torque: float):
         interpolate = interp2d(self.efficiency_map.engine_torques,
                                self.efficiency_map.engine_speeds,
                                self.efficiency_map.bsfc)
@@ -173,7 +176,7 @@ class GearBox(DessiaObject):
             list_torque = []
             list_speed = []
             for i, speed_range in enumerate(self.speed_ranges):
-                if cycle_speed  >= speed_range[0] and cycle_speed  < speed_range[1]:
+                if cycle_speed >= speed_range[0] and cycle_speed < speed_range[1]:
                     ratio = self.ratios[i]
                     engine_speed = cycle_speed * ratio
                     engine_torque = cycle_torque / ratio
@@ -194,7 +197,7 @@ class GearBox(DessiaObject):
         return [gear, ratio, fuel_consumption_gpkwh,
                 engine_speed, engine_torque]
 
-    def plot_data(self):
+    def plot_data(self, reference_path: str = "#", **kwargs):
         gearbox_graph = self.graph
         gears = []
         shafts = []
@@ -217,7 +220,7 @@ class GearBox(DessiaObject):
                 gears.append(node)
 
         edges = []
-        edges_clutch =[]
+        edges_clutch = []
         for edge in gearbox_graph.edges():
             if gearbox_graph.edges()[edge]:
                 gearbox_graph.edges()[edge]['color'] = 'rgb(247,0,0)'
@@ -229,51 +232,13 @@ class GearBox(DessiaObject):
                 edges.append(edge)
         return [plot_data.graph.NetworkxGraph(gearbox_graph)]
 
-    def to_dict(self, use_pointers: bool = True, memo=None, path: str = '#'):
-        """
-        Export dictionary
-        """
-        d = {}
-        d['engine'] = self.engine.to_dict()
-        d['speed_ranges'] = self.speed_ranges
-        d['ratios'] = self.ratios
-        d['average_path_length'] = self.average_path_length
-        d['average_clutch_distance'] = self.average_clutch_distance
-        d['number_gears'] = self.number_gears
-        d['number_shafts'] = self.number_shafts
-        d['Standard deviation distante input/cluches'] = self.std_clutch_distance
-        d['Standard deviation distante input/gears'] = self.std_gears_distance
-        d['Density'] = self.density
-        d['graph'] = nx.readwrite.json_graph.node_link_data(self.graph)
-        d['name'] = self.name
-        d['ave_l_ns'] = self.ave_l_ns
-        d['object_class'] = 'tutorials.tutorial10.GearBox'
 
-        return d
-
-    @classmethod
-    def dict_to_object(cls, d):
-        obj = cls(engine=Engine.dict_to_object(d['engine']),
-                  speed_ranges=d['speed_ranges'],
-                  ratios=d['ratios'], name=d['name'])
-        obj.graph = nx.readwrite.json_graph.node_link_graph(d['graph'])
-        obj.average_clutch_distance = d['average_clutch_distance']
-        obj.average_path_length = d['average_path_length']
-        obj.number_gears = d['number_gears']
-        obj.number_shafts = d['number_shafts']
-        obj.std_clutch_distance = d['Standard deviation distante input/cluches']
-        obj.std_gears_distance = d['Standard deviation distante input/gears']
-        obj.density = d['Density']
-        obj.ave_l_ns = d['ave_l_ns']
-        return obj
-
-
-class GearBoxResults(DessiaObject): 
+class GearBoxResults(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,
                  engine_speeds: List[float],
-                 engine_torques: List[float], 
+                 engine_torques: List[float],
                  fuel_consumptions: List[float],
                  gears: List[float], ratios: List[float],
                  average_fuel_consumption: float,
@@ -286,20 +251,23 @@ class GearBoxResults(DessiaObject):
         self.gears = gears
         self.ratios = ratios
         self.average_fuel_consumption = average_fuel_consumption
-        DessiaObject.__init__(self,name=name)
-        
+        DessiaObject.__init__(self, name=name)
+
         self.average_engine_speed = mean(self.engine_speeds)
         self.average_engine_torque = mean(self.engine_torques)
         self.ratio_min = min(self.gearbox.ratios)
         self.ratio_max = max(self.gearbox.ratios)
         self.average_ratio = mean(self.gearbox.ratios)
 
-    def plot_data(self):
-        
-        cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
-        points=[]
-        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.engine_speeds,self.engine_torques, self.fuel_consumptions, cycle_time, self.gears):
-            points.append({'c_s': car_speed,'whl_t': wheel_torque,'w_e': engine_speed,'t_e': engine_torque, 'f_cons (g/kWh)':fuel_consumption*3.6e9, 'time': time, 'gear': gear})
+    def plot_data(self, reference_path: str = "#", **kwargs):
+
+        cycle_time = [i + 1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
+        points = []
+        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in zip(
+                self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques, self.engine_speeds,
+                self.engine_torques, self.fuel_consumptions, cycle_time, self.gears):
+            points.append({'c_s': car_speed, 'whl_t': wheel_torque, 'w_e': engine_speed, 't_e': engine_torque,
+                           'f_cons (g/kWh)': fuel_consumption * 3.6e9, 'time': time, 'gear': gear})
 
         color_fill = LIGHTBLUE
         color_stroke = GREY
@@ -308,7 +276,7 @@ class GearBoxResults(DessiaObject):
         axis = plot_data.Axis()
 
         attributes = ['c_s', 'f_cons (g/kWh)']
-        tooltip = plot_data.Tooltip(attributes=attributes,)
+        tooltip = plot_data.Tooltip(attributes=attributes, )
         objects = [plot_data.Scatter(tooltip=tooltip, x_variable=attributes[0],
                                      y_variable=attributes[1],
                                      point_style=point_style,
@@ -322,7 +290,7 @@ class GearBoxResults(DessiaObject):
                                          point_style=point_style,
                                          elements=points, axis=axis))
 
-        attributes = ['w_e','t_e','f_cons (g/kWh)']
+        attributes = ['w_e', 't_e', 'f_cons (g/kWh)']
         edge_style = plot_data.EdgeStyle()
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
         objects.append(plot_data.ParallelPlot(elements=points,
@@ -337,7 +305,7 @@ class GearBoxResults(DessiaObject):
                  plot_data.Window(width=500, height=500)]
         multiplot = plot_data.MultiplePlots(elements=points, plots=objects,
                                             sizes=sizes, coords=coords)
-        
+
         list_colors = [BLUE, BROWN, GREEN, BLACK]
         graphs2d = []
         point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK,
@@ -348,7 +316,7 @@ class GearBoxResults(DessiaObject):
                                          color_stroke=list_colors[0])
         elements = []
         for i, gear in enumerate(self.gears):
-            elements.append({'sec': cycle_time[i], 'gear': gear})         
+            elements.append({'sec': cycle_time[i], 'gear': gear})
         dataset = plot_data.Dataset(elements=elements,
                                     edge_style=edge_style,
                                     tooltip=tooltip,
@@ -363,7 +331,7 @@ class GearBoxResults(DessiaObject):
         elements = []
         for i, gear in enumerate(self.gears):
             point = {'sec': cycle_time[i],
-                     'f_cons (g/kWh)': self.fuel_consumptions[i]*3.6e9}
+                     'f_cons (g/kWh)': self.fuel_consumptions[i] * 3.6e9}
             elements.append(point)
         dataset = plot_data.Dataset(elements=elements,
                                     edge_style=edge_style,
@@ -403,74 +371,73 @@ class GearBoxResults(DessiaObject):
                                           x_variable='sec',
                                           y_variable='w_t'))
 
-        coords = [(0, 0), (0,187.5), (0,375), (0,562.5)]
+        coords = [(0, 0), (0, 187.5), (0, 375), (0, 562.5)]
         sizes = [plot_data.Window(width=1500, height=187.5),
                  plot_data.Window(width=1500, height=187.5),
                  plot_data.Window(width=1500, height=187.5),
                  plot_data.Window(width=1500, height=187.5)]
         multiplot2 = plot_data.MultiplePlots(elements=points, plots=graphs2d,
                                              sizes=sizes, coords=coords)
-       
+
         return [multiplot, multiplot2]
 
 
 class GearBoxOptimizer(DessiaObject):
     _standalone_in_db = True
-    
+
     def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,
                  first_gear_ratio_min_max: Tuple[float, float],
-                 coeff_between_gears: List[Tuple[float, float]] = None, 
+                 coeff_between_gears: List[Tuple[float, float]] = None,
                  name: str = ''):
         self.gearbox = gearbox
         self.wltp_cycle = wltp_cycle
         self.coeff_between_gears = coeff_between_gears
         self.first_gear_ratio_min_max = first_gear_ratio_min_max
         DessiaObject.__init__(self, name=name)
-        
+
         if self.coeff_between_gears is None:
-            self.coeff_between_gears = (len(self.gearbox.speed_ranges)-1)*[[0.5,1]]
- 
-        bounds=[]
+            self.coeff_between_gears = (len(self.gearbox.speed_ranges) - 1) * [[0.5, 1]]
+
+        bounds = []
         for i in range(len(self.gearbox.speed_ranges)):
             if i == 0:
                 bounds.append([self.first_gear_ratio_min_max[0],
                                self.first_gear_ratio_min_max[1]])
-            else: 
-                bounds.append([self.coeff_between_gears[i-1][0],
-                               self.coeff_between_gears[i-1][1]])
+            else:
+                bounds.append([self.coeff_between_gears[i - 1][0],
+                               self.coeff_between_gears[i - 1][1]])
         self.bounds = bounds
-  
+
     def objective(self, x):
         self.update(x)
         objective_function = 0
-        
-        objective_function += mean(self.fuel_consumptions) 
-        
+
+        objective_function += mean(self.fuel_consumptions)
+
         for engine_torque in self.engine_torques:
             if engine_torque > max(self.gearbox.engine.efficiency_map.engine_torques):
                 objective_function += 1000
 
-        return objective_function    
-    
+        return objective_function
+
     def update(self, x):
         self.gearbox.update(x)
-        
+
         fuel_consumptions = []
         gears = []
         ratios = []
         engine_speeds = []
         engine_torques = []
-        
-        for (cycle_speed, cycle_torque) in zip(self.wltp_cycle.cycle_speeds, self.wltp_cycle.cycle_torques): 
-            cycle_speed = cycle_speed*2/self.wltp_cycle.tire_radius
+
+        for (cycle_speed, cycle_torque) in zip(self.wltp_cycle.cycle_speeds, self.wltp_cycle.cycle_torques):
+            cycle_speed = cycle_speed * 2 / self.wltp_cycle.tire_radius
             gear_choice = self.gearbox.gear_choice(cycle_speed, cycle_torque)
             gears.append(gear_choice[0])
             ratios.append(gear_choice[1])
             fuel_consumptions.append(gear_choice[2])
             engine_speeds.append(gear_choice[3])
             engine_torques.append(gear_choice[4])
-           
-        
+
         self.engine_speeds = engine_speeds
         self.engine_torques = engine_torques
         self.gears = gears
@@ -480,18 +447,18 @@ class GearBoxOptimizer(DessiaObject):
     def cond_init(self):
         x0 = []
         for interval in self.bounds:
-                x0.append((interval[1]-interval[0])*float(np.random.random(1))+interval[0])
+            x0.append((interval[1] - interval[0]) * float(np.random.random(1)) + interval[0])
         return x0
-    
-    def optimize(self, max_loops:int = 1000): 
+
+    def optimize(self, max_loops: int = 1000):
         valid = True
         count = 0
         list_gearbox_results = []
-        
+
         while valid and count < max_loops:
             x0 = self.cond_init()
             self.update(x0)
-            sol = minimize(self.objective, x0, bounds = self.bounds)
+            sol = minimize(self.objective, x0, bounds=self.bounds)
             count += 1
             if sol.fun < max([j for i in self.gearbox.engine.efficiency_map.bsfc for j in i]) and sol.success:
                 self.average_fuel_consumption = float(sol.fun)
@@ -503,14 +470,14 @@ class GearBoxOptimizer(DessiaObject):
                                                  self.engine_speeds,
                                                  self.engine_torques,
                                                  self.fuel_consumptions,
-                                                 self.gears, 
+                                                 self.gears,
                                                  self.ratios,
-                                                 self.average_fuel_consumption) 
+                                                 self.average_fuel_consumption)
                 list_gearbox_results.append(gearbox_results)
-                
+
         return list_gearbox_results
-    
-    
+
+
 class GearBoxGenerator(DessiaObject):
     _standalone_in_db = True
 
@@ -637,7 +604,8 @@ class GearBoxGenerator(DessiaObject):
                     list_paths_edges.append(paths_edges)
                     list_dict_connections.append(gearbox_connections)
 
-        return list_gearbox_graphs  # , list_paths, list_paths_edges, list_counter_paths_between_2shafts,list_dict_connections
+        return list_gearbox_graphs  # , list_paths, list_paths_edges, list_counter_paths_between_2shafts,
+        # list_dict_connections
 
     def clutch_analisys(self, list_path_generated_graphs):
         new_list_gearbox_graphs = []
@@ -668,15 +636,15 @@ class GearBoxGenerator(DessiaObject):
                         if clutch_combination[i_cycle] == node:
                             if clutch_combination[i_cycle] == cycle[-1]:
                                 dict_clutch_connections[i_cycle + 1] = (
-                                cycle[0], cycle[i_node - 1])
+                                    cycle[0], cycle[i_node - 1])
                                 graph_copy.nodes()[node]['Clutch'] = True
                                 graph_copy.add_edges_from(
                                     [(cycle[0], node, {'Clutch': True}), (
-                                    cycle[i_node - 1], node,
-                                    {'Clutch': True})])
+                                        cycle[i_node - 1], node,
+                                        {'Clutch': True})])
                             else:
                                 dict_clutch_connections[i_cycle + 1] = (
-                                cycle[i_node + 1], cycle[i_node - 1])
+                                    cycle[i_node + 1], cycle[i_node - 1])
                                 graph_copy.nodes()[node]['Clutch'] = True
                                 graph_copy.add_edges_from([(cycle[i_node + 1],
                                                             node,
@@ -843,14 +811,14 @@ class Clustering(DessiaObject):
         self.list_indexes_groups = family_groups[2]
         self.gearboxes_ordered = family_groups[3]
         self.matrix_mds = family_groups[4]
- 
+
     def normalize(self, df):
-        
+
         scaler = MinMaxScaler()
         scaler.fit(df)
         df_scaled = scaler.fit_transform(df)
         return df_scaled
- 
+
     def dbscan(self, df):
         db = DBSCAN(eps=0.7, min_samples=3)
         db.fit(df)
@@ -859,12 +827,12 @@ class Clustering(DessiaObject):
         n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
         print('Estimated number of clusters:', n_clusters)
         return labels, n_clusters
-    
+
     def family_groups(self, df, labels):
         encoding_mds = MDS()
         matrix_mds = [element.tolist() for element in encoding_mds.fit_transform(df)]
         clusters = []
-        list_indexes_groups =[]
+        list_indexes_groups = []
         gearboxes_indexes = []
         index = 0
         cluster_labels_reordered = []
@@ -880,13 +848,13 @@ class Clustering(DessiaObject):
                     index += 1
                     gearboxes_indexes.append(i)
             list_indexes_groups.append(indexes)
-        new_gearboxes_order =[]
+        new_gearboxes_order = []
         new_matrix_mds = []
         for index in gearboxes_indexes:
             new_gearboxes_order.append(self.gearboxes[index])
             new_matrix_mds.append(matrix_mds[index])
         return clusters, cluster_labels_reordered, list_indexes_groups, new_gearboxes_order, new_matrix_mds
-        
+
     def plot_clusters(self):
         colors = [RED, GREEN, ORANGE, BLUE, LIGHTSKYBLUE,
                   ROSE, VIOLET, LIGHTRED, LIGHTGREEN,
@@ -904,13 +872,13 @@ class Clustering(DessiaObject):
                 'Cluster': self.labels_reordered[i]
             }
             all_points.append(point)
-        
+
         point_families = []
         for i, indexes in enumerate(self.list_indexes_groups):
             color = colors[i]
             point_family = plot_data.PointFamily(
                 point_color=color, point_index=indexes,
-                name='Cluster '+str(self.clusters[i])
+                name='Cluster ' + str(self.clusters[i])
             )
             point_families.append(point_family)
 
@@ -950,7 +918,7 @@ class Clustering(DessiaObject):
             reference_path = kwargs['reference_path'] + '/gearboxes_ordered'
         else:
             reference_path = '/gearboxes_ordered'
-        display_ = DisplayObject(type_='plot_data', data=plot, 
+        display_ = DisplayObject(type_='plot_data', data=plot,
                                  reference_path=reference_path)
         displays.append(display_.to_dict())
         return displays

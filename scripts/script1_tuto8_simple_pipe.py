@@ -1,7 +1,8 @@
-import tutorials.tutorial8_simple_pipe as tuto
+import networkx as nx
 import plot_data.core as plot_data
 import volmdlr as vm
-import networkx as nx
+
+import tutorials.tutorial8_simple_pipe as tuto
 
 lx, ly = 0.5, 0.5
 lz = 0.05

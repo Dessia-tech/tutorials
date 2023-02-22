@@ -1,7 +1,6 @@
-from tutorials import pattern_generator
 import plot_data
 
-
+from tutorials import pattern_generator
 
 list_diameters = [0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3]
 excentricity_min_max = (0.6, 0.9)

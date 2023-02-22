@@ -1,6 +1,7 @@
-import tutorials.tutorial4_plot_data as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
+
+import tutorials.tutorial4_plot_data as tuto
 
 # g1 = tuto.Graph(3, 150)
 # pdt = g1.plot_data()

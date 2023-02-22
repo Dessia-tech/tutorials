@@ -1,13 +1,14 @@
+import math
+from itertools import product
+from typing import Dict, List, Tuple
+
+import plot_data.core as plot_data
 import volmdlr as vm
 import volmdlr.primitives2d as p2d
 import volmdlr.primitives3d as p3d
-import plot_data.core as plot_data
-import math
-from itertools import product
-
 from dessia_common.core import DessiaObject, PhysicalObject
-from typing import List, Tuple, Dict
 from plot_data.colors import *
+
 
 class Color(DessiaObject):
     _standalone_in_db = False

@@ -5,11 +5,12 @@ Created on Mon Nov 23 12:36:10 2020
 
 @author: launay
 """
-import tutorials.tutorial1_rivetedassembly as tuto
+import dessia_common.workflow as wf
 import plot_data.core as plot_data
 import volmdlr as vm
 from dessia_api_client.users import PlatformUser
-import dessia_common.workflow as wf
+
+import tutorials.tutorial1_rivetedassembly as tuto
 
 block_generator = wf.InstantiateModel(tuto.Generator, name='Generator')
 

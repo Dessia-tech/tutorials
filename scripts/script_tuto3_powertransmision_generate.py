@@ -8,7 +8,6 @@ Created on Mon Nov 23 11:05:57 2020
 
 import tutorials.tutorial3_powertransmission_generator as objects
 
-
 motor = objects.Motor(diameter=0.1, length=0.2, speed=100)
 generator = objects.Generator(motor=motor, speed_output=500, z_min_max=(4, 30))
 list_reductor = generator.generate()

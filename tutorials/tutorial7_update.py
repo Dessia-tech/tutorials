@@ -1,14 +1,14 @@
-import volmdlr as vm
-import volmdlr.primitives2d as p2d
-import volmdlr.primitives3d as p3d
-import plot_data.core as plot_data
 import math
 from itertools import product
 from random import random
-import cma
-
-from dessia_common.core import DessiaObject
 from typing import List
+
+import cma
+import plot_data.core as plot_data
+import volmdlr as vm
+import volmdlr.primitives2d as p2d
+import volmdlr.primitives3d as p3d
+from dessia_common.core import DessiaObject
 
 
 class Component(DessiaObject):

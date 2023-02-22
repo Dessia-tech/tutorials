@@ -1,6 +1,7 @@
-import tutorials.tutorial1_rivetedassembly as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
+
+import tutorials.tutorial1_rivetedassembly as tuto
 
 p1 = tuto.Panel(1, 1, 0.01, color=tuto.Color(1, 0, 0), alpha = 0.3)
 p2 = tuto.Panel(1.1, 1, 0.01, color=tuto.Color(1, 1, 0), alpha = 0.3)

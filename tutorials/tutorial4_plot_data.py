@@ -1,11 +1,11 @@
-import volmdlr as vm
-import plot_data.core as plot_data
 import math
-from plot_data.colors import *
-
-from dessia_common.core import DessiaObject
-from typing import List
 import random
+from typing import List
+
+import plot_data.core as plot_data
+import volmdlr as vm
+from dessia_common.core import DessiaObject
+from plot_data.colors import *
 
 
 class Graphs(DessiaObject):

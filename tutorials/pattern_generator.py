@@ -1,15 +1,16 @@
-import volmdlr
-
-from dessia_common.core import DessiaObject
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import math
-import volmdlr.wires as vmw
-import volmdlr.edges as vme
 from typing import List, Tuple
-import plot_data
-from plot_data.colors import BLACK, CYAN
+
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 import numpy as np
+import plot_data
+import volmdlr
+import volmdlr.edges as vme
+import volmdlr.wires as vmw
+from dessia_common.core import DessiaObject
+from plot_data.colors import BLACK, CYAN
+
 # from scipy.optimize import bisect
 
 

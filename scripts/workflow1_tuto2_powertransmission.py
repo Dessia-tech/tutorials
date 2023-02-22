@@ -7,12 +7,13 @@ Created on Mon Nov 23 12:36:10 2020
 """
 
 
-import tutorials.tutorial2_powertransmission as objects
-from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, MultiPlot
-from dessia_common.workflow.core import Workflow, Pipe
-from dessia_common.typings import MethodType
 import plot_data
+from dessia_common.typings import MethodType
+from dessia_common.workflow.blocks import (InstantiateModel, ModelMethod,
+                                           MultiPlot)
+from dessia_common.workflow.core import Pipe, Workflow
 
+import tutorials.tutorial2_powertransmission as objects
 
 block_optimizer = InstantiateModel(objects.Optimizer, name='Optimizer')
 block_optimize = ModelMethod(method_type=MethodType(objects.Optimizer, 'optimize'), name='Optimize')

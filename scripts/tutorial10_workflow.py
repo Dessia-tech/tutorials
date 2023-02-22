@@ -5,15 +5,17 @@ Created on Tue May 18 13:11:55 2021
 
 @author: dasilva
 """
-import plot_data
-
-import tutorials.tutorial10 as objects
-from dessia_common.workflow.core import Workflow, Pipe, WorkflowRun
-from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, Display
+import json
 
 # from dessia_api_client import Client
 import numpy as np
+import plot_data
 from dessia_common.typings import MethodType
+from dessia_common.workflow.blocks import (Display, InstantiateModel,
+                                           ModelMethod)
+from dessia_common.workflow.core import Pipe, Workflow, WorkflowRun
+
+import tutorials.tutorial10 as objects
 
 block_generator = InstantiateModel(objects.GearBoxGenerator, name='Gearbox Generator')
 block_generate = ModelMethod(MethodType(class_=objects.GearBoxGenerator, name='generate'), name='Generate')
@@ -102,8 +104,8 @@ workflow_run = workflow.run(input_values)
 
 
 d1 = workflow_run.to_dict()
-obj = WorkflowRun.dict_to_object(d1)
-import json
+obj = workflow_run.dict_to_object(d1)
+
 
 object1 = json.dumps(d1)
 object2 = json.loads(object1)

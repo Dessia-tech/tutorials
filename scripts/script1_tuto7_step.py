@@ -8,7 +8,6 @@ import volmdlr as vm
 import volmdlr.step
 import volmdlr.step as STEP
 
-
 # step = STEP.Step('export_bis.stp')
 # model = step.to_volume_model()
 # print(model.primitives)

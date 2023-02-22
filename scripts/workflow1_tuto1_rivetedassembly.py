@@ -5,13 +5,14 @@ Created on Mon Nov 23 12:36:10 2020
 
 @author: launay
 """
-import tutorials.tutorial1_rivetedassembly as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
 from dessia_api_client.users import PlatformUser
-from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, MethodType, MultiPlot
-from dessia_common.workflow.core import Workflow, Pipe
+from dessia_common.workflow.blocks import (InstantiateModel, MethodType,
+                                           ModelMethod, MultiPlot)
+from dessia_common.workflow.core import Pipe, Workflow
 
+import tutorials.tutorial1_rivetedassembly as tuto
 
 block_generator = InstantiateModel(tuto.Generator, name='Generator')
 

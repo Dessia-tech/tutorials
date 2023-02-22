@@ -4,9 +4,11 @@ Created on Thu Mar  4 11:29:57 2021
 
 @author: wiraj
 """
-import tutorials.tutorial9_simple_3ratios_gearbox as objects
 import numpy as np
 import plot_data
+
+import tutorials.tutorial9_simple_3ratios_gearbox as objects
+
 # from dessia_api_client import Client
 
 """

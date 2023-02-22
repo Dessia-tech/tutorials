@@ -5,19 +5,19 @@ Created on Sun Sep 29 21:32:30 2019
 
 @author: jezequel
 """
-import matplotlib.pyplot as plt
-from matplotlib import patches
+import copy
 import math
+from typing import List, Tuple
+
+import dectree as dt
+import matplotlib.pyplot as plt
+import numpy as npy
+import plot_data
 import volmdlr as vm
 import volmdlr.primitives3d as p3d
 from dessia_common.core import DessiaObject, PhysicalObject
-from typing import List, Tuple
-import numpy as npy
+from matplotlib import patches
 from scipy.optimize import minimize
-import copy
-import dectree as dt
-import plot_data
-
 
 # =============================================================================
 

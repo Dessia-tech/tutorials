@@ -5,15 +5,15 @@ Created on Mon Mar 29 11:52:37 2021
 
 @author: dasilva
 """
-import plot_data.core as plot_data
-
-import tutorials.tutorial9_simple_3ratios_gearbox as objects
-from dessia_common.workflow.core import Workflow, Pipe
-from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, MultiPlot
-
 # from dessia_api_client import Client
 import numpy as np
+import plot_data.core as plot_data
 from dessia_common.typings import MethodType
+from dessia_common.workflow.blocks import (InstantiateModel, ModelMethod,
+                                           MultiPlot)
+from dessia_common.workflow.core import Pipe, Workflow
+
+import tutorials.tutorial9_simple_3ratios_gearbox as objects
 
 block_optimizer = InstantiateModel(objects.GearBoxOptimizer, name="Gearbox Optimizer")
 method_optimize = ModelMethod(

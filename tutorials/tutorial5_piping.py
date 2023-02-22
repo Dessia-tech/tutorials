@@ -1,11 +1,11 @@
-import volmdlr as vm
-import volmdlr.primitives3d as p3d
 from random import random
-import cma
-import volmdlr.faces
-
-from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List
+
+import cma
+import volmdlr as vm
+import volmdlr.faces
+import volmdlr.primitives3d as p3d
+from dessia_common.core import DessiaObject, PhysicalObject
 
 
 class Housing(PhysicalObject):
