@@ -176,6 +176,7 @@ class Generator(DessiaObject):
                         count += 1
 
                 if max_iter is not None and count == max_iter:
-                    return solutions
+                    return sorted(solutions, key=lambda x: x.price,
+                                  reverse=True)
 
-        return solutions
+        return sorted(solutions, key=lambda x: x.price, reverse=True)
