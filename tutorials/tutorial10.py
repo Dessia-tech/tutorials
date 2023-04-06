@@ -7,7 +7,7 @@ Created on Tue Mar  2 13:30:58 2021
 """
 
 from dessia_common.core import DessiaObject, DisplayObject
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 import numpy as np
 from scipy.optimize import minimize
 from scipy.interpolate import interp2d
@@ -39,7 +39,7 @@ class EfficiencyMap(DessiaObject):
         self.mass_flow_rate = mass_flow_rate
         self.fuel_hv = fuel_hv  # fuel lower heating value in J/kg
 
-        DessiaObject.__init__(self,name=name)
+        DessiaObject.__init__(self, name=name)
 
         BSFC = []
         for i, engine_speed in enumerate(self.engine_speeds):
@@ -229,12 +229,9 @@ class GearBox(DessiaObject):
                 edges.append(edge)
         return [plot_data.graph.NetworkxGraph(gearbox_graph)]
 
-    def to_dict(self, use_pointers: bool = True, memo=None, path: str = '#'):
-        """
-        Export dictionary
-        """
-        d = {}
-        d['engine'] = self.engine.to_dict()
+    def to_dict(self, use_pointers: bool = True, memo=None, path: str = "#", id_method=True, id_memo=None):
+        d = super().to_dict(use_pointers=use_pointers, memo=memo, path=path, id_method=id_method, id_memo=id_memo)
+
         d['speed_ranges'] = self.speed_ranges
         d['ratios'] = self.ratios
         d['average_path_length'] = self.average_path_length
@@ -252,19 +249,28 @@ class GearBox(DessiaObject):
         return d
 
     @classmethod
-    def dict_to_object(cls, d):
-        obj = cls(engine=Engine.dict_to_object(d['engine']),
-                  speed_ranges=d['speed_ranges'],
-                  ratios=d['ratios'], name=d['name'])
-        obj.graph = nx.readwrite.json_graph.node_link_graph(d['graph'])
-        obj.average_clutch_distance = d['average_clutch_distance']
-        obj.average_path_length = d['average_path_length']
-        obj.number_gears = d['number_gears']
-        obj.number_shafts = d['number_shafts']
-        obj.std_clutch_distance = d['Standard deviation distante input/cluches']
-        obj.std_gears_distance = d['Standard deviation distante input/gears']
-        obj.density = d['Density']
-        obj.ave_l_ns = d['ave_l_ns']
+    def dict_to_object(
+            cls,
+            dict_,
+            force_generic: bool = False,
+            global_dict=None,
+            pointers_memo: Dict[str, Any] = None,
+            path: str = "#",):
+        if pointers_memo is None:
+            pointers_memo = {}
+
+        obj = super().dict_to_object(
+            dict_=dict_, force_generic=True, global_dict=global_dict, pointers_memo=pointers_memo, path=path)
+
+        obj.graph = nx.readwrite.json_graph.node_link_graph(dict_['graph'])
+        obj.average_clutch_distance = dict_['average_clutch_distance']
+        obj.average_path_length = dict_['average_path_length']
+        obj.number_gears = dict_['number_gears']
+        obj.number_shafts = dict_['number_shafts']
+        obj.std_clutch_distance = dict_['Standard deviation distante input/cluches']
+        obj.std_gears_distance = dict_['Standard deviation distante input/gears']
+        obj.density = dict_['Density']
+        obj.ave_l_ns = dict_['ave_l_ns']
         return obj
 
 
@@ -887,7 +893,7 @@ class Clustering(DessiaObject):
             new_matrix_mds.append(matrix_mds[index])
         return clusters, cluster_labels_reordered, list_indexes_groups, new_gearboxes_order, new_matrix_mds
         
-    def plot_clusters(self):
+    def plot_data(self, reference_path: str = "#", **kwargs):
         colors = [RED, GREEN, ORANGE, BLUE, LIGHTSKYBLUE,
                   ROSE, VIOLET, LIGHTRED, LIGHTGREEN,
                   CYAN, BROWN, GREY, HINT_OF_MINT, GRAVEL]
@@ -941,10 +947,10 @@ class Clustering(DessiaObject):
                                            sizes=sizes, elements=all_points,
                                            point_families=point_families,
                                            initial_view_on=True)
-        return clusters
+        return [clusters]
 
     def _displays(self, **kwargs):
-        plot = self.plot_clusters()
+        plot = self.plot_data()
         displays = []
         if 'reference_path' in kwargs:
             reference_path = kwargs['reference_path'] + '/gearboxes_ordered'

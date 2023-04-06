@@ -9,7 +9,7 @@ import plot_data
 
 import tutorials.tutorial10 as objects
 from dessia_common.workflow.core import Workflow, Pipe, WorkflowRun
-from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, Display
+from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, PlotData
 
 # from dessia_api_client import Client
 import numpy as np
@@ -22,7 +22,7 @@ block_engine = InstantiateModel(objects.Engine, name='Engine')
 block_gearbox = InstantiateModel(objects.GearBox, name='Gearbox')
 block_cluster = InstantiateModel(objects.Clustering, name='Clustering')
 
-display = Display(name='Display')
+display = PlotData(name='Display')
 
 block_workflow = [block_generator, block_generate, block_gearbox, block_engine, block_efficiencymap,
                   block_cluster,
