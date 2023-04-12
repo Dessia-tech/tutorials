@@ -6,8 +6,8 @@ Created on Tue Mar  2 13:30:58 2021
 @author: wirajan
 """
 
-from dessia_common import DessiaObject
-from typing import List,Tuple
+from dessia_common.core import DessiaObject
+from typing import List, Tuple
 import numpy as np
 from scipy.optimize import minimize
 from scipy.interpolate import interp2d

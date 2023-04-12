@@ -6,8 +6,8 @@ Created on Tue Mar  2 13:30:58 2021
 @author: wirajan
 """
 
-from dessia_common import DessiaObject, DisplayObject
-from typing import List,Tuple
+from dessia_common.core import DessiaObject, DisplayObject
+from typing import List, Tuple
 import numpy as np
 from scipy.optimize import minimize
 from scipy.interpolate import interp2d
@@ -124,8 +124,8 @@ class GearBox(DessiaObject):
         self.engine = engine
         self.speed_ranges = speed_ranges
         self.ratios = ratios
-        DessiaObject.__init__(self, name=name)
-        self.graph = None
+
+        self.graph = nx.Graph()
         self.average_path_length = None
         self.average_clutch_distance = None
         self.number_shafts = None
@@ -134,6 +134,7 @@ class GearBox(DessiaObject):
         self.std_gears_distance = None
         self.density = None
         self.ave_l_ns = None
+        DessiaObject.__init__(self, name=name)
 
     def update_gb_graph(self, graph):
         self.graph = graph
@@ -228,7 +229,7 @@ class GearBox(DessiaObject):
                 edges.append(edge)
         return [plot_data.graph.NetworkxGraph(gearbox_graph)]
 
-    def to_dict(self, subobjects_id={}):
+    def to_dict(self, use_pointers: bool = True, memo=None, path: str = '#'):
         """
         Export dictionary
         """
@@ -818,6 +819,7 @@ class GearBoxGenerator(DessiaObject):
 
 class Clustering(DessiaObject):
     standalone_in_db = True
+    _non_serializable_attributes = ['df']
 
     def __init__(self, gearboxes: List[GearBox], name: str = ""):
         self.gearboxes = gearboxes

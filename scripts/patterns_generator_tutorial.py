@@ -5,7 +5,7 @@ import plot_data
 
 list_diameters = [0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3]
 excentricity_min_max = (0.6, 0.9)
-diameter_percetage_clearence_min_max = (0.1, 0.6)
+diameter_percetage_clearence_min_max = (0.3, 0.3)
 MINOR_AXIS_SIZE_IN_MM = 1
 pattern_generator = pattern_generator.PatternGenerator(MINOR_AXIS_SIZE_IN_MM,
                                                        list_diameters,
@@ -15,7 +15,7 @@ pattern_generator = pattern_generator.PatternGenerator(MINOR_AXIS_SIZE_IN_MM,
 list_patterns = pattern_generator.generate()
 
 primitive_group_container_plots = []
-for pattern in list_patterns[:50]:
+for pattern in list_patterns[:1]:
     primitive_group_container_plots.append(pattern.plot_data())
 
 primitive_group_container = plot_data.PrimitiveGroupsContainer(
