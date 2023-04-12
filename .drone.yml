@@ -9,7 +9,7 @@ steps:
   commands:
   - git fetch --tags
   - python setup.py install
-  - python scripts/ci_scripts.py
+  - python tests.py
 
 - name: weekly install, build doc run scripts
   image: python:3.8

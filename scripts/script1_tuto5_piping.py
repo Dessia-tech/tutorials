@@ -1,5 +1,4 @@
 import tutorials.tutorial5_piping as tuto
-import plot_data.core as plot_data
 import volmdlr as vm
 
 f1 = vm.Frame3D(vm.Point3D(0.05, 0.1, 0), vm.Vector3D(1, 0, 0), vm.Vector3D(0, 1, 0), vm.Vector3D(0, 0, 1))
