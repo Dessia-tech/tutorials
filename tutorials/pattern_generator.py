@@ -1,15 +1,17 @@
-import volmdlr
-
-from dessia_common.core import DessiaObject
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import math
-import volmdlr.wires as vmw
-import volmdlr.edges as vme
 from typing import List, Tuple
-import plot_data
-from plot_data.colors import BLACK, CYAN
+
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 import numpy as np
+import plot_data
+import volmdlr
+import volmdlr.edges as vme
+import volmdlr.wires as vmw
+from dessia_common.core import DessiaObject
+from plot_data.colors import BLACK, CYAN
+
+
 # from scipy.optimize import bisect
 
 
@@ -21,6 +23,7 @@ class Piece(DessiaObject):
     _non_hash_attributes = ['name']
 
     """Peace used in the pattern"""
+
     def __init__(self, position: volmdlr.Point2D,
                  diameter: float, name: str = ''):
 
@@ -47,7 +50,7 @@ class Piece(DessiaObject):
         if ax is None:
             _, ax = plt.subplots()
             ax.set_aspect('equal')
-        rayon = self.diameter/2.
+        rayon = self.diameter / 2.
         circle = patches.Circle((self.position.x, self.position.y),
                                 rayon, color=color, fill=False)
         ax.add_patch(circle)
@@ -65,7 +68,7 @@ class Piece(DessiaObject):
             surface_style = plot_data.SurfaceStyle(color_fill=CYAN)
         return plot_data.Circle2D(cx=self.position.x,
                                   cy=self.position.y,
-                                  r=self.diameter/2,
+                                  r=self.diameter / 2,
                                   edge_style=edge_style,
                                   surface_style=surface_style)
 
@@ -77,6 +80,7 @@ class Pattern(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
     """defines a pattern on an elipse format"""
+
     def __init__(self, minor_axis_size_in_mm: float,
                  excentricity: float = None,
                  clearence: float = None,
@@ -184,7 +188,7 @@ class Pattern(DessiaObject):
         """
         contour_length = self.get_elipse_interpolation().length()
         return int(contour_length / (piece_diameter + self.clearence))
-    
+
     def get_elipse_interpolation(self):
         """
         Calculates the interpolation of an elipse
@@ -208,12 +212,11 @@ class Pattern(DessiaObject):
         """
         list_pieces = []
         contour = self.get_elipse_interpolation()
-        piece_points = contour.discretization_points(piece_diameter +
-                                                     self.clearence)
+        piece_points = contour.discretization_points(angle_resolution=piece_diameter + self.clearence)
         for point in piece_points:
             list_pieces.append(Piece(point, piece_diameter))
         list_pieces += Pattern.get_mirrored_pieces(list_pieces,
-                                                            volmdlr.X2D,)
+                                                   volmdlr.X2D, )
         return list_pieces
 
     @staticmethod
@@ -256,6 +259,7 @@ class PatternGenerator(DessiaObject):
     _non_eq_attributes = ['name']
     _non_hash_attributes = ['name']
     """Responsable for Generating Patterns"""
+
     def __init__(self, minor_axis_size_in_mm: float,
                  diameters: List[float],
                  excentricity_min_max: Tuple[float, float],
@@ -274,8 +278,6 @@ class PatternGenerator(DessiaObject):
         self._utd_arclength = False
         self._utd_major_axis = False
         DessiaObject.__init__(self, name=name)
-
-    
 
     # def orbital_piece_coordinates(self, phi):
     #     x_coordinate = (self.minor_axis_size_in_mm / 2) * math.sin(phi)
@@ -317,8 +319,8 @@ class PatternGenerator(DessiaObject):
         list_patterns = []
         for piece_diameter in self.diameters:
             clearence_min_max = [
-                piece_diameter*self.diameter_percetage_clearence_min_max[0],
-                piece_diameter*self.diameter_percetage_clearence_min_max[1]]
+                piece_diameter * self.diameter_percetage_clearence_min_max[0],
+                piece_diameter * self.diameter_percetage_clearence_min_max[1]]
             for excentricity in np.linspace(self.excentricity_min_max[0],
                                             self.excentricity_min_max[1], 7):
                 for clearence in np.linspace(clearence_min_max[0],
