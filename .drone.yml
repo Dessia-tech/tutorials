@@ -16,7 +16,7 @@ steps:
   commands:
   - git fetch --tags
   - python setup.py install
-  - python tests.py
+  - python scripts/tests.py
   when:
     event:
       - cron
