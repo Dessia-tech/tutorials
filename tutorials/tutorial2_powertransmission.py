@@ -34,7 +34,7 @@ class Shaft(PhysicalObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
-        circle = vm.wires.Circle2D(center=center, radius=self.diameter / 2)
+        circle = vm.curves.Circle2D(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
@@ -69,7 +69,7 @@ class Motor(PhysicalObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
-        circle = vm.wires.Circle2D(center=center, radius=self.diameter/2)
+        circle = vm.curves.Circle2D(center=center, radius=self.diameter/2)
         plot_datas.append(circle.plot_data())
 
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
@@ -98,7 +98,7 @@ class Gear(PhysicalObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.shaft.pos_x, self.shaft.pos_y)
-        circle = vm.wires.Circle2D(center=center, radius=self.diameter / 2)
+        circle = vm.curves.Circle2D(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
