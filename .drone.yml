@@ -5,14 +5,14 @@ name: default
 
 steps:
 - name: install, build doc run scripts
-  image: python:3.8
+  image: python:3.9
   commands:
   - git fetch --tags
   - python setup.py install
   - python tests.py
 
 - name: weekly install, build doc run scripts
-  image: python:3.8
+  image: python:3.9
   commands:
   - git fetch --tags
   - python setup.py install
