@@ -90,7 +90,8 @@ class Piping(DessiaObject):
 
     def generate_sweep(self, points: List[vm.Point3D],
                        color=(248/255, 205/255, 70/255), alpha=0.8):
-        contour = vm.wires.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
+        circle = vm.curves.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
+        contour = vm.wires.Contour2D(circle.split_at_abscissa(circle.length() * .5))
         rl = self.genere_neutral_fiber(points)
         # contour = vm.wires.Contour2D([c])
         sweep = p3d.Sweep(contour, rl, color=color, alpha=alpha, name='piping')
