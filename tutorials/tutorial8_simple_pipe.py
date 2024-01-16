@@ -75,7 +75,8 @@ class Piping(DessiaObject):
         return rl
 
     def generate_sweep(self, color=(248 / 255, 205 / 255, 70 / 255), alpha=0.8):
-        contour = vm.wires.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
+        circle = vm.curves.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
+        contour = vm.wires.Contour2D(circle.split_at_abscissa(circle.length() * .5))
         points = []
         for l in self.routes:
             if l.start not in points:

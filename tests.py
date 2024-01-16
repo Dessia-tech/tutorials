@@ -1,8 +1,12 @@
-
 import os
 
 for script_name in os.listdir('scripts'):
     if script_name.endswith('.py'):
         script = os.path.join('scripts', script_name)
         print('\n## Executing script {}'.format(script))
-        exec(open(script).read())
+
+        try:
+            exec(open(script).read())
+        except Exception as e:
+            print('Error executing script {}: {}'.format(script, e))
+

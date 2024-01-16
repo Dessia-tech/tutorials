@@ -114,10 +114,30 @@ class PanelCombination(PhysicalObject):
 
     def intersection_area(self):
         c1 = self.panels[0].contour()
-        c2 = self.panels[1].contour()
-        c2 = c2.translation(self.grids[1])
-        sol = c1.cut_by_linesegments(c2.primitives)
-        return sol
+        c2 = self.panels[1].contour().translation(self.grids[1])
+
+        cut_lines = [cut_ls.line for cut_ls in c2.primitives]
+
+        contour_to_cut = [c1]
+        for line in cut_lines:
+            new_contour_to_cut = []
+            for contour in contour_to_cut:
+                new_contour_to_cut.extend(contour.cut_by_line(line))
+            contour_to_cut = new_contour_to_cut[:]
+
+        p1 = c2.center_of_mass()
+        dist_min = math.inf
+        c_opti = None
+
+        for contour in contour_to_cut:
+            if contour.area() > 1e-10:
+                p0 = contour.center_of_mass()
+                distance = p0.point_distance(p1)
+                if distance < dist_min:
+                    c_opti = contour
+                    dist_min = distance
+
+        return c_opti
 
     def hole(self, rivet_position: List[vm.Point2D], diameter):
         dir1, dir2 = vm.X3D, vm.Y3D
@@ -299,7 +319,7 @@ class PanelAssembly(PhysicalObject):
         diameter = self.rivet.rivet_diameter
         circles = []
         for grid in self.grids:
-            circles.append(vm.wires.Circle2D(grid, diameter))
+            circles.append(vm.curves.Circle2D(grid, diameter))
         return circles
 
     def plot_data(self):
