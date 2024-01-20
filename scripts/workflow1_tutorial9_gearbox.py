@@ -34,7 +34,7 @@ list_attribute = [
     "ratio_max",
     "average_ratio",
 ]
-display = MultiPlot(list_attribute, order=1, name="Display")
+display = MultiPlot(selector_name="MultiPlot", attributes=list_attribute, name="Display")
 
 block_workflow = [
     block_optimizer,
