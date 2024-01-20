@@ -24,7 +24,7 @@ block_instanciate = ModelMethod(method_type=MethodType(objects.InstanciateReduct
 block_motor = InstantiateModel(objects.Motor, name='Motor')
 
 list_attribute1 = ['mass_reductor', 'number_solution']
-display_reductor = MultiPlot(list_attribute1, 1, name='Display Reductor')
+display_reductor = MultiPlot(selector_name="Multiplot", attributes=list_attribute1, name='Display Reductor')
 
 block_workflow = [block_optimizer, block_optimize, block_instanciate_reductor,
                   block_instanciate, block_motor, display_reductor]
