@@ -7,6 +7,8 @@ from itertools import product
 
 from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List, Tuple, Dict
+
+from dessia_common.decorators import plot_data_view
 from plot_data.colors import *
 
 class Color(DessiaObject):
@@ -66,9 +68,11 @@ class Panel(PhysicalObject):
         else:
             color = self.color.to_tuple()
         contour = self.contour()
-        dir3 = dir1.cross(dir2)
-        profile = p3d.ExtrudedProfile(center, dir1, dir2, contour, [], self.thickness * dir3,
-                                      name='extrusion', color=color, alpha=self.alpha)
+        profile = p3d.ExtrudedProfile(frame=vm.Frame3D(center, u=dir1, v=dir2, w=vm.X3D),
+                                                outer_contour2d=contour, inner_contours2d=[],
+                                                extrusion_length=self.thickness,
+                                                name='extrusion', color=color, alpha=self.alpha)
+
         return [profile]
 
     def plot_data(self):
@@ -106,7 +110,7 @@ class PanelCombination(PhysicalObject):
 
         for panel, grid in zip(self.panels, self.grids):
             c = panel.contour()
-            contour = c.translation(grid)
+            contour = c.translation(vm.Vector2D(grid[0], grid[1]))
             plot_datas.append(contour.plot_data(edge_style=edge_style, surface_style=surface_style))
         contour_inter = self.intersection_area()
         plot_datas.append(contour_inter.plot_data(edge_style=edge_style, surface_style=plot_data.SurfaceStyle()))
@@ -114,7 +118,7 @@ class PanelCombination(PhysicalObject):
 
     def intersection_area(self):
         c1 = self.panels[0].contour()
-        c2 = self.panels[1].contour().translation(self.grids[1])
+        c2 = self.panels[1].contour().translation(vm.Vector2D(self.grids[1][0], self.grids[1][0]))
 
         cut_lines = [cut_ls.line for cut_ls in c2.primitives]
 
@@ -218,11 +222,24 @@ class Rivet(PhysicalObject):
 
     def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
         contour = self.contour(full_contour=False)
-        axis.normalize()
+        axis.unit_vector()
         y = axis.random_unit_normal_vector()
         z = axis.cross(y)
-        irc = p3d.RevolvedProfile(center, axis, z, contour, center,
-                                  axis, angle=2 * math.pi, name='Rivet')
+
+        revolution_frame = vm.Frame3D(
+            origin=vm.Point3D(*tuple(center)),
+            u=axis,
+            v=y,
+            w=z,
+        )
+        irc = vm.primitives3d.RevolvedProfile(
+            frame=revolution_frame,
+            contour2d=contour,
+            axis_point=vm.Point3D(*tuple(center)),
+            axis=axis,
+            angle=2 * math.pi,
+            name='Rivet'
+        )
         return [irc]
 
     def plot_data(self, full_contour=True):
@@ -319,7 +336,8 @@ class PanelAssembly(PhysicalObject):
         diameter = self.rivet.rivet_diameter
         circles = []
         for grid in self.grids:
-            circles.append(vm.curves.Circle2D(grid, diameter))
+            frame = vm.Frame2D(vm.Point2D(0, 0), vm.Vector2D(0, grid[0]), vm.Vector2D(0, grid[1]))
+            circles.append(vm.curves.Circle2D(frame, diameter))
         return circles
 
     def plot_data(self):
@@ -356,7 +374,7 @@ class PanelAssembly(PhysicalObject):
     def volmdlr_primitives(self):
         pan_vm = self.panel_combination.volmdlr_primitives()
         primitives = pan_vm
-        center, dir1, dir2 = pan_vm[0].plane_origin, pan_vm[0].x, pan_vm[0].y
+        center, dir1, dir2 = pan_vm[0].frame.origin, pan_vm[0].frame.u, pan_vm[0].frame.v
         thickness = vm.O3D + 2*pan_vm[0].extrusion_vector
 
         for grid in self.grids:

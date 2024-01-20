@@ -9,4 +9,5 @@ for script_name in os.listdir('scripts'):
             exec(open(script).read())
         except Exception as e:
             print('Error executing script {}: {}'.format(script, e))
+            raise e
 
