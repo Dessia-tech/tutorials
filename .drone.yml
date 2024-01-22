@@ -8,6 +8,7 @@ steps:
   image: python:3.9
   commands:
   - git fetch --tags
+  - bash install_deps.sh
   - python setup.py install
   - python tests.py
 
