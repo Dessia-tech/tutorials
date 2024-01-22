@@ -5,9 +5,10 @@ for script_name in os.listdir('scripts'):
         script = os.path.join('scripts', script_name)
         print('\n## Executing script {}'.format(script))
 
-        try:
-            exec(open(script).read())
-        except Exception as e:
-            print('Error executing script {}: {}'.format(script, e))
-            raise e
+        with open(script, "r") as script_file:
+            try:
+                exec(script_file.read())
+            except Exception as e:
+                print('Error executing script {}: {}'.format(script, e))
+                raise e
 
