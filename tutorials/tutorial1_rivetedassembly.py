@@ -336,8 +336,7 @@ class PanelAssembly(PhysicalObject):
         diameter = self.rivet.rivet_diameter
         circles = []
         for grid in self.grids:
-            frame = vm.Frame2D(vm.Point2D(0, 0), vm.Vector2D(0, grid[0]), vm.Vector2D(0, grid[1]))
-            circles.append(vm.curves.Circle2D(frame, diameter))
+            circles.append(vm.curves.Circle2D.from_center_and_radius(grid, diameter))
         return circles
 
     def plot_data(self):
