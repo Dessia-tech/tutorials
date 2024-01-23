@@ -14,7 +14,7 @@ block_generate = ModelMethod(MethodType(class_=patterns.PatternGenerator,
 
 list_attribute = ['minor_axis_size_in_mm', 'excentricity',
                   'clearence', 'piece_diameter']
-display = MultiPlot(list_attribute, order=1, name='Display')
+display = MultiPlot(selector_name="MultiPlot", attributes=list_attribute, name='Display')
 
 # display = Display(name='Display')
 

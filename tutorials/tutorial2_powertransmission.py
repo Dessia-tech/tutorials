@@ -34,7 +34,7 @@ class Shaft(PhysicalObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
-        circle = vm.curves.Circle2D(center=center, radius=self.diameter / 2)
+        circle = vm.curves.Circle2D.from_center_and_radius(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
@@ -43,7 +43,7 @@ class Shaft(PhysicalObject):
         primitives = []
         pos = vm.Point3D(self.pos_x, self.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder(pos, axis, self.diameter/2, self.length)
+        cylinder = p3d.Cylinder.from_center_point_and_axis(pos, axis, self.diameter/2, self.length)
         primitives.append(cylinder)
         return primitives
 
@@ -69,7 +69,7 @@ class Motor(PhysicalObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
-        circle = vm.curves.Circle2D(center=center, radius=self.diameter/2)
+        circle = vm.curves.Circle2D.from_center_and_radius(center=center, radius=self.diameter/2)
         plot_datas.append(circle.plot_data())
 
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
@@ -78,7 +78,7 @@ class Motor(PhysicalObject):
         primitives = []
         pos = vm.Point3D(self.pos_x, self.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder(pos, axis, self.diameter/2, self.length)
+        cylinder = p3d.Cylinder.from_center_point_and_axis(pos, axis, self.diameter/2, self.length)
         primitives.append(cylinder)
         return primitives
 
@@ -98,7 +98,7 @@ class Gear(PhysicalObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.shaft.pos_x, self.shaft.pos_y)
-        circle = vm.curves.Circle2D(center=center, radius=self.diameter / 2)
+        circle = vm.curves.Circle2D.from_center_and_radius(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
@@ -107,7 +107,7 @@ class Gear(PhysicalObject):
         primitives = []
         pos = vm.Point3D(self.shaft.pos_x, self.shaft.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder(pos, axis, self.diameter/2, self.length)
+        cylinder = p3d.Cylinder.from_center_point_and_axis(pos, axis, self.diameter/2, self.length)
         primitives.append(cylinder)
         return primitives
 

@@ -88,7 +88,7 @@ block_optimizer = InstantiateModel(tuto.Optimizer, name='Optimizer')
 block_optimize = ModelMethod(method_type=MethodType(tuto.Optimizer, 'optimize'), name='Optimize')
 
 list_attribute1 = ['length', 'min_radius', 'max_radius', 'distance_input', 'straight_line']
-display_reductor = MultiPlot(list_attribute1, 1, name='Display')
+display_reductor = MultiPlot(selector_name="Multiplot", attributes=list_attribute1, name='Display')
 
 block_workflow = [block_optimizer, block_optimize, display_reductor]
 

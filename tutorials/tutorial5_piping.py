@@ -59,10 +59,10 @@ class Piping(DessiaObject):
 
     def update_waypoints(self, new_points: List[vm.Point3D]):
         direction_start = self.direction_start.copy()
-        direction_start.normalize()
+        direction_start.unit_vector()
         pt_start_connector = self.start + self.length_connector*direction_start
         direction_end = self.direction_end.copy()
-        direction_end.normalize()
+        direction_end.unit_vector()
         pt_end_connector = self.end + self.length_connector * direction_end
 
         start_wpts = [self.start, pt_start_connector]
@@ -90,7 +90,7 @@ class Piping(DessiaObject):
 
     def generate_sweep(self, points: List[vm.Point3D],
                        color=(248/255, 205/255, 70/255), alpha=0.8):
-        circle = vm.curves.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
+        circle = vm.curves.Circle2D.from_center_and_radius(vm.Point2D(0, 0), self.diameter / 2)
         contour = vm.wires.Contour2D(circle.split_at_abscissa(circle.length() * .5))
         rl = self.genere_neutral_fiber(points)
         # contour = vm.wires.Contour2D([c])
