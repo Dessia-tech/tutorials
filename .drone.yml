@@ -21,6 +21,9 @@ steps:
   when:
     event:
       - cron
+    cron:
+      - "0 7 * * 1"  # Run every Monday at 7 AM
+
 
 - name: notify by email
   when:
