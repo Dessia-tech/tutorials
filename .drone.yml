@@ -22,13 +22,14 @@ steps:
     event:
       - cron
     cron:
-      - "0 7 * * 1"  # Run every Monday at 7 AM
+      - "0 * * * *"  # Run every hour
+#      - "0 7 * * 1"  # Run every Monday at 7 AM
 
 
 - name: notify by email
-  when:
-    status:
-    - failure
+  # when:
+    # status:
+    # - failure
   image: drillster/drone-email
   settings:
     host: mail.dessia.tech
