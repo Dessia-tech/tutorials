@@ -6,6 +6,7 @@ Created on Sun Sep 29 21:32:30 2019
 @author: jezequel
 """
 import matplotlib.pyplot as plt
+from dessia_common.decorators import plot_data_view
 from matplotlib import patches
 import math
 import volmdlr as vm
@@ -31,13 +32,14 @@ class Shaft(PhysicalObject):
         self.z_position = self.length/2
         PhysicalObject.__init__(self, name=name)
 
+    @plot_data_view(selector="Shaft")
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
         circle = vm.curves.Circle2D.from_center_and_radius(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
-        return [plot_data.PrimitiveGroup(primitives=plot_datas)]
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
 
     def volmdlr_primitives(self):
         primitives = []
@@ -66,13 +68,14 @@ class Motor(PhysicalObject):
         self.pos_y = 0
         PhysicalObject.__init__(self, name=name)
 
+    @plot_data_view(selector="Motor")
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
         circle = vm.curves.Circle2D.from_center_and_radius(center=center, radius=self.diameter/2)
         plot_datas.append(circle.plot_data())
 
-        return [plot_data.PrimitiveGroup(primitives=plot_datas)]
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
 
     def volmdlr_primitives(self):
         primitives = []
@@ -95,6 +98,7 @@ class Gear(PhysicalObject):
         self.z_position = 0
         PhysicalObject.__init__(self, name=name)
 
+    @plot_data_view(selector='Gear')
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.shaft.pos_x, self.shaft.pos_y)
@@ -167,6 +171,7 @@ class Reductor(PhysicalObject):
             i += 1
         self.mass_reductor = self.mass()
 
+    @plot_data_view(selector="Reductor")
     def plot_data(self):
         plot_datas = []
 
@@ -180,7 +185,7 @@ class Reductor(PhysicalObject):
             plot_datas.extend(meshe.gear2.plot_data()[0].primitives)
         plot_data_sorted = sorted(plot_datas, key=lambda plot_data: plot_data.r)
         print(plot_data_sorted[::-1])
-        return [plot_data.PrimitiveGroup(primitives=plot_data_sorted[::-1])]
+        return plot_data.PrimitiveGroup(primitives=plot_data_sorted[::-1])
 
     def volmdlr_primitives(self):
         primitives = []

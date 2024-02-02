@@ -6,6 +6,7 @@ Created on Sun Sep 29 21:32:30 2019
 @author: jezequel
 """
 import matplotlib.pyplot as plt
+from dessia_common.decorators import plot_data_view
 from matplotlib import patches
 import math
 import volmdlr as vm
@@ -34,13 +35,14 @@ class Shaft(DessiaObject):
         self.z_position = self.length / 2
         DessiaObject.__init__(self, name=name)
 
+    @plot_data_view(selector='Shaft')
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
         circle = vm.wires.Circle2D(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
-        return [plot_data.PrimitiveGroup(primitives=plot_datas)]
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
 
     def volmdlr_primitives(self):
         primitives = []
@@ -69,13 +71,14 @@ class Motor(DessiaObject):
         self.pos_x = 0
         self.pos_y = 0
 
+    @plot_data_view(selector="Motor")
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
         circle = vm.wires.Circle2D(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
-        return [plot_data.PrimitiveGroup(primitives=plot_datas)]
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
 
     def volmdlr_primitives(self):
         primitives = []
@@ -101,13 +104,14 @@ class Gear(DessiaObject):
         DessiaObject.__init__(self, name=name)
         self.z_position = 0
 
+    @plot_data_view(selector="Gear")
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.shaft.pos_x, self.shaft.pos_y)
         circle = vm.wires.Circle2D(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
-        return [plot_data.PrimitiveGroup(primitives=plot_datas)]
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
 
     def volmdlr_primitives(self):
         primitives = []
@@ -179,6 +183,7 @@ class Reductor(PhysicalObject):
 
         self.mass_reductor = self.mass()
 
+    @plot_data_view(selector="Reductor")
     def plot_data(self):
         plot_datas = []
 
@@ -192,7 +197,7 @@ class Reductor(PhysicalObject):
             plot_datas.extend(meshe.gear2.plot_data()[0].primitives)
         plot_data_sorted = sorted(plot_datas, key=lambda plot_data: plot_data.r)
 
-        return [plot_data.PrimitiveGroup(primitives=plot_data_sorted[::-1])]
+        return plot_data.PrimitiveGroup(primitives=plot_data_sorted[::-1])
 
     def volmdlr_primitives(self):
         primitives = []

@@ -9,6 +9,7 @@ import volmdlr
 import volmdlr.edges as vme
 import volmdlr.wires as vmw
 from dessia_common.core import DessiaObject
+from dessia_common.decorators import plot_data_view
 from plot_data.colors import BLACK, CYAN
 
 
@@ -55,6 +56,7 @@ class Piece(DessiaObject):
                                 rayon, color=color, fill=False)
         ax.add_patch(circle)
 
+    @plot_data_view(selector="Circle2D")
     def plot_data(self, edge_style: plot_data.EdgeStyle = None,
                   surface_style: plot_data.SurfaceStyle = None):
         """
@@ -240,6 +242,7 @@ class Pattern(DessiaObject):
             piece.plot(ax=ax)
         return ax
 
+    @plot_data_view(selector="Pattern")
     def plot_data(self):
         """
         Dessia plot_data method

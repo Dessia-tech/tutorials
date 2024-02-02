@@ -75,13 +75,14 @@ class Panel(PhysicalObject):
 
         return [profile]
 
+    @plot_data_view(selector="Panel")
     def plot_data(self):
         hatching = plot_data.HatchingSet(0.1)
         edge_style = plot_data.EdgeStyle(line_width=1)
         surface_style = plot_data.SurfaceStyle(hatching=hatching)
         contour = self.contour()
         plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
-        return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
+        return plot_data.PrimitiveGroup(primitives=[plot_datas])
 
 
 class PanelCombination(PhysicalObject):
@@ -102,6 +103,7 @@ class PanelCombination(PhysicalObject):
         self.mass = sum([p.mass for p in panels])
         PhysicalObject.__init__(self, name=name)
 
+    @plot_data_view(selector="PanelCombination")
     def plot_data(self):
         plot_datas = []
         hatching = plot_data.HatchingSet(0.1)
@@ -114,7 +116,7 @@ class PanelCombination(PhysicalObject):
             plot_datas.append(contour.plot_data(edge_style=edge_style, surface_style=surface_style))
         contour_inter = self.intersection_area()
         plot_datas.append(contour_inter.plot_data(edge_style=edge_style, surface_style=plot_data.SurfaceStyle()))
-        return plot_datas
+        return plot_data.PrimitiveGroup(plot_datas)
 
     def intersection_area(self):
         c1 = self.panels[0].contour()
@@ -242,13 +244,14 @@ class Rivet(PhysicalObject):
         )
         return [irc]
 
+    @plot_data_view(selector="Rivet")
     def plot_data(self, full_contour=True):
         hatching = plot_data.HatchingSet(0.1)
         edge_style = plot_data.EdgeStyle(line_width=1)
         surface_style = plot_data.SurfaceStyle(hatching=hatching)
         contour = self.contour(full_contour=full_contour)
         plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
-        return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
+        return plot_data.PrimitiveGroup(primitives=[plot_datas])
 
 
 class Rule(DessiaObject):
@@ -339,6 +342,7 @@ class PanelAssembly(PhysicalObject):
             circles.append(vm.curves.Circle2D.from_center_and_radius(grid, diameter))
         return circles
 
+    @plot_data_view(selector="PanelAssembly")
     def plot_data(self):
         edge_style = plot_data.EdgeStyle(line_width=1, color_stroke=RED)
         plot_datas = self.panel_combination.plot_data()
