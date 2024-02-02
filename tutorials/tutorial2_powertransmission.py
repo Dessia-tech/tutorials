@@ -177,9 +177,9 @@ class Reductor(PhysicalObject):
 
         self.motor.pos_x = self.shafts[0].pos_x
         self.motor.pos_y = self.shafts[0].pos_y
-        plot_datas.extend(self.motor.plot_data()[0].primitives)
+        plot_datas.extend(self.motor.plot_data().primitives)
         for shaft in self.shafts:
-            plot_datas.extend(shaft.plot_data()[0].primitives)
+            plot_datas.extend(shaft.plot_data().primitives)
         for meshe in self.meshes:
             plot_datas.extend(meshe.gear1.plot_data()[0].primitives)
             plot_datas.extend(meshe.gear2.plot_data()[0].primitives)

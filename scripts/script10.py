@@ -231,4 +231,4 @@ clutch_generate = generator.generate()
 #         break
 
 clustering = objects.Clustering(clutch_generate, 'k means')
-clustering.plot()
+clustering.plot_data().plot()

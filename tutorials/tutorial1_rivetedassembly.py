@@ -344,11 +344,12 @@ class PanelAssembly(PhysicalObject):
 
     @plot_data_view(selector="PanelAssembly")
     def plot_data(self):
+        plot_datas = []
         edge_style = plot_data.EdgeStyle(line_width=1, color_stroke=RED)
-        plot_datas = self.panel_combination.plot_data()
+        plot_datas.extend(self.panel_combination.plot_data().primitives)
         circles = self.contour()
         plot_datas.extend([c.plot_data(edge_style=edge_style) for c in circles])
-        return [plot_data.PrimitiveGroup(primitives=plot_datas)]
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
 
     def _pressure_applied(self):
         force_applied = 100  # Newton

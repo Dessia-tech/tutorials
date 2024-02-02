@@ -150,11 +150,11 @@ optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle,
 Results
 """
 
-results = optimizer.optimize(1)
+results = optimizer.optimize(2)
 for result in results[0]:
     print('Ratios: ',result.gearbox.ratios)
-    plot_data.plot_canvas(plot_data_object = result.plot_data()[0], canvas_id = 'canvas')
-    plot_data.plot_canvas(plot_data_object=result.plot_data()[1], canvas_id='canvas')
+    plot_data.plot_canvas(plot_data_object = result.plot_data(), canvas_id = 'canvas')
+    plot_data.plot_canvas(plot_data_object=result.plot_data_2(), canvas_id='canvas')
     
         
 # c = Client(api_url = 'https://api.testing.dessia.ovh/')

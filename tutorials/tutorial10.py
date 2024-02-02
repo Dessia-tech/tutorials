@@ -910,7 +910,8 @@ class Clustering(DessiaObject):
             new_gearboxes_order.append(self.gearboxes[index])
             new_matrix_mds.append(matrix_mds[index])
         return clusters, cluster_labels_reordered, list_indexes_groups, new_gearboxes_order, new_matrix_mds
-        
+
+    @plot_data_view(selector="MultiPlot")
     def plot_data(self, reference_path: str = "#", **kwargs):
         colors = [RED, GREEN, ORANGE, BLUE, LIGHTSKYBLUE,
                   ROSE, VIOLET, LIGHTRED, LIGHTGREEN,
@@ -927,7 +928,7 @@ class Clustering(DessiaObject):
                 'Density': self.gearboxes_ordered[i].density,
                 'Cluster': self.labels_reordered[i]
             }
-            all_points.append(point)
+            all_points.append(plot_data.Sample(values=point, reference_path=f"{reference_path}/#/{i}"))
         
         point_families = []
         for i, indexes in enumerate(self.list_indexes_groups):
@@ -939,33 +940,24 @@ class Clustering(DessiaObject):
             point_families.append(point_family)
 
         all_attributes = ['x', 'y', 'Aver path', 'Aver L clutch-input',
-                          'ave_l_ns', 'Number shafts', 'Number gears',
-                          'Std input/cluches', 'Density']
-        pp_attributes = ['Aver path', 'Number shafts', 'ave_l_ns',
-                         'Aver L clutch-input', 'Std input/cluches',
-                         'Number  gears', 'Density', 'Cluster']
+                          'ave_l_ns', 'Number shafts',
+                          'Std input_cluches', 'Density', 'Cluster']
 
         tooltip = plot_data.Tooltip(attributes=all_attributes)
 
         edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
 
-        plots = [plot_data.Scatter(tooltip=tooltip, x_variable='x',
-                                   y_variable='y', elements=all_points)]
+        plots = [plot_data.Scatter(tooltip=tooltip, x_variable=all_attributes[0],
+                                   y_variable=all_attributes[1])]
 
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
-        plots.append(plot_data.ParallelPlot(elements=all_points,
-                                            edge_style=edge_style,
+        plots.append(plot_data.ParallelPlot(edge_style=edge_style,
                                             disposition='vertical',
-                                            axes=pp_attributes,
+                                            axes=all_attributes,
                                             rgbs=rgbs))
-        sizes = [plot_data.Window(width=560, height=300),
-                 plot_data.Window(width=560, height=300)]
-        coords = [(0, 0), (0, 300)]
-        clusters = plot_data.MultiplePlots(plots=plots, coords=coords,
-                                           sizes=sizes, elements=all_points,
-                                           point_families=point_families,
+        clusters = plot_data.MultiplePlots(plots=plots, elements=all_points,
                                            initial_view_on=True)
-        return [clusters]
+        return clusters
 
     def _displays(self, **kwargs):
         plot = self.plot_data()

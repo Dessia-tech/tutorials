@@ -39,7 +39,7 @@ class Shaft(DessiaObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
-        circle = vm.wires.Circle2D(center=center, radius=self.diameter / 2)
+        circle = vm.curves.Circle2D.from_center_and_radius(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
         return plot_data.PrimitiveGroup(primitives=plot_datas)
@@ -75,7 +75,7 @@ class Motor(DessiaObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.pos_x, self.pos_y)
-        circle = vm.wires.Circle2D(center=center, radius=self.diameter / 2)
+        circle = vm.curves.Circle2D.from_center_and_radius(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
         return plot_data.PrimitiveGroup(primitives=plot_datas)
@@ -108,7 +108,7 @@ class Gear(DessiaObject):
     def plot_data(self):
         plot_datas = []
         center = vm.Point2D(self.shaft.pos_x, self.shaft.pos_y)
-        circle = vm.wires.Circle2D(center=center, radius=self.diameter / 2)
+        circle = vm.curves.Circle2D.from_center_and_radius(center=center, radius=self.diameter / 2)
         plot_datas.append(circle.plot_data())
 
         return plot_data.PrimitiveGroup(primitives=plot_datas)
@@ -189,12 +189,12 @@ class Reductor(PhysicalObject):
 
         self.motor.pos_x = self.shafts[0].pos_x
         self.motor.pos_y = self.shafts[0].pos_y
-        plot_datas.extend(self.motor.plot_data()[0].primitives)
+        plot_datas.extend(self.motor.plot_data().primitives)
         for shaft in self.shafts:
-            plot_datas.extend(shaft.plot_data()[0].primitives)
+            plot_datas.extend(shaft.plot_data().primitives)
         for meshe in self.meshes:
-            plot_datas.extend(meshe.gear1.plot_data()[0].primitives)
-            plot_datas.extend(meshe.gear2.plot_data()[0].primitives)
+            plot_datas.extend(meshe.gear1.plot_data().primitives)
+            plot_datas.extend(meshe.gear2.plot_data().primitives)
         plot_data_sorted = sorted(plot_datas, key=lambda plot_data: plot_data.r)
 
         return plot_data.PrimitiveGroup(primitives=plot_data_sorted[::-1])
