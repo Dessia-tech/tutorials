@@ -308,11 +308,15 @@ class GearBoxResults(DessiaObject):
     def _to_plot_point(self):
         points = []
         cycle_time = self.cycle_time
-        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in\
-                zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques, self.engine_speeds,
-                    self.engine_torques, self.fuel_consumptions, cycle_time, self.gears):
-            points.append({'c_s': car_speed, 'whl_t': wheel_torque,'w_e': engine_speed, 't_e': engine_torque,
-                           'f_cons (g/kWh)': fuel_consumption*3.6e9, 'time': time, 'gear': gear})
+        for i, (car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear) in\
+                enumerate(zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques, self.engine_speeds,
+                    self.engine_torques, self.fuel_consumptions, cycle_time, self.gears)):
+
+            data = {'c_s': car_speed, 'whl_t': wheel_torque,'w_e': engine_speed, 't_e': engine_torque,
+                           'f_cons (g/kWh)': fuel_consumption*3.6e9, 'time': time, 'gear': gear}
+            points.append(plot_data.Sample(values=data, reference_path=f"#/data/{i}"))
+
+        return points
 
     @plot_data_view(selector="MultiPlot 1")
     def plot_data(self):
@@ -325,25 +329,22 @@ class GearBoxResults(DessiaObject):
         axis = plot_data.Axis()
 
         attributes = ['c_s', 'f_cons (g/kWh)']
-        tooltip = plot_data.Tooltip(attributes=attributes,)
+        tooltip = plot_data.Tooltip(attributes=attributes)
         objects = [plot_data.Scatter(tooltip=tooltip, x_variable=attributes[0],
                                      y_variable=attributes[1],
-                                     point_style=point_style,
-                                     elements=points, axis=axis)]
+                                     point_style=point_style, axis=axis)]
 
         attributes = ['whl_t', 'f_cons (g/kWh)']
         tooltip = plot_data.Tooltip(attributes=attributes)
         objects.append(plot_data.Scatter(tooltip=tooltip,
                                          x_variable=attributes[0],
                                          y_variable=attributes[1],
-                                         point_style=point_style,
-                                         elements=points, axis=axis))
+                                         point_style=point_style, axis=axis))
 
-        attributes = ['w_e','t_e','f_cons (g/kWh)']
+        attributes = ['w_e', 't_e', 'f_cons (g/kWh)']
         edge_style = plot_data.EdgeStyle()
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
-        objects.append(plot_data.ParallelPlot(elements=points,
-                                              edge_style=edge_style,
+        objects.append(plot_data.ParallelPlot(edge_style=edge_style,
                                               disposition='vertical',
                                               axes=attributes,
                                               rgbs=rgbs))

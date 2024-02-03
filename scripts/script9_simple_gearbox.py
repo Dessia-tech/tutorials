@@ -32,8 +32,8 @@ for list_mass_flow_rate in mass_flow_rate:
     list_mass_flow = []
     for mass_flow in list_mass_flow_rate:
         list_mass_flow.append(mass_flow/1000)                                                                #mass flow rate in kg/s
-    mass_flow_rate_kgps.append(list_mass_flow) 
-    
+    mass_flow_rate_kgps.append(list_mass_flow)
+
 
 fuel_hv = 0.012068709                                                       # in kWh/g
 fuel_hv = fuel_hv*3.6e9                                                    # in J/kg
@@ -130,32 +130,32 @@ wltp_cycle = objects.WLTPCycle(cycle_speeds = cycle_speeds, car_mass = car_mass,
 """
 Engine 
 """
-setpoint_speed = 600*np.pi/30 # in rad/s
+setpoint_speed = 600*np.pi/30  # in rad/s
 setpoint_torque = 100
-engine = objects.Engine(efficiency_map = efficiency_map, setpoint_speed = setpoint_speed, setpoint_torque = setpoint_torque)
+engine = objects.Engine(efficiency_map=efficiency_map, setpoint_speed=setpoint_speed, setpoint_torque=setpoint_torque)
 
 """
 Gearbox
 """
 speed_ranges = [[0, 30], [20 ,40], [30,50], [45, 70]] # in km/h
 speed_ranges = [[speed_range[0]*(1000*2*np.pi)/(3600*np.pi*tire_radius), speed_range[1]*(1000*2*np.pi)/(3600*np.pi*tire_radius)] for speed_range in speed_ranges] #in rad/s
-gearbox = objects.GearBox(engine = engine, speed_ranges = speed_ranges)
+gearbox = objects.GearBox(engine=engine, speed_ranges=speed_ranges)
 
 """
 GearBox Optimizer
 """
 
-optimizer = objects.GearBoxOptimizer(gearbox = gearbox, wltp_cycle = wltp_cycle, firstgear_ratio_min_max = [.5, 4.5])
+optimizer = objects.GearBoxOptimizer(gearbox=gearbox, wltp_cycle=wltp_cycle, firstgear_ratio_min_max = [.5, 4.5])
 """
 Results
 """
 
 results = optimizer.optimize(2)
 for result in results[0]:
-    print('Ratios: ',result.gearbox.ratios)
-    plot_data.plot_canvas(plot_data_object = result.plot_data(), canvas_id = 'canvas')
+    print('Ratios: ', result.gearbox.ratios)
+    plot_data.plot_canvas(plot_data_object=result.plot_data(), canvas_id='canvas')
     plot_data.plot_canvas(plot_data_object=result.plot_data_2(), canvas_id='canvas')
-    
-        
+
+
 # c = Client(api_url = 'https://api.testing.dessia.ovh/')
 # r = c.create_object_from_python_object(results[0])
