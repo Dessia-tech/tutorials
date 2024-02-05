@@ -174,13 +174,9 @@ class GearBoxResults(DessiaObject):
         self.gears_ratios = gears_ratios
         DessiaObject.__init__(self, name=name)
 
-    @property
-    def cycle_time(self):
-        return [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
-
     def _to_plot_point(self):
         points = []
-        cycle_time = self.cycle_time
+        cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
         for i, (car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear)\
                 in enumerate(zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques, self.engine_speeds,
                                  self.engine_torques, self.fuel_consumptions, cycle_time, self.gears_ratios[0])):
@@ -233,7 +229,7 @@ class GearBoxResults(DessiaObject):
     @plot_data_view(selector="MultiPlot 2")
     def plot_data_2(self):
 
-        cycle_time = self.cycle_time
+        cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
         points = self._to_plot_point()
 
         list_colors = [BLUE, BROWN, GREEN, BLACK]
