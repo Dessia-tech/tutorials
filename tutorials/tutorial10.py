@@ -314,7 +314,7 @@ class GearBoxResults(DessiaObject):
 
             data = {'c_s': car_speed, 'whl_t': wheel_torque,'w_e': engine_speed, 't_e': engine_torque,
                            'f_cons (g/kWh)': fuel_consumption*3.6e9, 'time': time, 'gear': gear}
-            points.append(plot_data.Sample(values=data, reference_path=f"#/data/{i}"))
+            points.append(plot_data.Sample(values=data))
 
         return points
 
