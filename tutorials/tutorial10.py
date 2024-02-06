@@ -9,6 +9,7 @@ Created on Tue Mar  2 13:30:58 2021
 from dessia_common.core import DessiaObject, DisplayObject
 from typing import List, Tuple, Dict, Any
 import numpy as np
+from dessia_common.decorators import plot_data_view
 from scipy.optimize import minimize
 from scipy.interpolate import interp2d
 from statistics import mean
@@ -300,12 +301,22 @@ class GearBoxResults(DessiaObject):
         self.ratio_max = max(self.gearbox.ratios)
         self.average_ratio = mean(self.gearbox.ratios)
 
-    def plot_data(self):
-        
+    def _to_plot_point(self):
+        points = []
         cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
-        points=[]
-        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.engine_speeds,self.engine_torques, self.fuel_consumptions, cycle_time, self.gears):
-            points.append({'c_s': car_speed,'whl_t': wheel_torque,'w_e': engine_speed,'t_e': engine_torque, 'f_cons (g/kWh)':fuel_consumption*3.6e9, 'time': time, 'gear': gear})
+        for i, (car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear) in\
+                enumerate(zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques, self.engine_speeds,
+                    self.engine_torques, self.fuel_consumptions, cycle_time, self.gears)):
+
+            data = {'c_s': car_speed, 'whl_t': wheel_torque, 'w_e': engine_speed, 't_e': engine_torque,
+                    'f_cons (g/kWh)': fuel_consumption*3.6e9, 'time': time, 'gear': gear}
+            points.append(plot_data.Sample(values=data))
+
+        return points
+
+    @plot_data_view(selector="MultiPlot 1")
+    def plot_data(self):
+        points = self._to_plot_point()
 
         color_fill = LIGHTBLUE
         color_stroke = GREY
@@ -314,25 +325,22 @@ class GearBoxResults(DessiaObject):
         axis = plot_data.Axis()
 
         attributes = ['c_s', 'f_cons (g/kWh)']
-        tooltip = plot_data.Tooltip(attributes=attributes,)
+        tooltip = plot_data.Tooltip(attributes=attributes)
         objects = [plot_data.Scatter(tooltip=tooltip, x_variable=attributes[0],
                                      y_variable=attributes[1],
-                                     point_style=point_style,
-                                     elements=points, axis=axis)]
+                                     point_style=point_style, axis=axis)]
 
         attributes = ['whl_t', 'f_cons (g/kWh)']
         tooltip = plot_data.Tooltip(attributes=attributes)
         objects.append(plot_data.Scatter(tooltip=tooltip,
                                          x_variable=attributes[0],
                                          y_variable=attributes[1],
-                                         point_style=point_style,
-                                         elements=points, axis=axis))
+                                         point_style=point_style, axis=axis))
 
-        attributes = ['w_e','t_e','f_cons (g/kWh)']
+        attributes = ['w_e', 't_e', 'f_cons (g/kWh)']
         edge_style = plot_data.EdgeStyle()
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
-        objects.append(plot_data.ParallelPlot(elements=points,
-                                              edge_style=edge_style,
+        objects.append(plot_data.ParallelPlot(edge_style=edge_style,
                                               disposition='vertical',
                                               axes=attributes,
                                               rgbs=rgbs))
@@ -343,7 +351,14 @@ class GearBoxResults(DessiaObject):
                  plot_data.Window(width=500, height=500)]
         multiplot = plot_data.MultiplePlots(elements=points, plots=objects,
                                             sizes=sizes, coords=coords)
-        
+
+        return multiplot
+
+    @plot_data_view(selector="MultiPlot 2")
+    def plot_data_2(self):
+
+        cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
+        points = self._to_plot_point()
         list_colors = [BLUE, BROWN, GREEN, BLACK]
         graphs2d = []
         point_style = plot_data.PointStyle(color_fill=RED, color_stroke=BLACK,
@@ -417,7 +432,7 @@ class GearBoxResults(DessiaObject):
         multiplot2 = plot_data.MultiplePlots(elements=points, plots=graphs2d,
                                              sizes=sizes, coords=coords)
        
-        return [multiplot, multiplot2]
+        return multiplot2
 
 
 class GearBoxOptimizer(DessiaObject):
@@ -892,7 +907,8 @@ class Clustering(DessiaObject):
             new_gearboxes_order.append(self.gearboxes[index])
             new_matrix_mds.append(matrix_mds[index])
         return clusters, cluster_labels_reordered, list_indexes_groups, new_gearboxes_order, new_matrix_mds
-        
+
+    @plot_data_view(selector="MultiPlot")
     def plot_data(self, reference_path: str = "#", **kwargs):
         colors = [RED, GREEN, ORANGE, BLUE, LIGHTSKYBLUE,
                   ROSE, VIOLET, LIGHTRED, LIGHTGREEN,
@@ -909,7 +925,7 @@ class Clustering(DessiaObject):
                 'Density': self.gearboxes_ordered[i].density,
                 'Cluster': self.labels_reordered[i]
             }
-            all_points.append(point)
+            all_points.append(plot_data.Sample(values=point, reference_path=f"{reference_path}/#/{i}"))
         
         point_families = []
         for i, indexes in enumerate(self.list_indexes_groups):
@@ -921,33 +937,24 @@ class Clustering(DessiaObject):
             point_families.append(point_family)
 
         all_attributes = ['x', 'y', 'Aver path', 'Aver L clutch-input',
-                          'ave_l_ns', 'Number shafts', 'Number gears',
-                          'Std input/cluches', 'Density']
-        pp_attributes = ['Aver path', 'Number shafts', 'ave_l_ns',
-                         'Aver L clutch-input', 'Std input/cluches',
-                         'Number  gears', 'Density', 'Cluster']
+                          'ave_l_ns', 'Number shafts',
+                          'Std input_cluches', 'Density', 'Cluster']
 
         tooltip = plot_data.Tooltip(attributes=all_attributes)
 
         edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
 
-        plots = [plot_data.Scatter(tooltip=tooltip, x_variable='x',
-                                   y_variable='y', elements=all_points)]
+        plots = [plot_data.Scatter(tooltip=tooltip, x_variable=all_attributes[0],
+                                   y_variable=all_attributes[1])]
 
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
-        plots.append(plot_data.ParallelPlot(elements=all_points,
-                                            edge_style=edge_style,
+        plots.append(plot_data.ParallelPlot(edge_style=edge_style,
                                             disposition='vertical',
-                                            axes=pp_attributes,
+                                            axes=all_attributes,
                                             rgbs=rgbs))
-        sizes = [plot_data.Window(width=560, height=300),
-                 plot_data.Window(width=560, height=300)]
-        coords = [(0, 0), (0, 300)]
-        clusters = plot_data.MultiplePlots(plots=plots, coords=coords,
-                                           sizes=sizes, elements=all_points,
-                                           point_families=point_families,
+        clusters = plot_data.MultiplePlots(plots=plots, elements=all_points,
                                            initial_view_on=True)
-        return [clusters]
+        return clusters
 
     def _displays(self, **kwargs):
         plot = self.plot_data()

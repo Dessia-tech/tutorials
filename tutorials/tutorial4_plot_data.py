@@ -1,6 +1,8 @@
 import volmdlr as vm
 import plot_data.core as plot_data
 import math
+
+from dessia_common.decorators import plot_data_view
 from plot_data.colors import *
 
 from dessia_common.core import DessiaObject
@@ -45,6 +47,7 @@ class Graphs(DessiaObject):
                                  tooltip=tooltip, point_style=point_style,
                                  edge_style=edge_style)
 
+    @plot_data_view(selector="Graphs")
     def plot_data(self):
         data_sets = [self.data_set1(), self.data_set2()]
         graphs2d = plot_data.Graph2D(graphs=data_sets,
@@ -67,6 +70,7 @@ class ScatterPlot(DessiaObject):
             points.append({'x': x, 'y': y})
         self.points = points
 
+    @plot_data_view(selector="ScatterPlot")
     def plot_data(self):
         color_fill = LIGHTBLUE
         color_stroke = GREY
@@ -98,6 +102,7 @@ class ParallelPlot(DessiaObject):
             points.append({'x': x, 'y': y, 'z': z, 'm': m})
         self.points = points
 
+    @plot_data_view(selector="ParallelPlot")
     def plot_data(self):
         edge_style = plot_data.EdgeStyle()
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
@@ -125,6 +130,7 @@ class MultiPlot(DessiaObject):
             points.append({'x': x, 'y': y, 'z': z, 'm': m})
         self.points = points
 
+    @plot_data_view(selector="MultiPlot")
     def plot_data(self):
         color_fill = LIGHTBLUE
         color_stroke = GREY
@@ -162,6 +168,7 @@ class SimpleShape(DessiaObject):
         self.lx = lx
         self.ly = ly
 
+    @plot_data_view(selector="SimpleShape")
     def plot_data(self):
         hatching = plot_data.HatchingSet(0.5, 3)
         edge_style = plot_data.EdgeStyle(line_width=1, color_stroke=BLUE,
@@ -201,6 +208,7 @@ class ScatterPlotList(DessiaObject):
             points.append({'x': x, 'y': y})
         self.points = points
 
+    @plot_data_view(selector="ScatterPlotList")
     def plot_data(self):
         color_fill = LIGHTBLUE
         color_stroke = GREY
