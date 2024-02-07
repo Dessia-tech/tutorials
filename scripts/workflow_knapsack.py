@@ -1,11 +1,12 @@
 import random
 
-from tutorials.knapsack_problem_with_displays import Knapsack, Generator, Item
+from tutorials.knapsack_problem_with_displays import Knapsack, Generator, Item, KnapsackPackage
 from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, ModelAttribute, MultiPlot, Markdown, Unpacker, \
     PlotData, CadView
 from dessia_common.typings import MethodType
 from dessia_common.datatools.dataset import Dataset
 from dessia_common.workflow.core import TypedVariable, Pipe, Workflow
+from dessia_common.typings import MethodType, MarkdownType, PlotDataType, CadViewType
 
 block_0 = InstantiateModel(model_class=Generator, name='GENERATOR', position=[-426.27884474719355, -197.67219288999567])
 block_1 = ModelMethod(method_type=MethodType(Generator, 'generate'), name='_generate_',
@@ -13,12 +14,12 @@ block_1 = ModelMethod(method_type=MethodType(Generator, 'generate'), name='_gene
 block_2 = InstantiateModel(model_class=Dataset, name='DATASET', position=[162.1159937393057, -96.39613408640047])
 block_3 = ModelAttribute(attribute_name='dessia_objects', name='extract',
                          position=[452.9770685403816, 1.7984784075740556])
-block_4 = MultiPlot(attributes=['mass', 'price', 'golds', 'silvers', 'bronzes'], name='Multiplot',
+block_4 = MultiPlot(selector_name="MultiPlot", attributes=['mass', 'price', 'golds', 'silvers', 'bronzes'], name='Multiplot',
                     position=[781.280317117172, -141.01673915293895])
-block_5 = Markdown(name='MarkDown')
+block_5 = Markdown(selector=MarkdownType(class_=Dataset, name='Markdown'), name='Markdown')
 block_6 = Unpacker(indices=[0], name='extract_solution', position=[804.5481046770818, 112.7202979561202])
-block_7 = PlotData(name='plot_2d')
-block_8 = CadView(name='CAD')
+block_7 = PlotData(selector=PlotDataType(class_=KnapsackPackage, name='PlotData'), name='plot_2d')
+block_8 = CadView(selector=CadViewType(class_=KnapsackPackage, name='CadView'), name='CAD')
 blocks = [block_0, block_1, block_2, block_3, block_4, block_5, block_6, block_7, block_8]
 
 variable_0 = TypedVariable(name='Result Name', position=[-135.41769504700423, 146.07556919422217], type_=str)
