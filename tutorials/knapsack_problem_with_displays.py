@@ -1,10 +1,13 @@
 from itertools import combinations
 from typing import List
-from plot_data import PrimitiveGroup, Text, TextStyle, EdgeStyle, SurfaceStyle
+
+import volmdlr.edges
 from dessia_common.core import PhysicalObject, DessiaObject
+from dessia_common.decorators import plot_data_view
+from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
-from volmdlr.wires import ClosedPolygon2D
 from volmdlr.primitives3d import Block
+from volmdlr.wires import ClosedPolygon2D
 
 
 class Item(PhysicalObject):
@@ -38,7 +41,9 @@ class Item(PhysicalObject):
                             name='block ' + self.name)]
         return primitives
 
-    def plot_data(self, reference_path: str = "#", y_offset: float = 0., **kwargs):
+    @plot_data_view("2D display for Item")
+    def display_2d(self, reference_path: str = "#",
+                   y_offset: float = 0., **kwargs):
         contour = ClosedPolygon2D([
             Point2D(-0.5, -0.5 + y_offset),
             Point2D(0.5, -0.5 + y_offset),
@@ -53,19 +58,19 @@ class Item(PhysicalObject):
                                text_align_y='middle')
         primitive2 = Text(comment=f'{self.mass} kg',
                           position_x=0,
-                          position_y=0.25 + y_offset,
+                          position_y=0.4 + y_offset,
                           text_style=text_style,
                           text_scaling=True,
                           max_width=0.5,
                           multi_lines=False)
         primitive3 = Text(comment=f'{self.price} €',
                           position_x=0,
-                          position_y=-0.25 + y_offset,
+                          position_y=-0.1 + y_offset,
                           text_style=text_style,
                           text_scaling=True,
                           max_width=0.5,
                           multi_lines=False)
-        return [PrimitiveGroup(primitives=[primitive1, primitive2, primitive3])]
+        return PrimitiveGroup(primitives=[primitive1, primitive2, primitive3])
 
 
 class Knapsack(PhysicalObject):
@@ -118,12 +123,13 @@ class KnapsackPackage(Knapsack):
             z_offset += item.mass / 2 + 0.05
         return primitives
 
-    def plot_data(self, reference_path: str = "#", **kwargs):
+    @plot_data_view("2D display for KnapsackPackage")
+    def display_2d(self, reference_path: str = "#", **kwargs):
         primitives = []
         y_offset = 0
         for item in self.items:
-            primitive_groups = item.plot_data(y_offset=y_offset)
-            primitives.extend(primitive_groups[0].primitives)
+            primitive_groups = item.display_2d(y_offset=y_offset)
+            primitives.extend(primitive_groups.primitives)
             y_offset += 1.1
         text_style = TextStyle(text_color='rgb(0, 0, 0)',
                                font_size=None,
@@ -144,7 +150,7 @@ class KnapsackPackage(Knapsack):
                           max_width=1,
                           multi_lines=False)
         primitives.extend([primitive1, primitive2])
-        return [PrimitiveGroup(primitives=primitives)]
+        return PrimitiveGroup(primitives=primitives)
 
 
 class Generator(DessiaObject):
@@ -165,15 +171,14 @@ class Generator(DessiaObject):
                     items=combination,
                     allowed_mass=self.knapsack.allowed_mass,
                     name=f'Package {i}')
+                count += 1
 
                 if min_mass <= solution.mass <= self.knapsack.allowed_mass:
                     if max_gold is not None:
                         if solution.golds <= max_gold:
                             solutions.append(solution)
-                            count += 1
                     else:
                         solutions.append(solution)
-                        count += 1
 
                 if max_iter is not None and count == max_iter:
                     return sorted(solutions, key=lambda x: x.price,
