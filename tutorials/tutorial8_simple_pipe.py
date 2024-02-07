@@ -75,7 +75,8 @@ class Piping(DessiaObject):
         return rl
 
     def generate_sweep(self, color=(248 / 255, 205 / 255, 70 / 255), alpha=0.8):
-        contour = vm.wires.Circle2D(vm.Point2D(0, 0), self.diameter / 2)
+        circle = vm.curves.Circle2D.from_center_and_radius(vm.Point2D(0, 0), self.diameter / 2)
+        contour = vm.wires.Contour2D(circle.split_at_abscissa(circle.length() * .5))
         points = []
         for l in self.routes:
             if l.start not in points:
@@ -113,10 +114,10 @@ class MasterPiping(Piping):
 
     def update(self, new_point: vm.Point3D):
         direction_start = self.direction_start.copy()
-        direction_start.normalize()
+        direction_start.unit_vector()
         pt_start_connector = self.start + self.length_connector * direction_start
         direction_end = self.direction_end.copy()
-        direction_end.normalize()
+        direction_end.unit_vector()
         pt_end_connector = self.end + self.length_connector * direction_end
         points = [self.start, pt_start_connector] + [new_point] + [pt_end_connector, self.end]
         self.routes = self.route(points)
@@ -138,7 +139,7 @@ class SlavePiping(Piping):
 
     def update(self, new_point: vm.Point3D):
         direction_start = self.direction_start.copy()
-        direction_start.normalize()
+        direction_start.unit_vector()
         pt_start_connector = self.start + self.length_connector * direction_start
         points = [self.start, pt_start_connector, new_point]
         self.routes = self.route(points)

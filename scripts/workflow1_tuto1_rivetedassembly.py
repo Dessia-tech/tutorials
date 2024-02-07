@@ -19,7 +19,7 @@ block_generate = ModelMethod(method_type=MethodType(tuto.Generator, 'generate'),
 
 
 list_attribute1 = ['number_rivet1', 'number_rivet2', 'number_rivet', 'mass', 'pressure_applied', 'fatigue_resistance']
-display_reductor = MultiPlot(list_attribute1, 1, name='Display Rivet Assembly')
+display_reductor = MultiPlot(selector_name="Multiplot", attributes=list_attribute1, name='Display Rivet Assembly')
 
 block_workflow = [block_generator, block_generate, display_reductor]
 
@@ -42,7 +42,7 @@ input_values = {workflow.input_index(block_generator.inputs[0]): pc1,
 
 workflow_run = workflow.run(input_values)
 solution = workflow_run.output_value[0]
-plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
+plot_data.plot_canvas(solution.plot_data(), canvas_id='canvas')
 
 # c = PlatformUser(api_url='https://api.demo.dessia.ovh',)
 # r = c.objects.create_object_from_python_object(workflow_run)

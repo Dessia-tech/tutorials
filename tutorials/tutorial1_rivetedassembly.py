@@ -7,6 +7,8 @@ from itertools import product
 
 from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List, Tuple, Dict
+
+from dessia_common.decorators import plot_data_view
 from plot_data.colors import *
 
 class Color(DessiaObject):
@@ -66,18 +68,21 @@ class Panel(PhysicalObject):
         else:
             color = self.color.to_tuple()
         contour = self.contour()
-        dir3 = dir1.cross(dir2)
-        profile = p3d.ExtrudedProfile(center, dir1, dir2, contour, [], self.thickness * dir3,
-                                      name='extrusion', color=color, alpha=self.alpha)
+        profile = p3d.ExtrudedProfile(frame=vm.Frame3D(center, u=dir1, v=dir2, w=vm.X3D),
+                                                outer_contour2d=contour, inner_contours2d=[],
+                                                extrusion_length=self.thickness,
+                                                name='extrusion', color=color, alpha=self.alpha)
+
         return [profile]
 
+    @plot_data_view(selector="Panel")
     def plot_data(self):
         hatching = plot_data.HatchingSet(0.1)
         edge_style = plot_data.EdgeStyle(line_width=1)
         surface_style = plot_data.SurfaceStyle(hatching=hatching)
         contour = self.contour()
         plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
-        return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
+        return plot_data.PrimitiveGroup(primitives=[plot_datas])
 
 
 class PanelCombination(PhysicalObject):
@@ -98,6 +103,7 @@ class PanelCombination(PhysicalObject):
         self.mass = sum([p.mass for p in panels])
         PhysicalObject.__init__(self, name=name)
 
+    @plot_data_view(selector="PanelCombination")
     def plot_data(self):
         plot_datas = []
         hatching = plot_data.HatchingSet(0.1)
@@ -106,18 +112,38 @@ class PanelCombination(PhysicalObject):
 
         for panel, grid in zip(self.panels, self.grids):
             c = panel.contour()
-            contour = c.translation(grid)
+            contour = c.translation(vm.Vector2D(grid[0], grid[1]))
             plot_datas.append(contour.plot_data(edge_style=edge_style, surface_style=surface_style))
         contour_inter = self.intersection_area()
         plot_datas.append(contour_inter.plot_data(edge_style=edge_style, surface_style=plot_data.SurfaceStyle()))
-        return plot_datas
+        return plot_data.PrimitiveGroup(plot_datas)
 
     def intersection_area(self):
         c1 = self.panels[0].contour()
-        c2 = self.panels[1].contour()
-        c2 = c2.translation(self.grids[1])
-        sol = c1.cut_by_linesegments(c2.primitives)
-        return sol
+        c2 = self.panels[1].contour().translation(vm.Vector2D(self.grids[1][0], self.grids[1][0]))
+
+        cut_lines = [cut_ls.line for cut_ls in c2.primitives]
+
+        contour_to_cut = [c1]
+        for line in cut_lines:
+            new_contour_to_cut = []
+            for contour in contour_to_cut:
+                new_contour_to_cut.extend(contour.cut_by_line(line))
+            contour_to_cut = new_contour_to_cut[:]
+
+        p1 = c2.center_of_mass()
+        dist_min = math.inf
+        c_opti = None
+
+        for contour in contour_to_cut:
+            if contour.area() > 1e-10:
+                p0 = contour.center_of_mass()
+                distance = p0.point_distance(p1)
+                if distance < dist_min:
+                    c_opti = contour
+                    dist_min = distance
+
+        return c_opti
 
     def hole(self, rivet_position: List[vm.Point2D], diameter):
         dir1, dir2 = vm.X3D, vm.Y3D
@@ -198,20 +224,34 @@ class Rivet(PhysicalObject):
 
     def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
         contour = self.contour(full_contour=False)
-        axis.normalize()
+        axis.unit_vector()
         y = axis.random_unit_normal_vector()
         z = axis.cross(y)
-        irc = p3d.RevolvedProfile(center, axis, z, contour, center,
-                                  axis, angle=2 * math.pi, name='Rivet')
+
+        revolution_frame = vm.Frame3D(
+            origin=vm.Point3D(*tuple(center)),
+            u=axis,
+            v=y,
+            w=z,
+        )
+        irc = vm.primitives3d.RevolvedProfile(
+            frame=revolution_frame,
+            contour2d=contour,
+            axis_point=vm.Point3D(*tuple(center)),
+            axis=axis,
+            angle=2 * math.pi,
+            name='Rivet'
+        )
         return [irc]
 
+    @plot_data_view(selector="Rivet")
     def plot_data(self, full_contour=True):
         hatching = plot_data.HatchingSet(0.1)
         edge_style = plot_data.EdgeStyle(line_width=1)
         surface_style = plot_data.SurfaceStyle(hatching=hatching)
         contour = self.contour(full_contour=full_contour)
         plot_datas = contour.plot_data(edge_style=edge_style, surface_style=surface_style)
-        return [plot_data.PrimitiveGroup(primitives=[plot_datas])]
+        return plot_data.PrimitiveGroup(primitives=[plot_datas])
 
 
 class Rule(DessiaObject):
@@ -234,7 +274,7 @@ class Rule(DessiaObject):
         DessiaObject.__init__(self, name=name)
 
     def define_number_rivet(self, contour: vm.wires.Contour2D, rivet: Rivet):
-        xmin, xmax, ymin, ymax = contour.bounding_rectangle()
+        xmin, xmax, ymin, ymax = contour.bounding_rectangle
         dir1 = xmax - xmin
         dir2 = ymax - ymin
         diameter = rivet.rivet_diameter
@@ -299,15 +339,17 @@ class PanelAssembly(PhysicalObject):
         diameter = self.rivet.rivet_diameter
         circles = []
         for grid in self.grids:
-            circles.append(vm.wires.Circle2D(grid, diameter))
+            circles.append(vm.curves.Circle2D.from_center_and_radius(grid, diameter))
         return circles
 
+    @plot_data_view(selector="PanelAssembly")
     def plot_data(self):
+        plot_datas = []
         edge_style = plot_data.EdgeStyle(line_width=1, color_stroke=RED)
-        plot_datas = self.panel_combination.plot_data()
+        plot_datas.extend(self.panel_combination.plot_data().primitives)
         circles = self.contour()
         plot_datas.extend([c.plot_data(edge_style=edge_style) for c in circles])
-        return [plot_data.PrimitiveGroup(primitives=plot_datas)]
+        return plot_data.PrimitiveGroup(primitives=plot_datas)
 
     def _pressure_applied(self):
         force_applied = 100  # Newton
@@ -336,7 +378,7 @@ class PanelAssembly(PhysicalObject):
     def volmdlr_primitives(self):
         pan_vm = self.panel_combination.volmdlr_primitives()
         primitives = pan_vm
-        center, dir1, dir2 = pan_vm[0].plane_origin, pan_vm[0].x, pan_vm[0].y
+        center, dir1, dir2 = pan_vm[0].frame.origin, pan_vm[0].frame.u, pan_vm[0].frame.v
         thickness = vm.O3D + 2*pan_vm[0].extrusion_vector
 
         for grid in self.grids:
@@ -368,7 +410,7 @@ class Generator(DessiaObject):
         DessiaObject.__init__(self, name=name)
 
     def define_grid(self, contour: vm.wires.Contour2D, number_rivet1: int, number_rivet2: int):
-        xmin, xmax, ymin, ymax = contour.bounding_rectangle()
+        xmin, xmax, ymin, ymax = contour.bounding_rectangle
         dir1 = xmax - xmin
         dir2 = ymax - ymin
         ratio1 = dir1 / (number_rivet1 + 1)

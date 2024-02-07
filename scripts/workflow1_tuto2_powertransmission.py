@@ -24,7 +24,7 @@ block_instanciate = ModelMethod(method_type=MethodType(objects.InstanciateReduct
 block_motor = InstantiateModel(objects.Motor, name='Motor')
 
 list_attribute1 = ['mass_reductor', 'number_solution']
-display_reductor = MultiPlot(list_attribute1, 1, name='Display Reductor')
+display_reductor = MultiPlot(selector_name="Multiplot", attributes=list_attribute1, name='Display Reductor')
 
 block_workflow = [block_optimizer, block_optimize, block_instanciate_reductor,
                   block_instanciate, block_motor, display_reductor]
@@ -54,7 +54,7 @@ input_values = {workflow.input_index(block_optimizer.inputs[1]): 500,
 
 workflow_generator_run = workflow.run(input_values)
 solution = workflow_generator_run.output_value[0]
-plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
+plot_data.plot_canvas(solution.plot_data(), canvas_id='canvas')
 
 # from dessia_api_client import Client
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
