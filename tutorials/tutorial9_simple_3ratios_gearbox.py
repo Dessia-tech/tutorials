@@ -9,6 +9,7 @@ Created on Tue Mar  2 13:30:58 2021
 from dessia_common.core import DessiaObject
 from typing import List, Tuple
 import numpy as np
+from dessia_common.decorators import plot_data_view
 from scipy.optimize import minimize
 from scipy.interpolate import interp2d
 from statistics import mean
@@ -159,6 +160,7 @@ class GearBox(DessiaObject):
             engine_torque = list_torque[list_fuel_c.index(fuel_consumption_gpkwh)]
         return [gear, ratio, fuel_consumption_gpkwh, engine_speed, engine_torque]
 
+
 class GearBoxResults(DessiaObject): 
     def __init__(self, gearbox: GearBox, wltp_cycle: WLTPCycle,
                  engine_speeds: List[float], engine_torques: List[float],
@@ -171,13 +173,24 @@ class GearBoxResults(DessiaObject):
         self.fuel_consumptions = fuel_consumptions
         self.gears_ratios = gears_ratios
         DessiaObject.__init__(self, name=name)
- 
-    def plot_data(self):
-        
+
+    def _to_plot_point(self):
+        points = []
         cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
-        points=[]
-        for car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear in zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques ,self.engine_speeds,self.engine_torques, self.fuel_consumptions, cycle_time, self.gears_ratios[0]):
-            points.append({'c_s': car_speed,'whl_t': wheel_torque,'w_e': engine_speed,'t_e': engine_torque, 'f_cons (g/kWh)':fuel_consumption*3.6e9, 'time': time, 'gear': gear})
+        for i, (car_speed, wheel_torque, engine_speed, engine_torque, fuel_consumption, time, gear)\
+                in enumerate(zip(self.wltp_cycle.cycle_speeds[:-1], self.wltp_cycle.cycle_torques, self.engine_speeds,
+                                 self.engine_torques, self.fuel_consumptions, cycle_time, self.gears_ratios[0])):
+            data = {'c_s': car_speed, 'whl_t': wheel_torque, 'w_e': engine_speed, 't_e': engine_torque,
+                    'f_cons (g/kWh)': fuel_consumption*3.6e9, 'time': time, 'gear': gear}
+
+            points.append(plot_data.Sample(values=data, reference_path=f"#/data/{i}"))
+
+        return points
+
+    @plot_data_view(selector="MultiPlot 1")
+    def plot_data(self):
+
+        points = self._to_plot_point()
 
         color_fill = LIGHTBLUE
         color_stroke = GREY
@@ -208,13 +221,17 @@ class GearBoxResults(DessiaObject):
                                               axes=attributes,
                                               rgbs=rgbs))
 
-        coords = [(0, 0), (500, 0),(1000,0)]
-        sizes = [plot_data.Window(width=500, height=500),
-                 plot_data.Window(width=500, height=500),
-                 plot_data.Window(width=500, height=500)]
         multiplot = plot_data.MultiplePlots(elements=points, plots=objects,
-                                            sizes=sizes, coords=coords)
-        
+                                            initial_view_on=True)
+
+        return multiplot
+
+    @plot_data_view(selector="MultiPlot 2")
+    def plot_data_2(self):
+
+        cycle_time = [i+1 for i in range(len(self.wltp_cycle.cycle_speeds[:-1]))]
+        points = self._to_plot_point()
+
         list_colors = [BLUE, BROWN, GREEN, BLACK]
         graphs2d = []
         point_style = plot_data.PointStyle(color_fill=RED,
@@ -250,11 +267,11 @@ class GearBoxResults(DessiaObject):
                                          color_stroke=list_colors[2])
         elements = []
         for i, torque in enumerate(self.wltp_cycle.cycle_torques):
-            elements.append({'sec':cycle_time[i], 'w_e':self.engine_speeds[i]})
+            elements.append({'sec': cycle_time[i], 'w_e': self.engine_speeds[i]})
         dataset = plot_data.Dataset(elements=elements, edge_style=edge_style,
                                     tooltip=tooltip, point_style=point_style)
         graphs2d.append(plot_data.Graph2D(graphs=[dataset], x_variable='sec',
-                                          y_variable= 'w_e'))
+                                          y_variable='w_e'))
         
         tooltip = plot_data.Tooltip(attributes=['sec', 'w_t'])
         edge_style = plot_data.EdgeStyle(line_width=0.5,
@@ -274,9 +291,9 @@ class GearBoxResults(DessiaObject):
                  plot_data.Window(width=1500, height=187.5),
                  plot_data.Window(width=1500, height=187.5)]
         multiplot2 = plot_data.MultiplePlots(elements=points, plots=graphs2d,
-                                             sizes=sizes, coords=coords)
+                                             initial_view_on=True)
        
-        return [multiplot, multiplot2]
+        return multiplot2
 
 
 class GearBoxOptimizer(DessiaObject):

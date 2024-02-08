@@ -54,7 +54,7 @@ input_values = {workflow.input_index(block_optimizer.inputs[1]): 500,
 
 workflow_generator_run = workflow.run(input_values)
 solution = workflow_generator_run.output_value[0]
-plot_data.plot_canvas(solution.plot_data()[0], canvas_id='canvas')
+plot_data.plot_canvas(solution.plot_data(), canvas_id='canvas')
 
 # from dessia_api_client import Client
 # c = Client(api_url='https://api.platform-dev.dessia.tech')

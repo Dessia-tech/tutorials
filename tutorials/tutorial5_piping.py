@@ -174,7 +174,7 @@ class Optimizer(DessiaObject):
                                             'tolfun': 1e-8,
                                             'verbose': 10,
                                             'ftarget': 1e-8,
-                                            'maxiter': 10})[0:2]
+                                            'maxiter': 100})[0:2]
                 waypoints = self.assembly.waypoints
                 radius = self.assembly.piping.genere_neutral_fiber(waypoints).radius
                 min_radius = min(list(radius.values()))
