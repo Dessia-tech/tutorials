@@ -26,15 +26,15 @@ steps:
 #      - "0 7 * * 1"  # Run every Monday at 7 AM
 
 
-- name: notify by email
-  # when:
-    # status:
-    # - failure
-  image: drillster/drone-email
-  settings:
-    host: mail.dessia.tech
-    username: technical@dessia.tech
-    password:
-      from_secret: email_password
-    from: technical@dessia.tech
-    recipients: [ younes.belabid@dessia.io, ringhausen@dessia.io ]
+#- name: notify by email
+#  when:
+#    status:
+#    - failure
+#  image: drillster/drone-email
+#  settings:
+#    host: mail.dessia.tech
+#    username: technical@dessia.tech
+#    password:
+#      from_secret: email_password
+#    from: technical@dessia.tech
+#    recipients: [ younes.belabid@dessia.io, ringhausen@dessia.io ]
