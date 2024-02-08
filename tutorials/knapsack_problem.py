@@ -1,14 +1,13 @@
-from dessia_common.core import PhysicalObject, DessiaObject
-from typing import List
-from volmdlr.primitives3d import Block
-from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D
 from itertools import combinations
+from typing import List
+
+from dessia_common.core import PhysicalObject, DessiaObject
 
 
 class Item(PhysicalObject):
     _standalone_in_db = True
 
-    def __init__(self, mass: float, price: float, name: str):
+    def __init__(self, mass: float, price: float, name: str = ''):
         self.mass = mass
         self.price = price
         PhysicalObject.__init__(self, name=name)
@@ -28,13 +27,12 @@ class Item(PhysicalObject):
 class Knapsack(PhysicalObject):
     _standalone_in_db = True
 
-    def __init__(self, allowed_mass: float, name: str):
+    def __init__(self, allowed_mass: float, name: str = ''):
         self.allowed_mass = allowed_mass
         PhysicalObject.__init__(self, name=name)
 
 
 class KnapsackPackage(Knapsack):
-    _vector_features = ["mass", "price", "golds", "silvers", "bronzes"]
     _standalone_in_db = True
 
     def __init__(self, items: List[Item], allowed_mass: float, name: str):
@@ -58,10 +56,11 @@ class KnapsackPackage(Knapsack):
 class Generator(DessiaObject):
     _standalone_in_db = True
 
-    def __init__(self, items: List[Item], knapsack: Knapsack):
+    def __init__(self, items: List[Item], knapsack: Knapsack,
+                 name: str = 'generator'):
         self.items = items
         self.knapsack = knapsack
-        DessiaObject.__init__(self, name='generator')
+        DessiaObject.__init__(self, name=name)
 
     def generate(self, min_mass: float, max_gold: int = None,
                  max_iter: int = None):

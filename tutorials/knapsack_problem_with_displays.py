@@ -1,7 +1,6 @@
 from itertools import combinations
 from typing import List
 
-import volmdlr.edges
 from dessia_common.core import PhysicalObject, DessiaObject
 from dessia_common.decorators import plot_data_view
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
@@ -13,7 +12,7 @@ from volmdlr.wires import ClosedPolygon2D
 class Item(PhysicalObject):
     _standalone_in_db = True
 
-    def __init__(self, mass: float, price: float, name: str):
+    def __init__(self, mass: float, price: float, name: str = ''):
         self.mass = mass
         self.price = price
         PhysicalObject.__init__(self, name=name)
@@ -42,8 +41,7 @@ class Item(PhysicalObject):
         return primitives
 
     @plot_data_view("2D display for Item")
-    def display_2d(self, reference_path: str = "#",
-                   y_offset: float = 0., **kwargs):
+    def display_2d(self, y_offset: float = 0.):
         contour = ClosedPolygon2D([
             Point2D(-0.5, -0.5 + y_offset),
             Point2D(0.5, -0.5 + y_offset),
@@ -76,7 +74,7 @@ class Item(PhysicalObject):
 class Knapsack(PhysicalObject):
     _standalone_in_db = True
 
-    def __init__(self, allowed_mass: float, name: str):
+    def __init__(self, allowed_mass: float, name: str = ''):
         self.allowed_mass = allowed_mass
         PhysicalObject.__init__(self, name=name)
 
@@ -94,10 +92,9 @@ class Knapsack(PhysicalObject):
 
 
 class KnapsackPackage(Knapsack):
-    _vector_features = ["mass", "price", "golds", "silvers", "bronzes"]
     _standalone_in_db = True
 
-    def __init__(self, items: List[Item], allowed_mass: float, name: str):
+    def __init__(self, items: List[Item], allowed_mass: float, name: str = ''):
         self.items = items
         Knapsack.__init__(self, allowed_mass=allowed_mass, name=name)
 
@@ -124,7 +121,7 @@ class KnapsackPackage(Knapsack):
         return primitives
 
     @plot_data_view("2D display for KnapsackPackage")
-    def display_2d(self, reference_path: str = "#", **kwargs):
+    def display_2d(self):
         primitives = []
         y_offset = 0
         for item in self.items:
@@ -156,10 +153,10 @@ class KnapsackPackage(Knapsack):
 class Generator(DessiaObject):
     _standalone_in_db = True
 
-    def __init__(self, items: List[Item], knapsack: Knapsack):
+    def __init__(self, items: List[Item], knapsack: Knapsack, name: str = 'generator'):
         self.items = items
         self.knapsack = knapsack
-        DessiaObject.__init__(self, name='generator')
+        DessiaObject.__init__(self, name=name)
 
     def generate(self, min_mass: float, max_gold: int = None,
                  max_iter: int = None):
