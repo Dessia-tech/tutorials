@@ -132,25 +132,3 @@ class Bearing(PhysicalObject):
                  + str(self.external_diameter) \
                  + '|' + str(self.internal_diameter) + '|\n'
         return infos
-
-    # @classmethod
-    # def display_settings(cls):
-    #     display1 = DisplaySettings(
-    #         selector='My fisrt CAD',
-    #         type_='babylon_data',
-    #         method='volmdlr_volume_model1().babylon_data',
-    #         serialize_data=True)
-    #     display2 = DisplaySettings(
-    #         selector='My second CAD',
-    #         type_='babylon_data',
-    #         method='volmdlr_volume_model2().babylon_data',
-    #         serialize_data=True)
-    #     display3 = DisplaySettings(
-    #         selector='Here is the name of the first markdown',
-    #         type_='markdown',
-    #         method='to_markdown1')
-    #     display4 = DisplaySettings(
-    #         selector='Second markdown here',
-    #         type_='markdown',
-    #         method='to_markdown2'))
-    #     plot_data_displays = cls._dis
