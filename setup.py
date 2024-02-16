@@ -96,7 +96,7 @@ setup(
     description='tutorials for DessIA platform',
     long_description='',
     author='Dessia Technologies sAS',
-    author_email='root@dessia.tech',
+    author_email='ringhausen@dessia.io',
     install_requires=['dessia_common>=0.13.1',
                       'plot_data', 'volmdlr>=0.2.12',
                       'dessia_api_client'],
