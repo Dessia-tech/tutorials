@@ -190,7 +190,6 @@ class Rivet(PhysicalObject):
         PhysicalObject.__init__(self, name=name)
 
     def contour(self, full_contour=False):
-
         if full_contour:
             p0 = vm.Point2D(0, 0)
             vectors = [vm.Vector2D(self.rivet_diameter / 2, 0),
@@ -214,13 +213,13 @@ class Rivet(PhysicalObject):
                        vm.Vector2D(self.rivet_length, 0),
                        ]
 
-        points = set()
+        points = []
         p_init = p0
         for v in vectors:
             p1 = p_init.translation(v)
-            points.add(p1)
+            points.append(p1)
             p_init = p1
-        return vm.wires.ClosedPolygon2D(list(points))
+        return vm.wires.ClosedPolygon2D(points)
 
     def volmdlr_primitives(self, center=vm.O3D, axis=vm.Z3D):
         contour = self.contour(full_contour=False)
