@@ -93,6 +93,7 @@ class Knapsack(PhysicalObject):
 
 class KnapsackPackage(Knapsack):
     _standalone_in_db = True
+    _vector_features = ['mass', 'price', 'golds', 'silvers', 'bronzes']
 
     def __init__(self, items: List[Item], allowed_mass: float, name: str = ''):
         self.items = items
