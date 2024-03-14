@@ -10,6 +10,16 @@ from volmdlr.wires import ClosedPolygon2D
 
 
 class Item(PhysicalObject):
+    """
+    Class used to define an Item for Knspasack filling
+
+    :param mass: Item mass in [kg]
+    :type mass: float
+
+    :param price: Item price
+    :type price: float
+    """
+    
     _standalone_in_db = True
 
     def __init__(self, mass: float, price: float, name: str = ''):
@@ -72,6 +82,14 @@ class Item(PhysicalObject):
 
 
 class Knapsack(PhysicalObject):
+    """
+    Class used to define a Knspasack and its filling capacity.
+    This Knapsack class does not contain any item yet.
+
+    :param allowed_mass: Mass capacity of the Knapsack in [kg]
+    :type allowed_mass: float
+    """
+    
     _standalone_in_db = True
 
     def __init__(self, allowed_mass: float, name: str = ''):
@@ -92,6 +110,16 @@ class Knapsack(PhysicalObject):
 
 
 class KnapsackPackage(Knapsack):
+    """
+    Class used to define a Knspasack Package containing items.
+
+    :param items: List of the items contained in the KnapsackPackage
+    :type items: List[Item]
+    
+    :param allowed_mass: Mass maximum capacity of the KnapsackPackage in [kg]
+    :type allowed_mass: float
+    """
+    
     _standalone_in_db = True
     _vector_features = ['mass', 'price', 'golds', 'silvers', 'bronzes']
 
@@ -152,6 +180,16 @@ class KnapsackPackage(Knapsack):
 
 
 class Generator(DessiaObject):
+    """
+    Class used to generate different solutions of Knapsack containing items.
+
+    :param items: List of items available in the store for Knapsack filling
+    :type items: List[Item]
+    
+    :param knapsack: Knapsack to be filled with items
+    :type knapsack: Knapsack
+    """
+    
     _standalone_in_db = True
 
     def __init__(self, items: List[Item], knapsack: Knapsack, name: str = 'generator'):
@@ -161,6 +199,20 @@ class Generator(DessiaObject):
 
     def generate(self, min_mass: float, max_gold: int = None,
                  max_iter: int = None):
+        """
+        Method for generation of filled Knapsack with restriction parameters for generation.
+
+        :param min_mass: Minimal Mass of combined items to reach for a solution to be generated
+        :type min_mass: float
+
+        :param max_gold: Maximal number of gold items not to be exceeded for a solution to be generated 
+        :type max_gold: int
+
+        :param max_iter: Maximum number of solutions generated (when the algorithm reaches this maximum iteration number, generation stops)
+        :type max_iter: int
+        
+        :rtype: List[KnapsackPackage]
+        """
         solutions = []
         count = 0
         for i in range(1, len(self.items)+1):
