@@ -210,6 +210,8 @@ class Generator(DessiaObject):
 
         :param max_iter: Maximum number of solutions generated (when the algorithm reaches this maximum iteration number, generation stops)
         :type max_iter: int
+        
+        :rtype: List[KnapsackPackage]
         """
         solutions = []
         count = 0
