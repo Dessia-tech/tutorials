@@ -10,9 +10,8 @@ import plot_data
 import tutorials.tutorial10 as objects
 from dessia_common.workflow.core import Workflow, Pipe, WorkflowRun
 from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, PlotData
-from dessia_common.typings import MethodType, MarkdownType, PlotDataType
+from dessia_common.typings import PlotDataType
 
-# from dessia_api_client import Client
 import numpy as np
 from dessia_common.typings import MethodType
 
