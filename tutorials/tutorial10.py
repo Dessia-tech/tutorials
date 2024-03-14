@@ -947,15 +947,3 @@ class Clustering(DessiaObject):
         clusters = plot_data.MultiplePlots(plots=plots, elements=all_points,
                                            initial_view_on=True)
         return clusters
-
-    def _displays(self, **kwargs):
-        plot = self.plot_data()
-        displays = []
-        if 'reference_path' in kwargs:
-            reference_path = kwargs['reference_path'] + '/gearboxes_ordered'
-        else:
-            reference_path = '/gearboxes_ordered'
-        display_ = DisplayObject(type_='plot_data', data=plot, 
-                                 reference_path=reference_path)
-        displays.append(display_.to_dict())
-        return displays
