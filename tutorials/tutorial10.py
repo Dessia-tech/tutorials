@@ -195,40 +195,32 @@ class GearBox(DessiaObject):
         return [gear, ratio, fuel_consumption_gpkwh,
                 engine_speed, engine_torque]
 
+    @plot_data_view(selector='GearBox Graph')
     def plot_data(self):
         gearbox_graph = self.graph
-        gears = []
-        shafts = []
-        S_G = []
+
         for node in gearbox_graph.nodes():
             if 'S' in node and 'G' in node:
                 gearbox_graph.nodes()[node]['color'] = 'rgb(169,169,169)'
                 gearbox_graph.nodes()[node]['shape'] = 'o'
                 gearbox_graph.nodes()[node]['name'] = node
-                S_G.append(node)
             elif 'S' in node and 'G' not in node:
                 gearbox_graph.nodes()[node]['color'] = 'rgb(195,230,252)'
                 gearbox_graph.nodes()[node]['shape'] = 'o'
                 gearbox_graph.nodes()[node]['name'] = node
-                shafts.append(node)
             else:
                 gearbox_graph.nodes()[node]['color'] = 'rgb(19,240,240)'
                 gearbox_graph.nodes()[node]['shape'] = 's'
                 gearbox_graph.nodes()[node]['name'] = node
-                gears.append(node)
 
-        edges = []
-        edges_clutch =[]
         for edge in gearbox_graph.edges():
             if gearbox_graph.edges()[edge]:
                 gearbox_graph.edges()[edge]['color'] = 'rgb(247,0,0)'
                 gearbox_graph.edges()[edge]['width'] = 10
-                edges_clutch.append(edge)
             else:
                 gearbox_graph.edges()[edge]['color'] = 'rgb(0,0,0)'
                 gearbox_graph.edges()[edge]['width'] = 5
-                edges.append(edge)
-        return [plot_data.graph.NetworkxGraph(gearbox_graph)]
+        return plot_data.graph.NetworkxGraph(gearbox_graph)
 
     def to_dict(self, use_pointers: bool = True, memo=None, path: str = "#", id_method=True, id_memo=None):
         d = super().to_dict(use_pointers=use_pointers, memo=memo, path=path, id_method=id_method, id_memo=id_memo)
@@ -955,15 +947,3 @@ class Clustering(DessiaObject):
         clusters = plot_data.MultiplePlots(plots=plots, elements=all_points,
                                            initial_view_on=True)
         return clusters
-
-    def _displays(self, **kwargs):
-        plot = self.plot_data()
-        displays = []
-        if 'reference_path' in kwargs:
-            reference_path = kwargs['reference_path'] + '/gearboxes_ordered'
-        else:
-            reference_path = '/gearboxes_ordered'
-        display_ = DisplayObject(type_='plot_data', data=plot, 
-                                 reference_path=reference_path)
-        displays.append(display_.to_dict())
-        return displays
