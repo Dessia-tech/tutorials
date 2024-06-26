@@ -1,4 +1,4 @@
-from tutorials.knapsack_problem_with_displays import Item, Knapsack, Generator
+from tutorials.knapsack_problem import Item, Knapsack, Generator
 
 items = [
     Item(mass=1, price=15, name='item 1'),

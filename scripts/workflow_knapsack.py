@@ -1,6 +1,6 @@
 import random
 
-from tutorials.knapsack_problem_with_displays import Knapsack, Generator, Item, KnapsackPackage
+from tutorials.knapsack_problem import Knapsack, Generator, Item, KnapsackPackage
 from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, ModelAttribute, MultiPlot, Markdown, Unpacker, \
     PlotData, CadView
 from dessia_common.typings import MethodType
