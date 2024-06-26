@@ -11,7 +11,7 @@ from volmdlr.wires import ClosedPolygon2D
 
 class Item(PhysicalObject):
     """
-    Class used to define an Item for Knspasack filling
+    Class used to define an Item for Knapsack filling
 
     :param mass: Item mass in [kg]
     :type mass: float
@@ -83,7 +83,7 @@ class Item(PhysicalObject):
 
 class Knapsack(PhysicalObject):
     """
-    Class used to define a Knspasack and its filling capacity.
+    Class used to define a Knapsack and its filling capacity.
     This Knapsack class does not contain any item yet.
 
     :param allowed_mass: Mass capacity of the Knapsack in [kg]
@@ -111,7 +111,7 @@ class Knapsack(PhysicalObject):
 
 class KnapsackPackage(Knapsack):
     """
-    Class used to define a Knspasack Package containing items.
+    Class used to define a Knapsack Package containing items.
 
     :param items: List of the items contained in the KnapsackPackage
     :type items: List[Item]
