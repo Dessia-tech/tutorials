@@ -253,7 +253,11 @@ class Generator(DessiaObject):
                         solutions.append(solution)
 
                 if max_iter is not None and count == max_iter:
-                    return sorted(solutions, key=lambda x: x.price,
-                                  reverse=True)
+                    return ListKnapsackPackages(
+                        knapsack_packages=sorted(solutions,
+                                                 key=lambda x: x.price,
+                                                 reverse=True))
 
-        return sorted(solutions, key=lambda x: x.price, reverse=True)
+        return ListKnapsackPackages(knapsack_packages=sorted(solutions,
+                                                             key=lambda x: x.price,
+                                                             reverse=True))
