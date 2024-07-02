@@ -3,6 +3,7 @@ from typing import List
 
 from dessia_common.core import PhysicalObject, DessiaObject
 from dessia_common.decorators import plot_data_view
+from dessia_common.datatools import dataset
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
 from volmdlr.primitives3d import Block
@@ -177,6 +178,27 @@ class KnapsackPackage(Knapsack):
                           multi_lines=False)
         primitives.extend([primitive1, primitive2])
         return PrimitiveGroup(primitives=primitives)
+
+
+class ListKnapsackPackages(DessiaObject):
+    """
+        Class used to store a list of solutions of Knapsack containing items.
+
+        :param knapsack_packages: List of Knapsack solutions containing items
+        :type knapsack_packages: List[KnapsackPackage]
+    """
+
+    _standalone_in_db = True
+
+    def __init__(self, knapsack_packages: List[KnapsackPackage], name: str = 'generator'):
+        self.knapsack_packages = knapsack_packages
+        DessiaObject.__init__(self, name=name)
+
+    def to_markdown(self, *args, **kwargs) -> str:
+        """Render a markdown of the object output type: string."""
+        dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages)
+        returned_markdown = dataset.Dataset.to_markdown(dataset_object, *args, **kwargs)
+        return returned_markdown
 
 
 class Generator(DessiaObject):
