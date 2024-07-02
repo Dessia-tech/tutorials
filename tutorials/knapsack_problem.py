@@ -186,6 +186,7 @@ class ListKnapsackPackages(DessiaObject):
 
         :param knapsack_packages: List of Knapsack solutions containing items
         :type knapsack_packages: List[KnapsackPackage]
+
     """
 
     _standalone_in_db = True
@@ -193,6 +194,12 @@ class ListKnapsackPackages(DessiaObject):
     def __init__(self, knapsack_packages: List[KnapsackPackage], name: str = 'generator'):
         self.knapsack_packages = knapsack_packages
         DessiaObject.__init__(self, name=name)
+
+        self.masses = [kp.mass for kp in self.knapsack_packages]
+        self.prices = [kp.price for kp in self.knapsack_packages]
+        self.golds = [kp.golds for kp in self.knapsack_packages]
+        self.silvers = [kp.silvers for kp in self.knapsack_packages]
+        self.bronzes = [kp.bronzes for kp in self.knapsack_packages]
 
     def to_markdown(self, *args, **kwargs) -> str:
         """Render a markdown of the object output type: string."""
