@@ -195,12 +195,6 @@ class ListKnapsackPackages(DessiaObject):
         self.knapsack_packages = knapsack_packages
         DessiaObject.__init__(self, name=name)
 
-        self.masses = [kp.mass for kp in self.knapsack_packages]
-        self.prices = [kp.price for kp in self.knapsack_packages]
-        self.golds = [kp.golds for kp in self.knapsack_packages]
-        self.silvers = [kp.silvers for kp in self.knapsack_packages]
-        self.bronzes = [kp.bronzes for kp in self.knapsack_packages]
-
     def to_markdown(self, *args, **kwargs) -> str:
         """Render a markdown of the object output type: string."""
         dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages)
