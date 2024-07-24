@@ -1,9 +1,11 @@
 from itertools import combinations
 from typing import List
 
+import volmdlr.step as vms
 from dessia_common.core import PhysicalObject, DessiaObject
 from dessia_common.decorators import plot_data_view
 from dessia_common.datatools import dataset
+from dessia_common.files import BinaryFile
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
 from volmdlr.primitives3d import Block
@@ -108,6 +110,18 @@ class Knapsack(PhysicalObject):
                             alpha=0.3,
                             name='block ' + self.name)]
         return primitives
+
+    @classmethod
+    def from_step_stream(cls, file_component: BinaryFile) -> 'Knapsack':
+        """
+        Method used to load a Knapsack in step format
+        :param file_component: Knapsack defined from step file
+        :return: Knapsack
+        """
+        file = vms.Step.from_stream(file_component)
+        volume = file.to_volume_model()
+        allowed_mass = 2 * (volume.primitives[0].bounding_box.size[2] - 0.1) - 0.5
+        return cls(allowed_mass=allowed_mass)
 
 
 class KnapsackPackage(Knapsack):
@@ -262,3 +276,18 @@ class Generator(DessiaObject):
         return ListKnapsackPackages(knapsack_packages=sorted(solutions,
                                                              key=lambda x: x.price,
                                                              reverse=True))
+
+    def generate_knapsack_package(self, knapsack: Knapsack, items: List[Item]) -> KnapsackPackage:
+        """
+        Method used to fill in a Knapsack with items
+
+        :param knapsack: Knapsack to be filled with the given items
+        :type knapsack: Knapsack
+
+        :param items: Items to fill in the knapsack
+        :type items: List[Items]
+
+        :rtype: KnapsackPackage
+        """
+        knapsack_package = KnapsackPackage(items=items, allowed_mass=knapsack.allowed_mass)
+        return knapsack_package
