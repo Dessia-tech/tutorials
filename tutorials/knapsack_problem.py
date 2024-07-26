@@ -281,19 +281,13 @@ class Generator(DessiaObject):
         """
         Method used to fill in a Knapsack with items
 
-        :param knapsack: Knapsack to be filled with the given items
-        :type knapsack: Knapsack
-
-        :param items: Items to fill in the knapsack
-        :type items: List[Items]
-
         :rtype: KnapsackPackage
         """
 
         sum_masses = sum(item.mass for item in self.items)
         while sum_masses > self.knapsack.allowed_mass:
-            print("Too many items have been given at the input compared to the knapsack allowed mass."
-                  "The last item from the input list is removed.")
+            print("Too many items have been given at the input compared to the knapsack allowed mass.")
+            print("The last item from the input list is removed.")
             self.items = self.items[0:(len(self.items)-1)]
             sum_masses = sum(item.mass for item in self.items)
 
