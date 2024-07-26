@@ -293,8 +293,9 @@ class Generator(DessiaObject):
         sum_masses = sum(item.mass for item in self.items)
         while sum_masses > self.knapsack.allowed_mass:
             print("Too many items have been given at the input compared to the knapsack allowed mass."
-                  "The mast item from the input list is removed.")
+                  "The last item from the input list is removed.")
             self.items = self.items[0:(len(self.items)-1)]
+            sum_masses = sum(item.mass for item in self.items)
 
         print('The knapsack finally contains {} items for global mass of {} kg'
               .format(len(self.items), sum(item.mass for item in self.items)))
