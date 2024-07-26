@@ -277,7 +277,7 @@ class Generator(DessiaObject):
                                                              key=lambda x: x.price,
                                                              reverse=True))
 
-    def generate_knapsack_package(self, knapsack: Knapsack, items: List[Item]) -> KnapsackPackage:
+    def generate_knapsack_package(self) -> KnapsackPackage:
         """
         Method used to fill in a Knapsack with items
 
@@ -289,5 +289,6 @@ class Generator(DessiaObject):
 
         :rtype: KnapsackPackage
         """
-        knapsack_package = KnapsackPackage(items=items, allowed_mass=knapsack.allowed_mass)
+        knapsack_package = KnapsackPackage(items=self.items,
+                                           allowed_mass=self.knapsack.allowed_mass)
         return knapsack_package
