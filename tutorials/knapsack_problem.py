@@ -289,6 +289,16 @@ class Generator(DessiaObject):
 
         :rtype: KnapsackPackage
         """
+
+        sum_masses = sum(item.mass for item in self.items)
+        while sum_masses > self.knapsack.allowed_mass:
+            print("Too many items have been given at the input compared to the knapsack allowed mass."
+                  "The mast item from the input list is removed.")
+            self.items = self.items[0:(len(self.items)-1)]
+
+        print('The knapsack finally contains {} items for global mass of {} kg'
+              .format(len(self.items), sum(item.mass for item in self.items)))
+
         knapsack_package = KnapsackPackage(items=self.items,
                                            allowed_mass=self.knapsack.allowed_mass)
         return knapsack_package
