@@ -936,7 +936,8 @@ class Clustering(DessiaObject):
 
         edge_style = plot_data.EdgeStyle(color_stroke=BLACK, dashline=[10, 5])
 
-        plots = [plot_data.Scatter(tooltip=tooltip, x_variable=all_attributes[0],
+        plots = [plot_data.Scatter(tooltip=tooltip,
+                                   x_variable=all_attributes[0],
                                    y_variable=all_attributes[1])]
 
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
@@ -944,6 +945,8 @@ class Clustering(DessiaObject):
                                             disposition='vertical',
                                             axes=all_attributes,
                                             rgbs=rgbs))
-        clusters = plot_data.MultiplePlots(plots=plots, elements=all_points,
+        clusters = plot_data.MultiplePlots(plots=plots,
+                                           elements=all_points,
+                                           point_families=point_families,
                                            initial_view_on=True)
         return clusters
