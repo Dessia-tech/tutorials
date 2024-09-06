@@ -8,7 +8,7 @@ from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
 from volmdlr.primitives3d import Block
 from volmdlr.wires import ClosedPolygon2D
-
+from volmdlr.shapes import Solid
 
 class Item(PhysicalObject):
     """
@@ -44,11 +44,9 @@ class Item(PhysicalObject):
         frame = Frame3D(origin=O3D + height_vector / 2 + z_offset * Z3D,
                         u=X3D,
                         v=Y3D,
-                        w=height_vector,
+                        w=Z3D,
                         name='frame ' + self.name)
-        primitives = [Block(frame=frame,
-                            color=self.rgb,
-                            name='block ' + self.name)]
+        primitives = [Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame, frame_centered=True, name='block ' + self.name)]
         return primitives
 
     @plot_data_view("2D display for Item")
@@ -100,13 +98,12 @@ class Knapsack(PhysicalObject):
     def volmdlr_primitives(self):
         height_vector = (self.allowed_mass + 0.5) * Z3D / 2
         frame = Frame3D(origin=O3D + height_vector / 2,
-                        u=1.1 * X3D,
-                        v=1.1 * Y3D,
-                        w=height_vector + 0.1 * Z3D,
+                        u=X3D,
+                        v=Y3D,
+                        w=Z3D,
                         name='frame ' + self.name)
-        primitives = [Block(frame=frame,
-                            alpha=0.3,
-                            name='block ' + self.name)]
+        primitives = [Solid.make_box(length=1.1, width=1.1, height=height_vector.norm(), frame=frame,frame_centered=True, name='block ' + self.name)]
+        primitives[0].alpha = 0.4
         return primitives
 
 
@@ -234,7 +231,7 @@ class Generator(DessiaObject):
         :param max_iter: Maximum number of solutions generated (when the algorithm reaches this maximum iteration number, generation stops)
         :type max_iter: int
         
-        :rtype: List[KnapsackPackage]
+        :rtype: ListKnapsackPackages
         """
         solutions = []
         count = 0
