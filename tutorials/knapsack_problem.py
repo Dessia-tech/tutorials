@@ -60,7 +60,7 @@ class Item(PhysicalObject):
             Point2D(0.5, 0.5 + y_offset),
             Point2D(-0.5, 0.5 + y_offset)])
         surface_style = SurfaceStyle(
-            color_fill=Color(red=self.rgb[0]*255,green=self.rgb[1]*255, blue=self.rgb[2]*255 ))
+            color_fill=Color(red=self.rgb[0],green=self.rgb[1], blue=self.rgb[2]))
         primitive1 = contour.plot_data(surface_style=surface_style)
         text_style = TextStyle(text_color=BLACK,
                                font_size=None,
