@@ -6,7 +6,7 @@ from dessia_common.decorators import plot_data_view, picture_view
 from dessia_common.datatools import dataset
 
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
-from plot_data.colors import BLACK
+from plot_data.colors import BLACK, Color
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
 from volmdlr.primitives3d import Block
 from volmdlr.wires import ClosedPolygon2D
@@ -60,7 +60,7 @@ class Item(PhysicalObject):
             Point2D(0.5, 0.5 + y_offset),
             Point2D(-0.5, 0.5 + y_offset)])
         surface_style = SurfaceStyle(
-            color_fill=f'rgb({self.rgb[0]*255},{self.rgb[1]*255},{self.rgb[2]*255}')
+            color_fill=Color(red=self.rgb[0]*255,green=self.rgb[1]*255, blue=self.rgb[2]*255 ))
         primitive1 = contour.plot_data(surface_style=surface_style)
         text_style = TextStyle(text_color=BLACK,
                                font_size=None,
