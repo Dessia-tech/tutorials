@@ -2,7 +2,7 @@ from itertools import combinations
 from typing import List
 
 from dessia_common.core import PhysicalObject, DessiaObject
-from dessia_common.decorators import plot_data_view
+from dessia_common.decorators import plot_data_view, picture_view
 from dessia_common.datatools import dataset
 
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
@@ -150,6 +150,7 @@ class KnapsackPackage(Knapsack):
         return primitives
 
     @plot_data_view("2D display for KnapsackPackage")
+    @picture_view("2D display for KnapsackPackage")
     def display_2d(self):
         primitives = []
         y_offset = 0
