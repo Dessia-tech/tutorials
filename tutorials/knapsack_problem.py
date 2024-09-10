@@ -8,10 +8,9 @@ from dessia_common.datatools import dataset
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
 from plot_data.colors import BLACK, Color
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
-from volmdlr.primitives3d import Block
 from volmdlr.wires import ClosedPolygon2D
 from volmdlr.shapes import Solid
-from dessia_common.displays import DisplaySetting
+
 
 class Item(PhysicalObject):
     """
@@ -49,7 +48,8 @@ class Item(PhysicalObject):
                         v=Y3D,
                         w=Z3D,
                         name='frame ' + self.name)
-        primitives = [Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame, frame_centered=True, name='block ' + self.name)]
+        primitives = [Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame,
+                                     frame_centered=True, name='block ' + self.name)]
         return primitives
 
     @plot_data_view("2D display for Item")
@@ -105,7 +105,8 @@ class Knapsack(PhysicalObject):
                         v=Y3D,
                         w=Z3D,
                         name='frame ' + self.name)
-        primitives = [Solid.make_box(length=1.1, width=1.1, height=height_vector.norm(), frame=frame,frame_centered=True, name='block ' + self.name)]
+        primitives = [Solid.make_box(length=1.1, width=1.1, height=height_vector.norm(), frame=frame,
+                                     frame_centered=True, name='block ' + self.name)]
         primitives[0].alpha = 0.4
         return primitives
 
