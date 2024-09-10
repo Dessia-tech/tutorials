@@ -180,15 +180,6 @@ class KnapsackPackage(Knapsack):
         primitives.extend([primitive1, primitive2])
         return PrimitiveGroup(primitives=primitives)
 
-    @staticmethod
-    def display_settings():
-        """
-        Returns a list of objects describing how to call subdisplays.
-        """
-
-        return [DisplaySetting(selector="2D display for KnapsackPackage", type_="plot_data",
-                                method="display_2d", serialize_data=True, load_by_default=True)]
-
 class ListKnapsackPackages(DessiaObject):
     """
         Class used to store a list of solutions of Knapsack containing items.
