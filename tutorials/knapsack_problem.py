@@ -4,11 +4,13 @@ from typing import List
 from dessia_common.core import PhysicalObject, DessiaObject
 from dessia_common.decorators import plot_data_view
 from dessia_common.datatools import dataset
+
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
 from volmdlr.primitives3d import Block
 from volmdlr.wires import ClosedPolygon2D
 from volmdlr.shapes import Solid
+from dessia_common.displays import DisplaySetting
 
 class Item(PhysicalObject):
     """
@@ -176,6 +178,14 @@ class KnapsackPackage(Knapsack):
         primitives.extend([primitive1, primitive2])
         return PrimitiveGroup(primitives=primitives)
 
+    @staticmethod
+    def display_settings():
+        """
+        Returns a list of objects describing how to call subdisplays.
+        """
+
+        return [DisplaySetting(selector="2D display for KnapsackPackage", type_="plot_data",
+                                method="plot_data_contour", serialize_data=True, load_by_default=True)]
 
 class ListKnapsackPackages(DessiaObject):
     """
