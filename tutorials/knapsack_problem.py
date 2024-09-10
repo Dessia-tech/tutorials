@@ -159,7 +159,7 @@ class KnapsackPackage(Knapsack):
             primitive_groups = item.display_2d(y_offset=y_offset)
             primitives.extend(primitive_groups.primitives)
             y_offset += 1.1
-        text_style = TextStyle(text_color=plot_data.colors.'rgb(0, 0, 0)',
+        text_style = TextStyle(text_color=BLACK,
                                font_size=None,
                                text_align_x='center',
                                text_align_y='middle')
