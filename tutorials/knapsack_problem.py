@@ -185,7 +185,7 @@ class KnapsackPackage(Knapsack):
         """
 
         return [DisplaySetting(selector="2D display for KnapsackPackage", type_="plot_data",
-                                method="plot_data_contour", serialize_data=True, load_by_default=True)]
+                                method="display_2d", serialize_data=True, load_by_default=True)]
 
 class ListKnapsackPackages(DessiaObject):
     """
