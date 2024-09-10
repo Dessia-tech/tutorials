@@ -6,6 +6,7 @@ from dessia_common.decorators import plot_data_view, picture_view
 from dessia_common.datatools import dataset
 
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
+from plot_data.colors import BLACK
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
 from volmdlr.primitives3d import Block
 from volmdlr.wires import ClosedPolygon2D
@@ -61,7 +62,7 @@ class Item(PhysicalObject):
         surface_style = SurfaceStyle(
             color_fill=f'rgb({self.rgb[0]*255},{self.rgb[1]*255},{self.rgb[2]*255}')
         primitive1 = contour.plot_data(surface_style=surface_style)
-        text_style = TextStyle(text_color='rgb(0, 0, 0)',
+        text_style = TextStyle(text_color=BLACK,
                                font_size=None,
                                text_align_x='center',
                                text_align_y='middle')
@@ -158,7 +159,7 @@ class KnapsackPackage(Knapsack):
             primitive_groups = item.display_2d(y_offset=y_offset)
             primitives.extend(primitive_groups.primitives)
             y_offset += 1.1
-        text_style = TextStyle(text_color='rgb(0, 0, 0)',
+        text_style = TextStyle(text_color=plot_data.colors.'rgb(0, 0, 0)',
                                font_size=None,
                                text_align_x='center',
                                text_align_y='middle')
