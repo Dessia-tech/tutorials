@@ -16,6 +16,4 @@ knapsack = Knapsack(allowed_mass=10, name='knapsack 10kg')
 generator = Generator(items=items, knapsack=knapsack)
 solutions = generator.generate(min_mass=5, max_gold=1)
 
-solutions.sort(key=lambda x: x.price)
-solutions[-1].display_2d().plot()
-solutions[-1].babylonjs()
+print(solutions)

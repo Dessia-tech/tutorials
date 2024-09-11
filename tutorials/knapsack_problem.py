@@ -2,12 +2,15 @@ from itertools import combinations
 from typing import List
 
 from dessia_common.core import PhysicalObject, DessiaObject
-from dessia_common.decorators import plot_data_view
+from dessia_common.decorators import plot_data_view, picture_view, cad_view
 from dessia_common.datatools import dataset
+
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
+from plot_data.colors import BLACK, Color
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
-from volmdlr.primitives3d import Block
 from volmdlr.wires import ClosedPolygon2D
+from volmdlr.shapes import Solid
+from volmdlr.core import VolumeModel
 
 
 class Item(PhysicalObject):
@@ -44,12 +47,16 @@ class Item(PhysicalObject):
         frame = Frame3D(origin=O3D + height_vector / 2 + z_offset * Z3D,
                         u=X3D,
                         v=Y3D,
-                        w=height_vector,
+                        w=Z3D,
                         name='frame ' + self.name)
-        primitives = [Block(frame=frame,
-                            color=self.rgb,
-                            name='block ' + self.name)]
-        return primitives
+        solid = Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame,
+                                     frame_centered=True, name='block ' + self.name)
+        solid.color = self.rgb
+        return [solid]
+
+    @cad_view("Item CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
     @plot_data_view("2D display for Item")
     def display_2d(self, y_offset: float = 0.):
@@ -59,9 +66,9 @@ class Item(PhysicalObject):
             Point2D(0.5, 0.5 + y_offset),
             Point2D(-0.5, 0.5 + y_offset)])
         surface_style = SurfaceStyle(
-            color_fill=f'rgb({self.rgb[0]*255},{self.rgb[1]*255},{self.rgb[2]*255}')
+            color_fill=Color(red=self.rgb[0],green=self.rgb[1], blue=self.rgb[2]))
         primitive1 = contour.plot_data(surface_style=surface_style)
-        text_style = TextStyle(text_color='rgb(0, 0, 0)',
+        text_style = TextStyle(text_color=BLACK,
                                font_size=None,
                                text_align_x='center',
                                text_align_y='middle')
@@ -100,14 +107,18 @@ class Knapsack(PhysicalObject):
     def volmdlr_primitives(self):
         height_vector = (self.allowed_mass + 0.5) * Z3D / 2
         frame = Frame3D(origin=O3D + height_vector / 2,
-                        u=1.1 * X3D,
-                        v=1.1 * Y3D,
-                        w=height_vector + 0.1 * Z3D,
+                        u=X3D,
+                        v=Y3D,
+                        w=Z3D,
                         name='frame ' + self.name)
-        primitives = [Block(frame=frame,
-                            alpha=0.3,
-                            name='block ' + self.name)]
+        primitives = [Solid.make_box(length=1.1, width=1.1, height=height_vector.norm(), frame=frame,
+                                     frame_centered=True, name='block ' + self.name)]
+        primitives[0].alpha = 0.4
         return primitives
+
+    @cad_view("Knapsack CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
 
 class KnapsackPackage(Knapsack):
@@ -150,7 +161,12 @@ class KnapsackPackage(Knapsack):
             z_offset += item.mass / 2 + 0.05
         return primitives
 
+    @cad_view("Knapsack Package CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     @plot_data_view("2D display for KnapsackPackage")
+    @picture_view("2D display for KnapsackPackage")
     def display_2d(self):
         primitives = []
         y_offset = 0
@@ -158,7 +174,7 @@ class KnapsackPackage(Knapsack):
             primitive_groups = item.display_2d(y_offset=y_offset)
             primitives.extend(primitive_groups.primitives)
             y_offset += 1.1
-        text_style = TextStyle(text_color='rgb(0, 0, 0)',
+        text_style = TextStyle(text_color=BLACK,
                                font_size=None,
                                text_align_x='center',
                                text_align_y='middle')
@@ -234,7 +250,7 @@ class Generator(DessiaObject):
         :param max_iter: Maximum number of solutions generated (when the algorithm reaches this maximum iteration number, generation stops)
         :type max_iter: int
         
-        :rtype: List[KnapsackPackage]
+        :rtype: ListKnapsackPackages
         """
         solutions = []
         count = 0
