@@ -2,7 +2,7 @@ from itertools import combinations
 from typing import List
 
 from dessia_common.core import PhysicalObject, DessiaObject
-from dessia_common.decorators import plot_data_view, picture_view
+from dessia_common.decorators import plot_data_view, picture_view, cad_view
 from dessia_common.datatools import dataset
 
 from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
@@ -10,6 +10,7 @@ from plot_data.colors import BLACK, Color
 from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
 from volmdlr.wires import ClosedPolygon2D
 from volmdlr.shapes import Solid
+from volmdlr.core import VolumeModel
 
 
 class Item(PhysicalObject):
@@ -51,6 +52,10 @@ class Item(PhysicalObject):
         primitives = [Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame,
                                      frame_centered=True, name='block ' + self.name)]
         return primitives
+
+    @cad_view("Item CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
     @plot_data_view("2D display for Item")
     def display_2d(self, y_offset: float = 0.):
@@ -110,6 +115,10 @@ class Knapsack(PhysicalObject):
         primitives[0].alpha = 0.4
         return primitives
 
+    @cad_view("Knapsack CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
 
 class KnapsackPackage(Knapsack):
     """
@@ -151,6 +160,10 @@ class KnapsackPackage(Knapsack):
             z_offset += item.mass / 2 + 0.05
         return primitives
 
+    @cad_view("Knapsack Package CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     @plot_data_view("2D display for KnapsackPackage")
     @picture_view("2D display for KnapsackPackage")
     def display_2d(self):
@@ -180,6 +193,7 @@ class KnapsackPackage(Knapsack):
                           multi_lines=False)
         primitives.extend([primitive1, primitive2])
         return PrimitiveGroup(primitives=primitives)
+    
 
 class ListKnapsackPackages(DessiaObject):
     """
