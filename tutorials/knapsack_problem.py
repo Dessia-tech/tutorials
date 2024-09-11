@@ -49,9 +49,10 @@ class Item(PhysicalObject):
                         v=Y3D,
                         w=Z3D,
                         name='frame ' + self.name)
-        primitives = [Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame,
-                                     frame_centered=True, name='block ' + self.name)]
-        return primitives
+        solid = Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame,
+                                     frame_centered=True, name='block ' + self.name)
+        solid.color = self.rgb
+        return [solid]
 
     @cad_view("Item CAD")
     def cadview(self):
@@ -193,7 +194,7 @@ class KnapsackPackage(Knapsack):
                           multi_lines=False)
         primitives.extend([primitive1, primitive2])
         return PrimitiveGroup(primitives=primitives)
-    
+
 
 class ListKnapsackPackages(DessiaObject):
     """
