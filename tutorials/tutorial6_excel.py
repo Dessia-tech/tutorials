@@ -1,28 +1,29 @@
-# import volmdlr as vm
-# import volmdlr.primitives2d as p2d
-# import volmdlr.primitives3d as p3d
-# import plot_data.core as plot_data
-# import math
-# from itertools import product
-# from random import random
-# import cma
+from typing import Dict
 
 from dessia_common.core import DessiaObject
-# from typing import List
+from dessia_common.files import BinaryFile
+
+import openpyxl
 
 
-class Datas(DessiaObject):
-    _standalone_in_db = True
-
-    def __init__(self, param1: float, param2: float,
-                 param3: float, param4: float, param5: float,
-                 sum: float=None,
-                 name: str = ''):
-
+class ParameterData(DessiaObject):
+    def __init__(self, datas: Dict[str, float], name: str = ''):
+        self.datas = datas
         DessiaObject.__init__(self, name=name)
-        self.sum = sum
-        self.param5 = param5
-        self.param4 = param4
-        self.param3 = param3
-        self.param2 = param2
-        self.param1 = param1
+
+    @classmethod
+    def read_excel(cls, stream: BinaryFile):
+        workbook = openpyxl.load_workbook(stream)
+        sheet = workbook.active
+
+        datas = {}
+        for row in sheet.iter_rows(min_row=1, max_col=2, values_only=True):
+            if row[0] and isinstance(row[1], (int, float)):
+                datas[row[0]] = row[1]
+
+        return cls(datas=datas)
+
+    @property
+    def calculate_sum(self):
+        return sum(self.datas.values())
+

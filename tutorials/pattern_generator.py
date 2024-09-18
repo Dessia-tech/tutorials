@@ -46,7 +46,7 @@ class Piece(DessiaObject):
             raise NotImplementedError
         return Piece(volmdlr.Point2D(new_x, new_y), self.diameter)
 
-    def plot(self, ax=None, color: str = ''):
+    def plot(self, ax=None, color: str = 'blue'):
         """plots a Piece using the matplotlib dependence"""
         if ax is None:
             _, ax = plt.subplots()
@@ -57,7 +57,7 @@ class Piece(DessiaObject):
         ax.add_patch(circle)
 
     @plot_data_view(selector="Circle2D")
-    def plot_data(self, edge_style: plot_data.EdgeStyle = None,
+    def plot_circle_2d(self, edge_style: plot_data.EdgeStyle = None,
                   surface_style: plot_data.SurfaceStyle = None):
         """
         Dessia plot_data method
@@ -243,14 +243,14 @@ class Pattern(DessiaObject):
         return ax
 
     @plot_data_view(selector="Pattern")
-    def plot_data(self):
+    def plot_pattern(self):
         """
         Dessia plot_data method
         return a PrimitiveGroup object
         """
         primitives = []
         for piece in self.pieces:
-            primitives.append(piece.plot_data())
+            primitives.append(piece.plot_circle_2d())
         primitive_group = plot_data.PrimitiveGroup(primitives)
         return primitive_group
 

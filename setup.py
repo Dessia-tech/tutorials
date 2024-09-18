@@ -97,11 +97,9 @@ setup(
     long_description='',
     author='Dessia Technologies sAS',
     author_email='ringhausen@dessia.io',
-    install_requires=['dessia_common>=0.13.1',
+    install_requires=['dessia_common>=0.18.0',
                       'plot_data',
-                      'volmdlr>=0.2.12',
-                      'dessia_api_client',
-                      'numpy<2.0.0'],
+                      'volmdlr>=0.18.0'],
     python_requires='>=3.7',
     packages=['tutorials'],
 )

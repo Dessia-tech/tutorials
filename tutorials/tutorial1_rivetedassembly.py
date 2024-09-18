@@ -1,6 +1,7 @@
 import volmdlr as vm
 import volmdlr.primitives2d as p2d
 import volmdlr.primitives3d as p3d
+from volmdlr.model import VolumeModel
 import plot_data.core as plot_data
 import math
 from itertools import product
@@ -8,7 +9,7 @@ from itertools import product
 from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List, Tuple, Dict
 
-from dessia_common.decorators import plot_data_view
+from dessia_common.decorators import plot_data_view, cad_view
 from plot_data.colors import *
 
 class Color(DessiaObject):
@@ -23,6 +24,7 @@ class Color(DessiaObject):
 
     def to_tuple(self):
         return (self.red, self.green, self.blue)
+
 
 class Panel(PhysicalObject):
     """ 
@@ -74,6 +76,11 @@ class Panel(PhysicalObject):
                                                 name='extrusion', color=color, alpha=self.alpha)
 
         return [profile]
+
+    @cad_view(selector='Panel CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
     @plot_data_view(selector="Panel")
     def plot_data(self):
@@ -161,6 +168,11 @@ class PanelCombination(PhysicalObject):
             primitives.extend(pan.volmdlr_primitives(center=pt3d))
         return primitives
 
+    @cad_view(selector='PanelCombination CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
+
 
 class Rivet(PhysicalObject):
     """ 
@@ -242,6 +254,11 @@ class Rivet(PhysicalObject):
             name='Rivet'
         )
         return [irc]
+
+    @cad_view(selector='Rivet CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
     @plot_data_view(selector="Rivet")
     def plot_data(self, full_contour=True):
@@ -385,6 +402,11 @@ class PanelAssembly(PhysicalObject):
             primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
 
         return primitives
+
+    @cad_view(selector='PanelAssembly CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
 
 class Generator(DessiaObject):
