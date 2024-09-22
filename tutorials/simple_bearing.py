@@ -1,13 +1,15 @@
+import math
 from math import cos, pi, sin
 
 from dessia_common.core import PhysicalObject
 from dessia_common.decorators import plot_data_view
 from plot_data import EdgeStyle, PrimitiveGroup, SurfaceStyle
 from plot_data.colors import BLACK, GREY
-from volmdlr import OXYZ, Z3D, Point2D, Point3D
+from volmdlr import OXYZ, Z3D, Point2D, Point3D, Frame3D, Vector3D
 from volmdlr.curves import Circle2D
-from volmdlr.primitives3d import ExtrudedProfile, Sphere
+from volmdlr.primitives3d import ExtrudedProfile
 from volmdlr.wires import Contour2D
+from volmdlr.shapes import Solid
 
 
 class Ball(PhysicalObject):
@@ -19,11 +21,30 @@ class Ball(PhysicalObject):
 
     def volmdlr_primitives(self, pos_x=0., pos_y=0., pos_z=0.,
                            distance=0., angle=0.):
-        center = Point3D(pos_x + distance * cos(angle),
-                         pos_y + distance * sin(angle),
-                         pos_z)
-        primitives = [Sphere(center=center, radius=self.diameter / 2)]
-        return primitives
+        center_x = pos_x + distance * math.cos(angle)
+        center_y = pos_y + distance * math.sin(angle)
+        center_z = pos_z
+        center = (center_x, center_y, center_z)
+
+        u_axis = Vector3D(1, 0, 0)
+        v_axis = Vector3D(0, 1, 0)
+        w_axis = Vector3D(0, 0, 1)
+
+        frame = Frame3D(
+            origin=Point3D(*center),
+            u=u_axis,
+            v=v_axis,
+            w=w_axis)
+
+        sphere = Solid.make_sphere(
+            radius=self.diameter / 2,
+            frame=frame,
+            angle1=-math.pi / 2,
+            angle2=math.pi / 2,
+            angle3=2 * math.pi,
+            name='sphere')
+
+        return [sphere]
 
     @plot_data_view("2D display for Ball")
     def display_2d(self, pos_x=0., pos_y=0., distance=0., angle=0.):
