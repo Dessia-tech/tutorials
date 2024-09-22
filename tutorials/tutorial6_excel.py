@@ -1,9 +1,8 @@
 from typing import Dict
 
+import openpyxl
 from dessia_common.core import DessiaObject
 from dessia_common.files import BinaryFile
-
-import openpyxl
 
 
 class ParameterData(DessiaObject):

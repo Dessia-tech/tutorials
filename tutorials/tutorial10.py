@@ -6,26 +6,27 @@ Created on Tue Mar  2 13:30:58 2021
 @author: wirajan
 """
 
-from dessia_common.core import DessiaObject, DisplayObject
-from typing import List, Tuple, Dict, Any
-import numpy as np
-from dessia_common.decorators import plot_data_view
-from scipy.optimize import minimize
-from scipy.interpolate import interp2d
-from statistics import mean
-import plot_data 
-from plot_data.colors import *
-import dectree as dt
-import plot_data.graph 
 import copy
+from itertools import product
+from statistics import mean
+from typing import Any, Dict, List, Tuple
+
+import dectree as dt
+import matplotlib.pyplot as plt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
-from itertools import product
-import matplotlib.pyplot as plt
-from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 import pandas as pd
+import plot_data
+import plot_data.graph
+from dessia_common.core import DessiaObject, DisplayObject
+from dessia_common.decorators import plot_data_view
+from plot_data.colors import *
+from scipy.interpolate import interp2d
+from scipy.optimize import minimize
+from sklearn.cluster import DBSCAN
 from sklearn.manifold import MDS
+from sklearn.preprocessing import MinMaxScaler
 
 
 class EfficiencyMap(DessiaObject):

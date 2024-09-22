@@ -1,15 +1,15 @@
-import volmdlr as vm
-import volmdlr.primitives2d as p2d
-import volmdlr.primitives3d as p3d
-import plot_data.core as plot_data
 import math
 from itertools import product
 from random import random
+from typing import List
+
 import cma
 import networkx as nx
-
+import plot_data.core as plot_data
+import volmdlr as vm
+import volmdlr.primitives2d as p2d
+import volmdlr.primitives3d as p3d
 from dessia_common.core import DessiaObject, PhysicalObject
-from typing import List
 
 
 class Housing(DessiaObject):

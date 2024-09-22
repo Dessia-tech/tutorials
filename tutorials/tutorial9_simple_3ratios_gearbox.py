@@ -6,15 +6,16 @@ Created on Tue Mar  2 13:30:58 2021
 @author: wirajan
 """
 
-from dessia_common.core import DessiaObject
-from typing import List, Tuple
-import numpy as np
-from dessia_common.decorators import plot_data_view
-from scipy.optimize import minimize
-from scipy.interpolate import interp2d
 from statistics import mean
-import plot_data 
+from typing import List, Tuple
+
+import numpy as np
+import plot_data
+from dessia_common.core import DessiaObject
+from dessia_common.decorators import plot_data_view
 from plot_data.colors import *
+from scipy.interpolate import interp2d
+from scipy.optimize import minimize
 
 
 class EfficiencyMap(DessiaObject):

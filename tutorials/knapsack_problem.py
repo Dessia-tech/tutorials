@@ -1,16 +1,15 @@
 from itertools import combinations
 from typing import List
 
-from dessia_common.core import PhysicalObject, DessiaObject
-from dessia_common.decorators import plot_data_view, picture_view, cad_view
+from dessia_common.core import DessiaObject, PhysicalObject
 from dessia_common.datatools import dataset
-
-from plot_data import PrimitiveGroup, Text, TextStyle, SurfaceStyle
+from dessia_common.decorators import cad_view, picture_view, plot_data_view
+from plot_data import PrimitiveGroup, SurfaceStyle, Text, TextStyle
 from plot_data.colors import BLACK, Color
-from volmdlr import Frame3D, O3D, X3D, Y3D, Z3D, Point2D
-from volmdlr.wires import ClosedPolygon2D
-from volmdlr.shapes import Solid
+from volmdlr import O3D, X3D, Y3D, Z3D, Frame3D, Point2D
 from volmdlr.core import VolumeModel
+from volmdlr.shapes import Solid
+from volmdlr.wires import ClosedPolygon2D
 
 
 class Item(PhysicalObject):

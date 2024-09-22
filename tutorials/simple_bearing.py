@@ -1,12 +1,12 @@
-from math import cos, sin, pi
+from math import cos, pi, sin
 
 from dessia_common.core import PhysicalObject
 from dessia_common.decorators import plot_data_view
-from plot_data import PrimitiveGroup, EdgeStyle, SurfaceStyle
+from plot_data import EdgeStyle, PrimitiveGroup, SurfaceStyle
 from plot_data.colors import BLACK, GREY
-from volmdlr import Point3D, Point2D, OXYZ, Z3D
+from volmdlr import OXYZ, Z3D, Point2D, Point3D
 from volmdlr.curves import Circle2D
-from volmdlr.primitives3d import Sphere, ExtrudedProfile
+from volmdlr.primitives3d import ExtrudedProfile, Sphere
 from volmdlr.wires import Contour2D
 
 

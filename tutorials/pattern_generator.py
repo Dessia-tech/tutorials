@@ -12,7 +12,6 @@ from dessia_common.core import DessiaObject
 from dessia_common.decorators import plot_data_view
 from plot_data.colors import BLACK, CYAN
 
-
 # from scipy.optimize import bisect
 
 
