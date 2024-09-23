@@ -2,10 +2,11 @@ import math
 from math import cos, pi, sin
 
 from dessia_common.core import PhysicalObject
-from dessia_common.decorators import plot_data_view
+from dessia_common.decorators import plot_data_view, cad_view
 from plot_data import EdgeStyle, PrimitiveGroup, SurfaceStyle
 from plot_data.colors import BLACK, GREY
 from volmdlr import OXYZ, Z3D, Point2D, Point3D, Frame3D, Vector3D
+from volmdlr.core import VolumeModel
 from volmdlr.curves import Circle2D
 from volmdlr.primitives3d import ExtrudedProfile
 from volmdlr.wires import Contour2D
@@ -62,6 +63,11 @@ class Ball(PhysicalObject):
         return PrimitiveGroup(primitives=primitives,
                               name='Circle')
 
+    @cad_view(selector='Ball CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
+
 
 class Bearing(PhysicalObject):
     _standalone_in_db = True
@@ -94,16 +100,12 @@ class Bearing(PhysicalObject):
         # Extrusions
         frame = OXYZ.copy()
         frame.origin += Z3D * (pos_z - self.height/2)
-        outer_extrusion = ExtrudedProfile(
-            frame=frame,
-            outer_contour2d=Contour2D.from_circle(outer_circle),
-            inner_contours2d=[Contour2D.from_circle(inner_outer_circle)],
-            extrusion_length=self.height)
-        inner_extrusion = ExtrudedProfile(
-            frame=frame,
-            outer_contour2d=Contour2D.from_circle(outer_inner_circle),
-            inner_contours2d=[Contour2D.from_circle(inner_circle)],
-            extrusion_length=self.height)
+        outer_extrusion = Solid.make_extrusion_from_frame_and_wires(
+            frame=frame, extrusion_length=self.height, outer_contour2d=Contour2D.from_circle(outer_circle),
+            inner_contours2d=[Contour2D.from_circle(inner_outer_circle)])
+        inner_extrusion = Solid.make_extrusion_from_frame_and_wires(
+            frame=frame, extrusion_length=self.height, outer_contour2d=Contour2D.from_circle(outer_inner_circle),
+            inner_contours2d=[Contour2D.from_circle(inner_circle)])
         # Balls
         ball_primitives = []
         ball_distance = self.internal_diameter / 2 + \
@@ -144,6 +146,11 @@ class Bearing(PhysicalObject):
                 distance=ball_distance,
                 angle=i * 2 * pi / number_balls).primitives)
         return PrimitiveGroup(primitives=primitives)
+
+    @cad_view(selector='Bearing CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
     def to_markdown(self):
         infos = '## Bearing Infos \n\n'
