@@ -1,6 +1,6 @@
 import math
 from itertools import product
-from typing import Dict, List, Tuple
+from typing import List
 
 import plot_data.core as plot_data
 import volmdlr as vm
@@ -10,6 +10,7 @@ from dessia_common.core import DessiaObject, PhysicalObject
 from dessia_common.decorators import cad_view, plot_data_view
 from plot_data.colors import *
 from volmdlr.model import VolumeModel
+from volmdlr.shapes import Solid
 
 
 class Color(DessiaObject):
@@ -70,10 +71,13 @@ class Panel(PhysicalObject):
         else:
             color = self.color.to_tuple()
         contour = self.contour()
-        profile = p3d.ExtrudedProfile(frame=vm.Frame3D(center, u=dir1, v=dir2, w=vm.X3D),
-                                                outer_contour2d=contour, inner_contours2d=[],
-                                                extrusion_length=self.thickness,
-                                                name='extrusion', color=color, alpha=self.alpha)
+        profile = p3d.ExtrudedProfile(frame=vm.Frame3D(center, u=dir1, v=dir2, w=vm.X3D), outer_contour2d=contour,
+                                      inner_contours2d=[], extrusion_length=self.thickness, name='extrusion',
+                                      color=color, alpha=self.alpha)
+
+        # profile = Solid.make_extrusion_from_frame_and_wires(
+        #     frame=vm.Frame3D(center, u=dir1, v=dir2, w=vm.X3D), extrusion_length=self.thickness,
+        #     outer_contour2d=contour, inner_contours2d=[])
 
         return [profile]
 
@@ -245,14 +249,9 @@ class Rivet(PhysicalObject):
             v=y,
             w=z,
         )
-        irc = vm.primitives3d.RevolvedProfile(
-            frame=revolution_frame,
-            contour2d=contour,
-            axis_point=vm.Point3D(*tuple(center)),
-            axis=axis,
-            angle=2 * math.pi,
-            name='Rivet'
-        )
+        irc = Solid.make_revolve_from_contour(frame=revolution_frame,
+                                                contour2d=contour, axis_point=vm.Point3D(*tuple(center)),
+                                                axis=axis, angle=2 * math.pi, name='Rivet')
         return [irc]
 
     @cad_view(selector='Rivet CAD')
