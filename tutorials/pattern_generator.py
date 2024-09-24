@@ -12,8 +12,6 @@ from dessia_common.core import DessiaObject
 from dessia_common.decorators import plot_data_view
 from plot_data.colors import BLACK, CYAN
 
-# from scipy.optimize import bisect
-
 
 class Piece(DessiaObject):
     _standalone_in_db = False
@@ -159,7 +157,6 @@ class Pattern(DessiaObject):
         """Places Generates the pieces in the minor axis
         returns: number of pieces"""
         list_pieces = []
-        # print('self.minor_axis_pieces_number():', self.minor_axis_pieces_number())
         x_position = -self.minor_axis_size_in_mm / 2
         for i_piece in range(0, self.minor_axis_pieces_number() + 1):
             if i_piece != 0:
@@ -168,13 +165,6 @@ class Pattern(DessiaObject):
             list_pieces.append(Piece(volmdlr.Point2D(x_position, 0),
                                      self.piece_diameter))
             x_position += self.piece_diameter / 2 + self.clearence / 2
-        # line_segement = vme.LineSegment2D(
-        #     volmdlr.Point2D(-self.minor_axis_size_in_mm / 2, 0),
-        #     volmdlr.Point2D(self.minor_axis_size_in_mm / 2, 0))
-        # ax = line_segement.plot()
-        # for piece in list_pieces:
-        #     piece.plot(ax=ax, color='r')
-        #     piece.position.plot(ax=ax, color='b')
         return list_pieces
 
     def _get_major_axis(self):
@@ -234,9 +224,6 @@ class Pattern(DessiaObject):
         if ax is None:
             _, ax = plt.subplots()
             ax.set_aspect('equal')
-        # minor_axis = vme.LineSegment2D(-self.minor_axis_size_in_mm / 2,
-        #                                self.minor_axis_size_in_mm / 2)
-        # minor_axis.plot(ax=ax)
         for piece in self.pieces:
             piece.plot(ax=ax)
         return ax
@@ -273,10 +260,6 @@ class PatternGenerator(DessiaObject):
         self.excentricity_min_max = excentricity_min_max
         self.diameter_percetage_clearence_min_max = \
             diameter_percetage_clearence_min_max
-        # self.minor_axis_size_in_mm = minor_axis_size_in_mm
-        # self.excentricity = excentricity
-        # self.clearence = clearence
-        # self.piece_diameter = piece_diameter
         self._utd_arclength = False
         self._utd_major_axis = False
         DessiaObject.__init__(self, name=name)
@@ -327,12 +310,6 @@ class PatternGenerator(DessiaObject):
                                             self.excentricity_min_max[1], 7):
                 for clearence in np.linspace(clearence_min_max[0],
                                              clearence_min_max[1], 10):
-                    # self.piece_diameter = piece_diameter
-                    # self.excentricity = excentricity
-                    # self.clearence = clearence
-                    # horizontal_pieces = self.get_minor_axis_pieces()
-                    # orbital_pieces = self.get_orbital_pieces(
-                    #     piece_diameter)
                     list_patterns.append(Pattern(self.minor_axis_size_in_mm,
                                                  excentricity, clearence,
                                                  piece_diameter))
