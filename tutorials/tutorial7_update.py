@@ -67,7 +67,7 @@ class Optimizer(DessiaObject):
         return solutions
 
     def objective(self, x):
-        objective = 0
+
         points = [vm.Point2D(x[2 * i], x[2 * i + 1]) for i in range(int(len(x) / 2.))]
         self.component.update(*points)
         length = self.component.length()

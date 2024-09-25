@@ -1,16 +1,20 @@
 import math
-from itertools import product
+
 from random import random
 from typing import List
 
 import cma
 import networkx as nx
-import plot_data.core as plot_data
-import volmdlr as vm
-import volmdlr.primitives2d as p2d
-import volmdlr.primitives3d as p3d
-from dessia_common.core import DessiaObject, PhysicalObject
 
+import volmdlr as vm
+
+import volmdlr.primitives3d as p3d
+import volmdlr.faces as vm_faces
+import volmdlr.surfaces as vm_surfaces
+from volmdlr.core import VolumeModel
+from volmdlr.shapes import Solid
+from dessia_common.core import DessiaObject, PhysicalObject
+from dessia_common.decorators import cad_view
 
 class Housing(DessiaObject):
     _standalone_in_db = False
@@ -84,7 +88,18 @@ class Piping(DessiaObject):
             if l.end not in points:
                 points.append(l.end)
         rl = self.genere_neutral_fiber(points)
-        sweep = p3d.Sweep(contour, rl, color=color, alpha=alpha, name='piping')
+        direction = (rl.points[-1] - rl.points[0]).unit_vector()
+        frame = vm.Frame3D.from_point_and_vector(
+            point=rl.points[0], vector=direction, main_axis=vm.Z3D
+        )
+        section_2 = vm_faces.PlaneFace3D(
+                        surface3d=vm_surfaces.Plane3D(frame=frame),
+                        surface2d=vm_surfaces.Surface2D(
+                            outer_contour=contour, inner_contours=[]
+                        ))
+        sweep = Solid.make_sweep(face=section_2, path=rl, transition_mode="right", name=self.name)
+        sweep.color = color
+        sweep.alpha = alpha
         return [sweep]
 
     def define_waypoint(self, pourcentage_abs_curv: float):
@@ -195,6 +210,10 @@ class Assembly(PhysicalObject):
         for piping in self.pipings:
             length += piping.length()
         return length
+
+    @cad_view("Piping CAD View")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
     def volmdlr_primitives(self):
         primitives = []
