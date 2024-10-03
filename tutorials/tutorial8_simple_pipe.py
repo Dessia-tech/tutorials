@@ -88,16 +88,8 @@ class Piping(DessiaObject):
             if l.end not in points:
                 points.append(l.end)
         rl = self.genere_neutral_fiber(points)
-        direction = (rl.points[-1] - rl.points[0]).unit_vector()
-        frame = vm.Frame3D.from_point_and_vector(
-            point=rl.points[0], vector=direction, main_axis=vm.Z3D
-        )
-        section_2 = vm_faces.PlaneFace3D(
-                        surface3d=vm_surfaces.Plane3D(frame=frame),
-                        surface2d=vm_surfaces.Surface2D(
-                            outer_contour=contour, inner_contours=[]
-                        ))
-        sweep = Solid.make_sweep(face=section_2, path=rl, transition_mode="right", name=self.name)
+
+        sweep = Solid.make_sweep_from_contour(section=contour, path=rl)
         sweep.color = color
         sweep.alpha = alpha
         return [sweep]
