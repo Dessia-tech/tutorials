@@ -119,7 +119,7 @@ class Bearing(PhysicalObject):
         return [outer_extrusion, inner_extrusion] + ball_primitives
 
     @plot_data_view("2D display for Bearing")
-    def display_2d(self, pos_x=0., pos_y=0., number_balls=1):
+    def display_2d(self, pos_x=0., pos_y=0., number_balls=10):
         # Color settings
         edge_style = EdgeStyle(color_stroke=BLACK)
         surface_style = SurfaceStyle(opacity=0)
