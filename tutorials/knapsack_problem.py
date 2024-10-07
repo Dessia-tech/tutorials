@@ -212,7 +212,7 @@ class ListKnapsackPackages(DessiaObject):
 
     def to_markdown(self, *args, **kwargs) -> str:
         """Render a markdown of the object output type: string."""
-        dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages)
+        dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages, name=self.name)
         returned_markdown = dataset.Dataset.to_markdown(dataset_object, *args, **kwargs)
         return returned_markdown
 
@@ -276,4 +276,4 @@ class Generator(DessiaObject):
 
         return ListKnapsackPackages(knapsack_packages=sorted(solutions,
                                                              key=lambda x: x.price,
-                                                             reverse=True))
+                                                             reverse=True), name=self.name)
