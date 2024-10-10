@@ -8,7 +8,7 @@ s1 = vm.surfaces.Surface2D(outer_contour=vm.wires.ClosedPolygon2D([vm.Point2D(-0
                                                                 vm.Point2D(0.05, 0.1),
                                                                 vm.Point2D(-0.05, 0.1)]),
                         inner_contours=[])
-face1 = vm.shells.OpenShell3D([vm.faces.PlaneFace3D(surface3d=p1, surface2d=s1)])
+face1 = vm.shapes.Shell.from_faces([vm.faces.PlaneFace3D(surface3d=p1, surface2d=s1)])
 face1.color = (92/255, 124/255, 172/255)
 face1.alpha = 1
 
@@ -19,7 +19,7 @@ s2 = vm.surfaces.Surface2D(outer_contour=vm.wires.ClosedPolygon2D([vm.Point2D(-0
                                                                 vm.Point2D(0.05, 0.005),
                                                                 vm.Point2D(-0.05, 0.005)]),
                         inner_contours=[])
-face2 = vm.shells.OpenShell3D([vm.faces.PlaneFace3D(surface3d=p2, surface2d=s2)])
+face2 = vm.shapes.Shell.from_faces([vm.faces.PlaneFace3D(surface3d=p2, surface2d=s2)])
 face2.color = (92/255, 124/255, 172/255)
 face2.alpha = 1
 
@@ -70,8 +70,7 @@ for solution in solutions:
     solution.babylonjs()
 
 
-
 primitives = solutions[0].volmdlr_primitives()
-model = vm.core.VolumeModel(primitives)
+model = vm.model.VolumeModel(primitives)
 model.to_step('export.stp')
 
