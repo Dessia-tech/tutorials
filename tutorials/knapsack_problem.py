@@ -151,7 +151,7 @@ class KnapsackPackage(Knapsack):
     Class used to define a Knapsack Package containing items.
 
     :param items: List of the items contained in the KnapsackPackage
-    :type items: List[Item]
+    :type items: Items
     
     :param allowed_mass: Mass maximum capacity of the KnapsackPackage in [kg]
     :type allowed_mass: float
@@ -160,7 +160,7 @@ class KnapsackPackage(Knapsack):
     _standalone_in_db = True
     _vector_features = ['mass', 'price', 'golds', 'silvers', 'bronzes']
 
-    def __init__(self, items: List[Item], allowed_mass: float, name: str = ''):
+    def __init__(self, items: Items, allowed_mass: float, name: str = ''):
         self.items = items
         Knapsack.__init__(self, allowed_mass=allowed_mass, name=name)
 
