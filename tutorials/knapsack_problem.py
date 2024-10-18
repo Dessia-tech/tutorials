@@ -41,7 +41,7 @@ class Item(PhysicalObject):
             self.color = 'gold'
             self.rgb = (255/255, 215/255, 0/255)  # Gold color
 
-    def volmdlr_primitives(self, z_offset: float = 0.):
+    def volmdlr_primitives(self, z_offset: float = 0., reference_path: str = "#", **kwargs):
         height_vector = self.mass * Z3D / 2
         frame = Frame3D(origin=O3D + height_vector / 2 + z_offset * Z3D,
                         u=X3D,
@@ -50,6 +50,7 @@ class Item(PhysicalObject):
                         name='frame ' + self.name)
         solid = Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame,
                                      frame_centered=True, name='block ' + self.name)
+        solid.reference_path = reference_path
         solid.color = self.rgb
         return [solid]
 
@@ -87,6 +88,31 @@ class Item(PhysicalObject):
                           multi_lines=False)
         return PrimitiveGroup(primitives=[primitive1, primitive2, primitive3])
 
+class Items(PhysicalObject):
+    """
+    Class used to define a list of Item for Knapsack filling
+
+    :param items: List of the items contained in the KnapsackPackage
+    :type items: List[Item]
+
+    """
+
+    def __init__(self, items: List[Item], name: str = ''):
+        self.items = items
+        PhysicalObject.__init__(self, name=name)
+
+    def volmdlr_primitives(self, reference_path: str = "#", **kwargs):
+        primitives = []
+        z_offset = 0
+        for i, item in enumerate(self.items):
+            item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path= f'{reference_path}/items/{i}')
+            primitives.extend(item_primitives)
+            z_offset += item.mass / 2 + 0.05
+        return primitives
+
+    @cad_view("Knapsack CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
 class Knapsack(PhysicalObject):
     """
