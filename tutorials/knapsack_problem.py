@@ -105,14 +105,14 @@ class Items(PhysicalObject):
         primitives = []
         z_offset = 0
         for i, item in enumerate(self.items):
-            item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path= f'{reference_path}/items/{i}')
+            item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path=f'{reference_path}/items/{i}')
             primitives.extend(item_primitives)
             z_offset += item.mass / 2 + 0.05
         return primitives
 
     @cad_view("Knapsack CAD")
-    def cadview(self):
-        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+    def cadview(self, reference_path: str = "#"):
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
 class Knapsack(PhysicalObject):
     """
