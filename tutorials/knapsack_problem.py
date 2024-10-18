@@ -96,7 +96,7 @@ class Items(PhysicalObject):
     :type items: List[Item]
 
     """
-
+    _standalone_in_db = True
     def __init__(self, items: List[Item], name: str = ''):
         self.items = items
         PhysicalObject.__init__(self, name=name)
