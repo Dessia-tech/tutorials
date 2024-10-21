@@ -59,12 +59,13 @@ class Item(PhysicalObject):
         return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
     @plot_data_view("2D display for Item")
-    def display_2d(self, y_offset: float = 0.):
+    def display_2d(self, y_offset: float = 0., reference_path: str = "#"):
         contour = ClosedPolygon2D([
             Point2D(-0.5, -0.5 + y_offset),
             Point2D(0.5, -0.5 + y_offset),
             Point2D(0.5, 0.5 + y_offset),
             Point2D(-0.5, 0.5 + y_offset)])
+        contour.reference_path = reference_path
         surface_style = SurfaceStyle(
             color_fill=Color(red=self.rgb[0],green=self.rgb[1], blue=self.rgb[2]))
         primitive1 = contour.plot_data(surface_style=surface_style)
@@ -113,6 +114,18 @@ class Items(PhysicalObject):
     @cad_view("Knapsack CAD")
     def cadview(self, reference_path: str = "#"):
         return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
+
+    @plot_data_view("2D display for KnapsackPackage")
+    def display_2d(self, reference_path: str = "#"):
+        primitives = []
+        y_offset = 0
+        for i, item in enumerate(self.items):
+            primitive_groups = item.display_2d(y_offset=y_offset, reference_path=f'{reference_path}/items/{i}')
+            primitives.extend(primitive_groups.primitives)
+            y_offset += 1.1
+
+        return PrimitiveGroup(primitives=primitives)
+
 
 class Knapsack(PhysicalObject):
     """
