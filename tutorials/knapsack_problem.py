@@ -120,7 +120,7 @@ class Items(PhysicalObject):
         primitives = []
         y_offset = 0
         for i, item in enumerate(self.items):
-            primitive_groups = item.display_2d(y_offset=y_offset, reference_path=f'{reference_path}/items/{i}')
+            primitive_groups = item.display_2d(y_offset=y_offset)
             primitives.extend(primitive_groups.primitives)
             y_offset += 1.1
 
