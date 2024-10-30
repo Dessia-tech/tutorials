@@ -1,17 +1,20 @@
-import volmdlr as vm
-import volmdlr.primitives3d as p3d
 from random import random
-import cma
-import volmdlr.faces
-
-from dessia_common.core import DessiaObject, PhysicalObject
 from typing import List
+
+import cma
+import volmdlr as vm
+import volmdlr.faces
+import volmdlr.primitives3d as p3d
+from dessia_common.core import DessiaObject, PhysicalObject
+from dessia_common.decorators import cad_view
+from volmdlr.model import VolumeModel
+from volmdlr.shapes import Solid
 
 
 class Housing(PhysicalObject):
     _standalone_in_db = False
 
-    def __init__(self, faces: List[vm.faces.Face3D], origin: vm.Point3D,
+    def __init__(self, faces: List[vm.shapes.Shell], origin: vm.Point3D,
                  name: str = ''):
         self.origin = origin
         self.faces = faces
@@ -21,6 +24,11 @@ class Housing(PhysicalObject):
         for face in self.faces:
             face.translation(self.origin)
         return self.faces
+
+    @cad_view(selector='Housing CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
 
 class Frame(DessiaObject):
@@ -94,7 +102,7 @@ class Piping(DessiaObject):
         contour = vm.wires.Contour2D(circle.split_at_abscissa(circle.length() * .5))
         rl = self.genere_neutral_fiber(points)
         # contour = vm.wires.Contour2D([c])
-        sweep = p3d.Sweep(contour, rl, color=color, alpha=alpha, name='piping')
+        sweep = Solid.make_sweep_from_contour(section=contour, path=rl)
         return [sweep]
 
 
@@ -148,6 +156,11 @@ class Assembly(PhysicalObject):
         primitives = self.piping.generate_sweep(self.waypoints)
         primitives.extend(self.housing.volmdlr_primitives())
         return primitives
+
+    @cad_view(selector='Assembly CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
 
 class Optimizer(DessiaObject):

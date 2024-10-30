@@ -1,15 +1,17 @@
+import math
+from itertools import product
+from typing import List
+
+import plot_data.core as plot_data
 import volmdlr as vm
 import volmdlr.primitives2d as p2d
 import volmdlr.primitives3d as p3d
-import plot_data.core as plot_data
-import math
-from itertools import product
-
 from dessia_common.core import DessiaObject, PhysicalObject
-from typing import List, Tuple, Dict
-
-from dessia_common.decorators import plot_data_view
+from dessia_common.decorators import cad_view, plot_data_view
 from plot_data.colors import *
+from volmdlr.model import VolumeModel
+from volmdlr.shapes import Solid
+
 
 class Color(DessiaObject):
     _standalone_in_db = False
@@ -23,6 +25,7 @@ class Color(DessiaObject):
 
     def to_tuple(self):
         return (self.red, self.green, self.blue)
+
 
 class Panel(PhysicalObject):
     """ 
@@ -62,18 +65,29 @@ class Panel(PhysicalObject):
             circles.append(vm.wires.Circle2D(pos, diameter / 2))
         return circles
 
-    def volmdlr_primitives(self, center=vm.O3D, dir1=vm.X3D, dir2=vm.Y3D):
+    def volmdlr_primitives(self, center=vm.O3D, dir1=vm.X3D, dir2=vm.Y3D, get_frame: bool = False):
         if self.color is None:
             color = (0, 0, 1)
         else:
             color = self.color.to_tuple()
         contour = self.contour()
-        profile = p3d.ExtrudedProfile(frame=vm.Frame3D(center, u=dir1, v=dir2, w=vm.X3D),
-                                                outer_contour2d=contour, inner_contours2d=[],
-                                                extrusion_length=self.thickness,
-                                                name='extrusion', color=color, alpha=self.alpha)
 
+        frame = vm.Frame3D(center, u=dir1, v=dir2, w=vm.Z3D)
+        profile = Solid.make_extrusion_from_frame_and_wires(
+            frame=frame, extrusion_length=self.thickness,
+            outer_contour2d=contour, inner_contours2d=[])
+        profile.color = color
+        profile.alpha = self.alpha
+        profile.name = 'extrusion'
+
+        if get_frame:
+            return [profile], frame
         return [profile]
+
+    @cad_view(selector='Panel CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
     @plot_data_view(selector="Panel")
     def plot_data(self):
@@ -155,11 +169,25 @@ class PanelCombination(PhysicalObject):
 
         return holes
 
-    def volmdlr_primitives(self):
-        primitives = []
+    def volmdlr_primitives(self, get_frame: bool = False):
+        all_primitives = []
+        frames = []
         for pan, pt3d in zip(self.panels, self.grids):
-            primitives.extend(pan.volmdlr_primitives(center=pt3d))
-        return primitives
+            if get_frame:
+                primitives, frame = pan.volmdlr_primitives(center=pt3d, get_frame=get_frame)
+                frames.append(frame)
+            else:
+                primitives = pan.volmdlr_primitives(center=pt3d)
+            all_primitives.extend(primitives)
+
+        if get_frame:
+            return all_primitives, frames
+        return all_primitives
+
+    @cad_view(selector='PanelCombination CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
 
 class Rivet(PhysicalObject):
@@ -233,15 +261,15 @@ class Rivet(PhysicalObject):
             v=y,
             w=z,
         )
-        irc = vm.primitives3d.RevolvedProfile(
-            frame=revolution_frame,
-            contour2d=contour,
-            axis_point=vm.Point3D(*tuple(center)),
-            axis=axis,
-            angle=2 * math.pi,
-            name='Rivet'
-        )
+        irc = Solid.make_revolve_from_contour(frame=revolution_frame,
+                                                contour2d=contour, axis_point=vm.Point3D(*tuple(center)),
+                                                axis=axis, angle=2 * math.pi, name='Rivet')
         return [irc]
+
+    @cad_view(selector='Rivet CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
     @plot_data_view(selector="Rivet")
     def plot_data(self, full_contour=True):
@@ -375,16 +403,21 @@ class PanelAssembly(PhysicalObject):
         return fatigue
 
     def volmdlr_primitives(self):
-        pan_vm = self.panel_combination.volmdlr_primitives()
+        pan_vm, frames = self.panel_combination.volmdlr_primitives(get_frame=True)
         primitives = pan_vm
-        center, dir1, dir2 = pan_vm[0].frame.origin, pan_vm[0].frame.u, pan_vm[0].frame.v
-        thickness = vm.O3D + 2*pan_vm[0].extrusion_vector
+        center, dir1, dir2 = frames[0].origin, frames[0].u, frames[0].v
+        thickness = vm.O3D + 2*frames[0].w * 0.01
 
         for grid in self.grids:
             pos_riv = dir1 * grid[0] + dir2 * grid[1] + thickness
             primitives.extend(self.rivet.volmdlr_primitives(center=pos_riv))
 
         return primitives
+
+    @cad_view(selector='PanelAssembly CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
 
 class Generator(DessiaObject):

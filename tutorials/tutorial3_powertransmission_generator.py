@@ -5,20 +5,21 @@ Created on Sun Sep 29 21:32:30 2019
 
 @author: jezequel
 """
-import matplotlib.pyplot as plt
-from dessia_common.decorators import plot_data_view
-from matplotlib import patches
+import copy
 import math
+from typing import List, Tuple
+
+import dectree as dt
+
+import numpy as npy
+import plot_data
 import volmdlr as vm
+from volmdlr.core import VolumeModel
+from volmdlr.shapes import Solid
 import volmdlr.primitives3d as p3d
 from dessia_common.core import DessiaObject, PhysicalObject
-from typing import List, Tuple
-import numpy as npy
+from dessia_common.decorators import plot_data_view, cad_view
 from scipy.optimize import minimize
-import copy
-import dectree as dt
-import plot_data
-
 
 # =============================================================================
 
@@ -44,11 +45,17 @@ class Shaft(DessiaObject):
 
         return plot_data.PrimitiveGroup(primitives=plot_datas)
 
+    @cad_view("Shaft CAD")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     def volmdlr_primitives(self):
         primitives = []
         pos = vm.Point3D(self.pos_x, self.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder(pos, axis, self.diameter / 2, self.length)
+        cylinder = Solid.make_cylinder(radius=self.diameter / 2,
+                                       height=self.length,
+                                       frame=vm.Frame3D(pos - self.length / 2 * axis, vm.X3D, vm.Y3D, vm.Z3D))
         primitives.append(cylinder)
         return primitives
 
@@ -80,11 +87,17 @@ class Motor(DessiaObject):
 
         return plot_data.PrimitiveGroup(primitives=plot_datas)
 
+    @cad_view("Motor CAD")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     def volmdlr_primitives(self):
         primitives = []
         pos = vm.Point3D(self.pos_x, self.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder(pos, axis, self.diameter / 2, self.length)
+        cylinder = Solid.make_cylinder(radius=self.diameter / 2,
+                                       height=self.length,
+                                       frame=vm.Frame3D(pos - self.length / 2 * axis, vm.X3D, vm.Y3D, vm.Z3D))
         primitives.append(cylinder)
         return primitives
 
@@ -113,11 +126,17 @@ class Gear(DessiaObject):
 
         return plot_data.PrimitiveGroup(primitives=plot_datas)
 
+    @cad_view("Gear CAD")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     def volmdlr_primitives(self):
         primitives = []
         pos = vm.Point3D(self.shaft.pos_x, self.shaft.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder(pos, axis, self.diameter / 2, self.length)
+        cylinder = Solid.make_cylinder(radius=self.diameter / 2,
+                                       height=self.length,
+                                       frame=vm.Frame3D(pos - self.length / 2 * axis, vm.X3D, vm.Y3D, vm.Z3D))
         primitives.append(cylinder)
         return primitives
 
@@ -199,6 +218,10 @@ class Reductor(PhysicalObject):
 
         return plot_data.PrimitiveGroup(primitives=plot_data_sorted[::-1])
 
+    @cad_view("Reductor CAD")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     def volmdlr_primitives(self):
         primitives = []
         self.motor.pos_x = self.shafts[0].pos_x
@@ -208,10 +231,9 @@ class Reductor(PhysicalObject):
         z_previous_position_gear = self.motor.length + self.offset
         z_previous_position_shaft = 0
         for shaft in self.shafts:
-
+            z_position = z_previous_position_gear
             for mesh in self.meshes:
                 if mesh.gear1.shaft == shaft:
-
                     z_position = z_previous_position_gear + mesh.gear1.length / 2
                     mesh.gear1.z_position = z_position
                     mesh.gear2.z_position = z_position
@@ -219,14 +241,13 @@ class Reductor(PhysicalObject):
                     primitives.extend(mesh.gear2.volmdlr_primitives())
                     break
 
-            shaft.length = z_position + mesh.gear1.length / 2 + self.offset - z_previous_position_shaft
+            shaft.length = (z_position + mesh.gear1.length / 2 + self.offset - z_previous_position_shaft)
             shaft.z_position = shaft.length / 2 + z_previous_position_shaft
 
             primitives.extend(shaft.volmdlr_primitives())
 
-            z_previous_position_gear = z_position + mesh.gear2.length / 2 + self.offset
-            z_previous_position_shaft = z_position - mesh.gear2.length / 2 - self.offset
-
+            z_previous_position_gear = (z_position + mesh.gear2.length / 2 + self.offset)
+            z_previous_position_shaft = (z_position - mesh.gear2.length / 2 - self.offset)
         return primitives
 
     def mass(self):

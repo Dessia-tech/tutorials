@@ -5,18 +5,21 @@ Created on Sun Sep 29 21:32:30 2019
 
 @author: jezequel
 """
-import matplotlib.pyplot as plt
-from dessia_common.decorators import plot_data_view
-from matplotlib import patches
-import math
-import volmdlr as vm
-import volmdlr.primitives3d as p3d
-from dessia_common.core import DessiaObject, PhysicalObject
-from typing import List, Tuple
-import numpy as npy
-from scipy.optimize import minimize
 import copy
+import math
+from typing import List, Tuple
+
+
+import numpy as npy
 import plot_data
+import volmdlr as vm
+from volmdlr.core import VolumeModel
+from volmdlr.shapes import Solid
+from dessia_common.core import PhysicalObject
+from dessia_common.decorators import plot_data_view, cad_view
+
+from scipy.optimize import minimize
+
 # =============================================================================
 
 
@@ -41,11 +44,17 @@ class Shaft(PhysicalObject):
 
         return plot_data.PrimitiveGroup(primitives=plot_datas)
 
+    @cad_view("Shaft CAD")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     def volmdlr_primitives(self):
         primitives = []
         pos = vm.Point3D(self.pos_x, self.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder.from_center_point_and_axis(pos, axis, self.diameter/2, self.length)
+        cylinder = Solid.make_cylinder(radius=self.diameter/2,
+                                       height=self.length,
+                                       frame=vm.Frame3D(pos - self.length/2 * axis, vm.X3D, vm.Y3D, vm.Z3D))
         primitives.append(cylinder)
         return primitives
 
@@ -77,11 +86,17 @@ class Motor(PhysicalObject):
 
         return plot_data.PrimitiveGroup(primitives=plot_datas)
 
+    @cad_view("Motor CAD")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     def volmdlr_primitives(self):
         primitives = []
         pos = vm.Point3D(self.pos_x, self.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder.from_center_point_and_axis(pos, axis, self.diameter/2, self.length)
+        cylinder = Solid.make_cylinder(radius=self.diameter / 2,
+                                       height=self.length,
+                                       frame=vm.Frame3D(pos - self.length / 2 * axis, vm.X3D, vm.Y3D, vm.Z3D))
         primitives.append(cylinder)
         return primitives
 
@@ -107,11 +122,17 @@ class Gear(PhysicalObject):
 
         return [plot_data.PrimitiveGroup(primitives=plot_datas)]
 
+    @cad_view("Gear CAD")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
     def volmdlr_primitives(self):
         primitives = []
         pos = vm.Point3D(self.shaft.pos_x, self.shaft.pos_y, self.z_position)
         axis = vm.Vector3D(0, 0, 1)
-        cylinder = p3d.Cylinder.from_center_point_and_axis(pos, axis, self.diameter/2, self.length)
+        cylinder = Solid.make_cylinder(radius=self.diameter / 2,
+                                       height=self.length,
+                                       frame=vm.Frame3D(pos - self.length / 2 * axis, vm.X3D, vm.Y3D, vm.Z3D))
         primitives.append(cylinder)
         return primitives
 
@@ -186,6 +207,10 @@ class Reductor(PhysicalObject):
         plot_data_sorted = sorted(plot_datas, key=lambda plot_data: plot_data.r)
         print(plot_data_sorted[::-1])
         return plot_data.PrimitiveGroup(primitives=plot_data_sorted[::-1])
+
+    @cad_view("Reductor CAD")
+    def cad_view(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
     def volmdlr_primitives(self):
         primitives = []
@@ -328,7 +353,7 @@ class InstanciateReductor(PhysicalObject):
         PhysicalObject.__init__(self, name=name)
 
     def instanciate(self):
-        shafts = [Shaft(pos_x=0, pos_y=0, length=0.1), 
+        shafts = [Shaft(pos_x=0, pos_y=0, length=0.1),
                   Shaft(pos_x=0, pos_y=0, length=0.1),
                   Shaft(pos_x=0, pos_y=0, length=0.1)]
         meshes = []

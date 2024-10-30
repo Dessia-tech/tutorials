@@ -13,9 +13,6 @@ from dessia_common.decorators import plot_data_view
 from plot_data.colors import BLACK, CYAN
 
 
-# from scipy.optimize import bisect
-
-
 class Piece(DessiaObject):
     _standalone_in_db = False
     _eq_is_data_eq = True
@@ -46,7 +43,7 @@ class Piece(DessiaObject):
             raise NotImplementedError
         return Piece(volmdlr.Point2D(new_x, new_y), self.diameter)
 
-    def plot(self, ax=None, color: str = ''):
+    def plot(self, ax=None, color: str = 'blue'):
         """plots a Piece using the matplotlib dependence"""
         if ax is None:
             _, ax = plt.subplots()
@@ -57,7 +54,7 @@ class Piece(DessiaObject):
         ax.add_patch(circle)
 
     @plot_data_view(selector="Circle2D")
-    def plot_data(self, edge_style: plot_data.EdgeStyle = None,
+    def plot_circle_2d(self, edge_style: plot_data.EdgeStyle = None,
                   surface_style: plot_data.SurfaceStyle = None):
         """
         Dessia plot_data method
@@ -160,7 +157,6 @@ class Pattern(DessiaObject):
         """Places Generates the pieces in the minor axis
         returns: number of pieces"""
         list_pieces = []
-        # print('self.minor_axis_pieces_number():', self.minor_axis_pieces_number())
         x_position = -self.minor_axis_size_in_mm / 2
         for i_piece in range(0, self.minor_axis_pieces_number() + 1):
             if i_piece != 0:
@@ -169,13 +165,6 @@ class Pattern(DessiaObject):
             list_pieces.append(Piece(volmdlr.Point2D(x_position, 0),
                                      self.piece_diameter))
             x_position += self.piece_diameter / 2 + self.clearence / 2
-        # line_segement = vme.LineSegment2D(
-        #     volmdlr.Point2D(-self.minor_axis_size_in_mm / 2, 0),
-        #     volmdlr.Point2D(self.minor_axis_size_in_mm / 2, 0))
-        # ax = line_segement.plot()
-        # for piece in list_pieces:
-        #     piece.plot(ax=ax, color='r')
-        #     piece.position.plot(ax=ax, color='b')
         return list_pieces
 
     def _get_major_axis(self):
@@ -235,22 +224,19 @@ class Pattern(DessiaObject):
         if ax is None:
             _, ax = plt.subplots()
             ax.set_aspect('equal')
-        # minor_axis = vme.LineSegment2D(-self.minor_axis_size_in_mm / 2,
-        #                                self.minor_axis_size_in_mm / 2)
-        # minor_axis.plot(ax=ax)
         for piece in self.pieces:
             piece.plot(ax=ax)
         return ax
 
     @plot_data_view(selector="Pattern")
-    def plot_data(self):
+    def plot_pattern(self):
         """
         Dessia plot_data method
         return a PrimitiveGroup object
         """
         primitives = []
         for piece in self.pieces:
-            primitives.append(piece.plot_data())
+            primitives.append(piece.plot_circle_2d())
         primitive_group = plot_data.PrimitiveGroup(primitives)
         return primitive_group
 
@@ -274,10 +260,6 @@ class PatternGenerator(DessiaObject):
         self.excentricity_min_max = excentricity_min_max
         self.diameter_percetage_clearence_min_max = \
             diameter_percetage_clearence_min_max
-        # self.minor_axis_size_in_mm = minor_axis_size_in_mm
-        # self.excentricity = excentricity
-        # self.clearence = clearence
-        # self.piece_diameter = piece_diameter
         self._utd_arclength = False
         self._utd_major_axis = False
         DessiaObject.__init__(self, name=name)
@@ -328,12 +310,6 @@ class PatternGenerator(DessiaObject):
                                             self.excentricity_min_max[1], 7):
                 for clearence in np.linspace(clearence_min_max[0],
                                              clearence_min_max[1], 10):
-                    # self.piece_diameter = piece_diameter
-                    # self.excentricity = excentricity
-                    # self.clearence = clearence
-                    # horizontal_pieces = self.get_minor_axis_pieces()
-                    # orbital_pieces = self.get_orbital_pieces(
-                    #     piece_diameter)
                     list_patterns.append(Pattern(self.minor_axis_size_in_mm,
                                                  excentricity, clearence,
                                                  piece_diameter))

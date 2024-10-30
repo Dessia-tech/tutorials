@@ -1,14 +1,10 @@
+from random import random
+from typing import List
+
+import cma
 import volmdlr as vm
 import volmdlr.primitives2d as p2d
-import volmdlr.primitives3d as p3d
-import plot_data.core as plot_data
-import math
-from itertools import product
-from random import random
-import cma
-
 from dessia_common.core import DessiaObject
-from typing import List
 
 
 class Component(DessiaObject):
@@ -71,7 +67,7 @@ class Optimizer(DessiaObject):
         return solutions
 
     def objective(self, x):
-        objective = 0
+
         points = [vm.Point2D(x[2 * i], x[2 * i + 1]) for i in range(int(len(x) / 2.))]
         self.component.update(*points)
         length = self.component.length()

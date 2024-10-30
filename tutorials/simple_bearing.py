@@ -1,13 +1,16 @@
-from math import cos, sin, pi
+import math
+from math import cos, pi, sin
 
 from dessia_common.core import PhysicalObject
-from dessia_common.decorators import plot_data_view
-from plot_data import PrimitiveGroup, EdgeStyle, SurfaceStyle
+from dessia_common.decorators import plot_data_view, cad_view
+from plot_data import EdgeStyle, PrimitiveGroup, SurfaceStyle
 from plot_data.colors import BLACK, GREY
-from volmdlr import Point3D, Point2D, OXYZ, Z3D
+from volmdlr import OXYZ, Z3D, Point2D, Point3D, Frame3D, Vector3D
+from volmdlr.core import VolumeModel
 from volmdlr.curves import Circle2D
-from volmdlr.primitives3d import Sphere, ExtrudedProfile
+from volmdlr.primitives3d import ExtrudedProfile
 from volmdlr.wires import Contour2D
+from volmdlr.shapes import Solid
 
 
 class Ball(PhysicalObject):
@@ -19,11 +22,30 @@ class Ball(PhysicalObject):
 
     def volmdlr_primitives(self, pos_x=0., pos_y=0., pos_z=0.,
                            distance=0., angle=0.):
-        center = Point3D(pos_x + distance * cos(angle),
-                         pos_y + distance * sin(angle),
-                         pos_z)
-        primitives = [Sphere(center=center, radius=self.diameter / 2)]
-        return primitives
+        center_x = pos_x + distance * math.cos(angle)
+        center_y = pos_y + distance * math.sin(angle)
+        center_z = pos_z
+        center = (center_x, center_y, center_z)
+
+        u_axis = Vector3D(1, 0, 0)
+        v_axis = Vector3D(0, 1, 0)
+        w_axis = Vector3D(0, 0, 1)
+
+        frame = Frame3D(
+            origin=Point3D(*center),
+            u=u_axis,
+            v=v_axis,
+            w=w_axis)
+
+        sphere = Solid.make_sphere(
+            radius=self.diameter / 2,
+            frame=frame,
+            angle1=-math.pi / 2,
+            angle2=math.pi / 2,
+            angle3=2 * math.pi,
+            name='sphere')
+
+        return [sphere]
 
     @plot_data_view("2D display for Ball")
     def display_2d(self, pos_x=0., pos_y=0., distance=0., angle=0.):
@@ -40,6 +62,11 @@ class Ball(PhysicalObject):
             edge_style=edge_style, surface_style=surface_style)]
         return PrimitiveGroup(primitives=primitives,
                               name='Circle')
+
+    @cad_view(selector='Ball CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
 
 class Bearing(PhysicalObject):
@@ -73,16 +100,12 @@ class Bearing(PhysicalObject):
         # Extrusions
         frame = OXYZ.copy()
         frame.origin += Z3D * (pos_z - self.height/2)
-        outer_extrusion = ExtrudedProfile(
-            frame=frame,
-            outer_contour2d=Contour2D.from_circle(outer_circle),
-            inner_contours2d=[Contour2D.from_circle(inner_outer_circle)],
-            extrusion_length=self.height)
-        inner_extrusion = ExtrudedProfile(
-            frame=frame,
-            outer_contour2d=Contour2D.from_circle(outer_inner_circle),
-            inner_contours2d=[Contour2D.from_circle(inner_circle)],
-            extrusion_length=self.height)
+        outer_extrusion = Solid.make_extrusion_from_frame_and_wires(
+            frame=frame, extrusion_length=self.height, outer_contour2d=Contour2D.from_circle(outer_circle),
+            inner_contours2d=[Contour2D.from_circle(inner_outer_circle)])
+        inner_extrusion = Solid.make_extrusion_from_frame_and_wires(
+            frame=frame, extrusion_length=self.height, outer_contour2d=Contour2D.from_circle(outer_inner_circle),
+            inner_contours2d=[Contour2D.from_circle(inner_circle)])
         # Balls
         ball_primitives = []
         ball_distance = self.internal_diameter / 2 + \
@@ -96,7 +119,7 @@ class Bearing(PhysicalObject):
         return [outer_extrusion, inner_extrusion] + ball_primitives
 
     @plot_data_view("2D display for Bearing")
-    def display_2d(self, pos_x=0., pos_y=0., number_balls=1):
+    def display_2d(self, pos_x=0., pos_y=0., number_balls=10):
         # Color settings
         edge_style = EdgeStyle(color_stroke=BLACK)
         surface_style = SurfaceStyle(opacity=0)
@@ -123,6 +146,11 @@ class Bearing(PhysicalObject):
                 distance=ball_distance,
                 angle=i * 2 * pi / number_balls).primitives)
         return PrimitiveGroup(primitives=primitives)
+
+    @cad_view(selector='Bearing CAD')
+    def cad_view(self):
+        primitives = self.volmdlr_primitives()
+        return VolumeModel(primitives=primitives).babylon_data()
 
     def to_markdown(self):
         infos = '## Bearing Infos \n\n'
