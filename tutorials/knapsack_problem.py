@@ -193,12 +193,12 @@ class KnapsackPackage(Knapsack):
         self.items = items
         Knapsack.__init__(self, allowed_mass=allowed_mass, name=name)
 
-        self.mass = sum(item.mass for item in items)
-        self.price = sum(item.price for item in items)
+        self.mass = sum(item.mass for item in items.items)
+        self.price = sum(item.price for item in items.items)
         self.golds = 0
         self.silvers = 0
         self.bronzes = 0
-        for item in items:
+        for item in items.items:
             if item.color == 'gold':
                 self.golds += 1
             elif item.color == 'silver':
@@ -209,7 +209,7 @@ class KnapsackPackage(Knapsack):
     def volmdlr_primitives(self):
         primitives = super().volmdlr_primitives()
         z_offset = 0
-        for item in self.items:
+        for item in self.items.items:
             item_primitives = item.volmdlr_primitives(z_offset=z_offset)
             primitives.extend(item_primitives)
             z_offset += item.mass / 2 + 0.05
@@ -224,7 +224,7 @@ class KnapsackPackage(Knapsack):
     def display_2d(self):
         primitives = []
         y_offset = 0
-        for item in self.items:
+        for item in self.items.items:
             primitive_groups = item.display_2d(y_offset=y_offset)
             primitives.extend(primitive_groups.primitives)
             y_offset += 1.1
