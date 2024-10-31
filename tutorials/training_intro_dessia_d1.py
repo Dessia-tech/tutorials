@@ -26,8 +26,8 @@ class Workshop1(DessiaObject):
         :param question_object_name_in_library: Give the exact name of one object instance of
         dessia_common.workflow.core.Workflow present in the database.
         :type question_object_name_in_library: str
-        :param question_first_file_name_shared: Give the exact name of the 1st input data file shared with you.
-        :type question_first_file_name_shared: str
+        :param question_file_name_shared: Give the exact name of one of the input data files shared with you.
+        :type question_file_name_shared: str
         :param question_first_task_status: What is the status of the very first Task done on the platform?
         :type question_first_task_status: Literal
         :param question_admin_useful_page: Among the proposed pages, which one is not a mainly used page?
@@ -55,7 +55,7 @@ class Workshop1(DessiaObject):
                  question_number_workflows_in_workspace: int,
                  question_first_workflow_in_workspace: str,
                  question_object_name_in_library: str,
-                 question_first_file_name_shared: str,
+                 question_file_name_shared: str,
                  question_first_task_status: Literal["SUCCESS", "FAILURE", "COMPUTING", "PENDING", "LOST"],
                  question_admin_useful_page: Literal["Applications", "Actions", "Config", "Systems Logs"],
                  name: str):
@@ -69,7 +69,7 @@ class Workshop1(DessiaObject):
         self.question_number_workflows_in_workspace = question_number_workflows_in_workspace
         self.question_first_workflow_in_workspace = question_first_workflow_in_workspace
         self.question_object_name_in_library = question_object_name_in_library
-        self.question_first_file_name_shared = question_first_file_name_shared
+        self.question_file_name_shared = question_file_name_shared
         self.question_first_task_status = question_first_task_status
         self.question_admin_useful_page = question_admin_useful_page
         DessiaObject.__init__(self, name=name)
@@ -163,11 +163,60 @@ class Workshop1(DessiaObject):
         # Monitor name of object in Library
         list_objects = ["KNAPSACK PROBLEM", "WORKSHOP 4.1 - a", "WORKSHOP 4.1 - b", "WORKSHOP 4.1 - c", "WORKSHOP 4.2",
                         "Knapsack Generation from Step", "WORKSHOP 1"]
-        if self.question_object_name_in_library == 'KNAPSACK PROBLEM':
-            print("OK - The first AI-App name in the shared Workspace is 'KNAPSACK PROBLEM'.")
+        if self.question_object_name_in_library in list_objects:
+            print("OK - The object name you gave is actually in the database in the specified location.")
             score += 1
         else:
-            print("NOK - The given name is note the correct one. Check the Bot Store page.")
+            print("NOK - The object name you gave is either not exact or does not correspond to an object present in "
+                  "the specified location in the database. Please check the Library page and select in the filtering "
+                  "menu: dessia_common / workflow / core / Workflow.")
             error += 1
 
+        # Monitor name of an input data file in My Files
+        list_files = ["Excel_file_demo_1.xlsx", "Knapsack_10kg.step", "Step_file_demo_1.step"]
+        if self.question_file_name_shared in list_files:
+            print("OK - The file name you gave is actually in the file database.")
+            score += 1
+        else:
+            print(
+                "NOK - The file name you gave is either not exact, has not its extension provided or does not "
+                "correspond to a file present in the database. Please check the My Files page.")
+            error += 1
 
+        # Monitor status of the first calculation on the platform
+        if self.question_first_task_status == "SUCCESS":
+            print("OK - The status you gave for Task #1 is actually the good one.")
+            score += 1
+        else:
+            print("NOK - The status you gave for Task #1 is not the good one. Please check the Tasks page and navigate "
+                  "to the last page with Task #1.")
+            error += 1
+
+        # Monitor admin useful pages
+        if self.question_admin_useful_page == "Config":
+            print("OK - Page Config is actually a secondary page since it is not use in User nor Developing mode.")
+            score += 1
+        elif self.question_admin_useful_page == "Applications":
+            print("NOK - The page Applications you provided is actually a very useful page for Developing mode since "
+                  "it allows a developer to change its packages/libraries/applications versions when some features "
+                  "are added.")
+            error += 1
+        elif self.question_admin_useful_page == "Actions":
+            print("NOK - The page Actions you provided is actually a very useful page for Developing mode since it "
+                  "allows a user or developer to reboot the platform after a package change for example.")
+            error += 1
+        elif self.question_admin_useful_page == "Systems Logs":
+            print("NOK - The page Systems Logs you provided is actually a very useful page for Developing mode since "
+                  "it allows a developer to have more information about the platform processes, tasks and errors.")
+            error += 1
+        else:
+            raise Exception("There is an error in the answers concerning the Admin Part.")
+
+        # Results
+        print(f'Your final score is: \n > {score} correct answers \n > {error} wrong answers.')
+        if error != 0:
+            print("Try launching again the Workshop in order to improve your score!")
+        else:
+            print("Congratulations! \n "
+                  "You did an amazing job! \n "
+                  "You are ready to listen to Module 2 - Run you AI-App.")
