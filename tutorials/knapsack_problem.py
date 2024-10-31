@@ -311,8 +311,9 @@ class Generator(DessiaObject):
         count = 0
         for i in range(1, len(self.items)+1):
             for combination in combinations(self.items, i):
+                items_object = Items(combination)
                 solution = KnapsackPackage(
-                    items=combination,
+                    items=items_object,
                     allowed_mass=self.knapsack.allowed_mass,
                     name=f'Package {i}')
                 count += 1
