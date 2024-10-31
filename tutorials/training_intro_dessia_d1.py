@@ -15,7 +15,7 @@ class Workshop1(DessiaObject):
         :type question_documentation: Literal
         :param question_support: What is the email used to contact Dessia's support?
         :type question_support: str
-        :param question_organisation: Select the intruder answer among those provided?
+        :param question_organisation: Select the intruder answer among those provided.
         :type question_organisation: Literal
         :param question_workspace: Give the workspace exact name which has been shared with you.
         :type question_workspace: Literal
@@ -184,7 +184,7 @@ class Workshop1(DessiaObject):
             error += 1
 
         # Monitor status of the first calculation on the platform
-        if self.question_first_task_status == "SUCCESS":
+        if self.question_first_task_status == "FAILURE":
             print("OK - The status you gave for Task #1 is actually the good one.")
             score += 1
         else:
