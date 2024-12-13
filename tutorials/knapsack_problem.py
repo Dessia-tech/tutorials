@@ -96,7 +96,7 @@ class Items(PhysicalObject):
     """
     Class used to define a list of Item for Knapsack filling
 
-    :param items: List of the items contained in the KnapsackPackage
+    :param items: List of the items contained in the KnapsackSolution
     :type items: List[Item]
 
     """
@@ -119,7 +119,7 @@ class Items(PhysicalObject):
     def cadview(self, reference_path: str = "#"):
         return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
-    @plot_data_view("2D display for KnapsackPackage")
+    @plot_data_view("2D display for KnapsackSolution")
     def display_2d(self, reference_path: str = "#"):
         primitives = []
         y_offset = 0
@@ -175,14 +175,14 @@ class Knapsack(PhysicalObject):
         return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
 
-class KnapsackPackage(Knapsack):
+class KnapsackSolution(Knapsack):
     """
-    Class used to define a Knapsack Package containing items.
+    Class used to define a Knapsack Solution containing items.
 
-    :param items: List of the items contained in the KnapsackPackage
+    :param items: List of the items contained in the KnapsackSolution
     :type items: Items
     
-    :param allowed_mass: Mass maximum capacity of the KnapsackPackage in [kg]
+    :param allowed_mass: Mass maximum capacity of the KnapsackSolution in [kg]
     :type allowed_mass: float
     """
     
@@ -215,12 +215,12 @@ class KnapsackPackage(Knapsack):
             z_offset += item.mass / 2 + 0.05
         return primitives
 
-    @cad_view("Knapsack Package CAD")
+    @cad_view("Knapsack Solution CAD")
     def cadview(self):
         return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
-    @plot_data_view("2D display for KnapsackPackage")
-    @picture_view("2D display for KnapsackPackage")
+    @plot_data_view("2D display for KnapsackSolution")
+    @picture_view("2D display for KnapsackSolution")
     def display_2d(self):
         primitives = []
         y_offset = 0
@@ -250,18 +250,18 @@ class KnapsackPackage(Knapsack):
         return PrimitiveGroup(primitives=primitives)
 
 
-class ListKnapsackPackages(DessiaObject):
+class ListKnapsackSolutions(DessiaObject):
     """
         Class used to store a list of solutions of Knapsack containing items.
 
         :param knapsack_packages: List of Knapsack solutions containing items
-        :type knapsack_packages: List[KnapsackPackage]
+        :type knapsack_packages: List[KnapsackSolution]
 
     """
 
     _standalone_in_db = True
 
-    def __init__(self, knapsack_packages: List[KnapsackPackage], name: str = 'generator'):
+    def __init__(self, knapsack_packages: List[KnapsackSolution], name: str = 'generator'):
         self.knapsack_packages = knapsack_packages
         DessiaObject.__init__(self, name=name)
 
@@ -270,88 +270,3 @@ class ListKnapsackPackages(DessiaObject):
         dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages, name=self.name)
         returned_markdown = dataset.Dataset.to_markdown(dataset_object, *args, **kwargs)
         return returned_markdown
-
-
-class Generator(DessiaObject):
-    """
-    Class used to generate different solutions of Knapsack containing items.
-
-    :param items: List of items available in the store for Knapsack filling
-    :type items: List[Item]
-    
-    :param knapsack: Knapsack to be filled with items
-    :type knapsack: Knapsack
-    """
-    
-    _standalone_in_db = True
-
-    def __init__(self, items: List[Item], knapsack: Knapsack, name: str = 'generator'):
-        self.items = items
-        self.knapsack = knapsack
-        DessiaObject.__init__(self, name=name)
-
-    def generate(self, min_mass: float, max_gold: int = None,
-                 max_iter: int = None):
-        """
-        Method for generation of filled Knapsack with restriction parameters for generation.
-
-        :param min_mass: Minimal Mass of combined items to reach for a solution to be generated
-        :type min_mass: float
-
-        :param max_gold: Maximal number of gold items not to be exceeded for a solution to be generated 
-        :type max_gold: int
-
-        :param max_iter: Maximum number of solutions generated (when the algorithm reaches this maximum iteration
-        number, generation stops)
-        :type max_iter: int
-        
-        :rtype: ListKnapsackPackages
-        """
-        solutions = []
-        count = 0
-        for i in range(1, len(self.items)+1):
-            for combination in combinations(self.items, i):
-                items_object = Items(combination)
-                solution = KnapsackPackage(
-                    items=items_object,
-                    allowed_mass=self.knapsack.allowed_mass,
-                    name=f'Package {i}')
-                count += 1
-
-                if min_mass <= solution.mass <= self.knapsack.allowed_mass:
-                    if max_gold is not None:
-                        if solution.golds <= max_gold:
-                            solutions.append(solution)
-                    else:
-                        solutions.append(solution)
-
-                if max_iter is not None and count == max_iter:
-                    return ListKnapsackPackages(
-                        knapsack_packages=sorted(solutions,
-                                                 key=lambda x: x.price,
-                                                 reverse=True))
-
-        return ListKnapsackPackages(knapsack_packages=sorted(solutions,
-                                                             key=lambda x: x.price,
-                                                             reverse=True), name=self.name)
-
-    def generate_knapsack_package(self) -> KnapsackPackage:
-        """
-        Method used to fill in a Knapsack with items
-
-        :rtype: KnapsackPackage
-        """
-
-        sum_masses = sum(item.mass for item in self.items)
-        while sum_masses > self.knapsack.allowed_mass:
-            print("Too many items have been given at the input compared to the knapsack allowed mass.")
-            print("The last item from the input list is removed.")
-            self.items = self.items[0:(len(self.items)-1)]
-            sum_masses = sum(item.mass for item in self.items)
-
-        print('The knapsack finally contains {} items for global mass of {} kg'
-              .format(len(self.items), sum(item.mass for item in self.items)))
-
-        knapsack_package = KnapsackPackage(items=Items(self.items),
-                                           allowed_mass=self.knapsack.allowed_mass)
-        return knapsack_package
