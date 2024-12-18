@@ -309,7 +309,9 @@ class Generator(DessiaObject):
         """
         solutions = []
         count = 0
-        for i in range(1, len(self.items)+1):
+        print('A list of {} items has been given at the input.'.format(len(self.items)))
+        print('Item combinations in Knapsack are created and compared to imposed filtering values.')
+        for i in range(1, len(self.items) + 1):
             for combination in combinations(self.items, i):
                 items_object = Items(combination)
                 solution = KnapsackPackage(
@@ -326,11 +328,14 @@ class Generator(DessiaObject):
                         solutions.append(solution)
 
                 if max_iter is not None and count == max_iter:
+                    print('The maximum number of iteration has been reached.')
+                    print('Generation has been stopped and contains {} solutions'.format(len(solutions)))
                     return ListKnapsackPackages(
                         knapsack_packages=sorted(solutions,
                                                  key=lambda x: x.price,
                                                  reverse=True))
 
+        print('Generation has been stopped and contains {} solutions'.format(len(solutions)))
         return ListKnapsackPackages(knapsack_packages=sorted(solutions,
                                                              key=lambda x: x.price,
                                                              reverse=True), name=self.name)
