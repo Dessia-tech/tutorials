@@ -265,7 +265,7 @@ class ListKnapsackPackages(DessiaObject):
         self.knapsack_packages = knapsack_packages
         DessiaObject.__init__(self, name=name)
 
-    @markdown_view('markdown display')
+    @markdown_view('Generator markdown')
     def to_markdown(self, *args, **kwargs) -> str:
         """Render a markdown of the object output type: string."""
         dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages, name=self.name)
