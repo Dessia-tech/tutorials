@@ -4,7 +4,7 @@ from typing import List
 from dessia_common.core import DessiaObject, PhysicalObject
 from dessia_common.files import BinaryFile
 from dessia_common.datatools import dataset
-from dessia_common.decorators import cad_view, picture_view, plot_data_view
+from dessia_common.decorators import cad_view, picture_view, plot_data_view, markdown_view
 from plot_data import PrimitiveGroup, SurfaceStyle, Text, TextStyle
 from plot_data.colors import BLACK, Color
 from volmdlr import O3D, X3D, Y3D, Z3D, Frame3D, Point2D
@@ -265,6 +265,7 @@ class ListKnapsackPackages(DessiaObject):
         self.knapsack_packages = knapsack_packages
         DessiaObject.__init__(self, name=name)
 
+    @markdown_view('Generator markdown')
     def to_markdown(self, *args, **kwargs) -> str:
         """Render a markdown of the object output type: string."""
         dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages, name=self.name)
