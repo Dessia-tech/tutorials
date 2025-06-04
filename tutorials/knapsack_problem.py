@@ -375,7 +375,7 @@ class Generator(DessiaObject):
         """Render a markdown of the items output type: string."""
         # Create a markdown with items details (name, mass, price, color, price_per_kg)
         markdown = f"# {len(self.items)} Items have been selected\n\n"
-        markdown += "| Name | Mass (kg) | Price (€) | Color | Price per kg (€) |\n"
+        markdown += "| Name | Mass (kg) | Price (€) | Color | Price per kg (€/kg) |\n"
         markdown += "|------|-----------|-----------|-------|------------------|\n"
         for item in self.items:
             markdown += f"| {item.name} | {item.mass} | {item.price} | {item.color} | {item.price_per_kg:.2f} |\n"
