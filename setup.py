@@ -93,7 +93,7 @@ def get_version():
 setup(
     version=get_version(),
     name='tutorials',
-    description='tutorials for DessIA platform',
+    description='Tutorials for the  Dessia platform',
     long_description='',
     author='Dessia Technologies sAS',
     author_email='ringhausen@dessia.io',
