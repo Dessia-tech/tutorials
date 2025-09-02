@@ -102,17 +102,16 @@ class Item(DessiaObject):
         return PrimitiveGroup(primitives=[primitive1, primitive2, primitive3])
 
 
+@dataclass
 class Items(DessiaObject):
     """
     Class used to define a list of Item for Knapsack filling.
 
     :param items: List of the items contained in the KnapsackPackage
     """
-    _standalone_in_db = True
+    items: list[Item]
 
-    def __init__(self, items: list[Item], name: str = ''):
-        self.items = items
-        super().__init__(name=name)
+    _standalone_in_db: ClassVar[bool] = True
 
     def volmdlr_primitives(self, reference_path: str = "#", **kwargs):
         primitives = []
@@ -139,6 +138,7 @@ class Items(DessiaObject):
         return PrimitiveGroup(primitives=primitives)
 
 
+@dataclass
 class Knapsack(DessiaObject):
     """
     Class used to define a Knapsack and its filling capacity.
@@ -146,12 +146,9 @@ class Knapsack(DessiaObject):
 
     :param allowed_mass: Mass capacity of the Knapsack in [kg]
     """
-    
-    _standalone_in_db = True
+    allowed_mass: float
 
-    def __init__(self, allowed_mass: float, name: str = ''):
-        self.allowed_mass = allowed_mass
-        super().__init__(name=name)
+    _standalone_in_db = True
 
     def volmdlr_primitives(self):
         height_vector = (self.allowed_mass + 0.5) * Z3D / 2
@@ -181,7 +178,7 @@ class Knapsack(DessiaObject):
     def cadview(self):
         return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
-
+@dataclass
 class KnapsackPackage(Knapsack):
     """
     Class used to define a Knapsack Package containing items.
@@ -189,26 +186,31 @@ class KnapsackPackage(Knapsack):
     :param items: List of the items contained in the KnapsackPackage
     :param allowed_mass: Mass maximum capacity of the KnapsackPackage in [kg]
     """
-    
+    items: Items
+    name: str = ""
+
     _standalone_in_db = True
     _vector_features = ["mass", "price", "golds", "silvers", "bronzes"]
 
-    def __init__(self, items: Items, allowed_mass: float, name: str = ''):
-        self.items = items
-        Knapsack.__init__(self, allowed_mass=allowed_mass, name=name)
+    @property
+    def mass(self) -> float:
+        return sum(item.mass for item in self.items.items)
 
-        self.mass = sum(item.mass for item in items.items)
-        self.price = sum(item.price for item in items.items)
-        self.golds = 0
-        self.silvers = 0
-        self.bronzes = 0
-        for item in items.items:
-            if item.color == "gold":
-                self.golds += 1
-            elif item.color == "silver":
-                self.silvers += 1
-            elif item.color == "bronze":
-                self.bronzes += 1
+    @property
+    def price(self) -> float:
+        return sum(item.mass for item in self.items.items)
+
+    @property
+    def bronzes(self) -> int:
+        return len([i for i in self.items.items if i.color == "bronze"])
+
+    @property
+    def silvers(self) -> int:
+        return len([i for i in self.items.items if i.color == "silver"])
+
+    @property
+    def golds(self) -> int:
+        return len([i for i in self.items.items if i.color == "gold"])
 
     def volmdlr_primitives(self):
         primitives = super().volmdlr_primitives()
@@ -223,8 +225,7 @@ class KnapsackPackage(Knapsack):
     def cadview(self):
         return VolumeModel(self.volmdlr_primitives()).babylon_data()
 
-    @plot_data_view("2D display for KnapsackPackage")
-    @picture_view("2D display for KnapsackPackage")
+    @plot_data_view("2D display for KnapsackPackage", picture=True)
     def display_2d(self):
         primitives = []
         y_offset = 0
@@ -254,6 +255,7 @@ class KnapsackPackage(Knapsack):
         return PrimitiveGroup(primitives=primitives)
 
 
+@dataclass
 class ListKnapsackPackages(DessiaObject):
     """
         Class used to store a list of solutions of Knapsack containing items.
@@ -261,12 +263,10 @@ class ListKnapsackPackages(DessiaObject):
         :param knapsack_packages: List of Knapsack solutions containing items
 
     """
+    knapsack_packages: list[KnapsackPackage]
+    name: str = "generator"
 
     _standalone_in_db = True
-
-    def __init__(self, knapsack_packages: list[KnapsackPackage], name: str = "generator"):
-        self.knapsack_packages = knapsack_packages
-        DessiaObject.__init__(self, name=name)
 
     @markdown_view("Generator markdown")
     def to_markdown(self, *args, **kwargs) -> str:
@@ -275,6 +275,7 @@ class ListKnapsackPackages(DessiaObject):
         return dataset.Dataset.to_markdown(dataset_object, *args, **kwargs)
 
 
+@dataclass
 class Generator(DessiaObject):
     """
     Class used to generate different solutions of Knapsack containing items.
@@ -282,13 +283,11 @@ class Generator(DessiaObject):
     :param items: List of items available in the store for Knapsack filling
     :param knapsack: Knapsack to be filled with items
     """
-    
-    _standalone_in_db = True
+    items: list[Item]
+    knapsack: Knapsack
+    name: str = "generator"
 
-    def __init__(self, items: list[Item], knapsack: Knapsack, name: str = "generator"):
-        self.items = items
-        self.knapsack = knapsack
-        DessiaObject.__init__(self, name=name)
+    _standalone_in_db = True
 
     def generate(self, min_mass: float, max_gold: int = None, max_iter: int = None):
         """
@@ -311,7 +310,8 @@ class Generator(DessiaObject):
                 solution = KnapsackPackage(
                     items=items_object,
                     allowed_mass=self.knapsack.allowed_mass,
-                    name=f"Package {i}")
+                    name=f"Package {i}"
+                )
                 count += 1
 
                 if min_mass <= solution.mass <= self.knapsack.allowed_mass:
