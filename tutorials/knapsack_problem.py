@@ -1,5 +1,7 @@
 from __future__ import annotations
 from itertools import combinations
+from dataclasses import dataclass
+from typing import ClassVar, Literal
 
 from dessia_common.core import DessiaObject
 from dessia_common.files import BinaryFile
@@ -13,7 +15,17 @@ from volmdlr.shapes import Solid
 import volmdlr.step as vms
 from volmdlr.wires import ClosedPolygon2D
 
+from dessia_common.typings import KeyOf
 
+ITEM_COLORS = {
+    "bronze": (97/255, 78/255, 26/255),
+    "silver": (192/255, 192/255, 192/255),
+    "gold": (255/255, 215/255, 0/255)
+}
+
+ItemColor = KeyOf[ITEM_COLORS]
+
+@dataclass
 class Item(DessiaObject):
     """
     Class used to define an Item for Knapsack filling
@@ -21,24 +33,26 @@ class Item(DessiaObject):
     :param mass: Item mass in [kg]
     :param price: Item price
     """
-    
-    _standalone_in_db = True
+    mass: float
+    price: float
 
-    def __init__(self, mass: float, price: float, name: str = ''):
-        self.mass = mass
-        self.price = price
-        super().__init__(name=name)
+    _standalone_in_db: ClassVar[bool] = True
 
-        self.price_per_kg = price / mass
+    @property
+    def price_per_kg(self) -> float:
+        return self.price / self.mass
+
+    @property
+    def color(self) -> ItemColor:
         if self.price_per_kg <= 5:
-            self.color = "bronze"
-            self.rgb = (97/255, 78/255, 26/255)  # Bronze color
-        elif 5 < self.price_per_kg < 15:
-            self.color = "silver"
-            self.rgb = (192/255, 192/255, 192/255)  # Silver color
-        else:
-            self.color = "gold"
-            self.rgb = (255/255, 215/255, 0/255)  # Gold color
+            return "bronze"
+        if 5 < self.price_per_kg < 15:
+            return "silver"
+        return "gold"
+
+    @property
+    def rgb(self) -> tuple[float, float, float]:  # Would be awesome to compute type from constant values
+        return ITEM_COLORS[self.color]
 
     def volmdlr_primitives(self, z_offset: float = 0., reference_path: str = "#", **kwargs):
         height_vector = self.mass * Z3D / 2
