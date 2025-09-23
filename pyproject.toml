@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tutorials"
+description = "tutorials for DessIA platform"
+authors = [
+    {name = "Dessia Technologies sAS", email = "ringhausen@dessia.io"}
+]
+requires-python = ">=3.7"
+dependencies = [
+    "dessia_common>=0.20.0"
+    # "plot_data",
+    # "volmdlr>=0.18.0"
+]
+dynamic = ["version"]
+
+[tool.setuptools]
+#packages = ["tutorials"]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+ [tool.setuptools_scm]
+ write_to = "src/tutorials/_version.py"
