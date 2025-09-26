@@ -1,24 +1,23 @@
 import math
 from math import cos, pi, sin
 
-from dessia_common.core import PhysicalObject
+from dessia_common.core import DessiaObject
 from dessia_common.decorators import plot_data_view, cad_view
 from plot_data import EdgeStyle, PrimitiveGroup, SurfaceStyle
 from plot_data.colors import BLACK, GREY
 from volmdlr import OXYZ, Z3D, Point2D, Point3D, Frame3D, Vector3D
 from volmdlr.core import VolumeModel
 from volmdlr.curves import Circle2D
-from volmdlr.primitives3d import ExtrudedProfile
 from volmdlr.wires import Contour2D
 from volmdlr.shapes import Solid
 
 
-class Ball(PhysicalObject):
+class Ball(DessiaObject):
     _standalone_in_db = False
 
     def __init__(self, diameter: float, name: str = ''):
         self.diameter = diameter
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     def volmdlr_primitives(self, pos_x=0., pos_y=0., pos_z=0.,
                            distance=0., angle=0.):
@@ -69,7 +68,7 @@ class Ball(PhysicalObject):
         return VolumeModel(primitives=primitives).babylon_data()
 
 
-class Bearing(PhysicalObject):
+class Bearing(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, ball: Ball, internal_diameter: float,
@@ -80,7 +79,7 @@ class Bearing(PhysicalObject):
         self.external_diameter = external_diameter
         self.height = height
         self.thickness = thickness
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     def volmdlr_primitives(self, pos_x=0., pos_y=0., pos_z=0.,
                            number_balls=10):

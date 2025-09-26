@@ -13,7 +13,7 @@ import volmdlr.faces as vm_faces
 import volmdlr.surfaces as vm_surfaces
 from volmdlr.core import VolumeModel
 from volmdlr.shapes import Solid
-from dessia_common.core import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject
 from dessia_common.decorators import cad_view
 
 class Housing(DessiaObject):
@@ -153,7 +153,7 @@ class SlavePiping(Piping):
 
 
 #
-class Assembly(PhysicalObject):
+class Assembly(DessiaObject):
     _standalone_in_db = True
     _non_data_eq_attributes = ['length', 'min_radius', 'max_radius', 'distance_input',
                                'straight_line', 'routes']
@@ -161,7 +161,7 @@ class Assembly(PhysicalObject):
     def __init__(self, frame: Frame, pipings: List[Piping], housing: Housing,
                  waypoint: vm.Point3D = None, name: str = ''):
 
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
         self.housing = housing
         self.pipings = pipings
         self.frame = frame

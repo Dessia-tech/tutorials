@@ -1,6 +1,6 @@
 from typing import List, Literal
 
-from dessia_common.core import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject
 
 
 class Workshop1(DessiaObject):

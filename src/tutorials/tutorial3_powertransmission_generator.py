@@ -16,8 +16,7 @@ import plot_data
 import volmdlr as vm
 from volmdlr.core import VolumeModel
 from volmdlr.shapes import Solid
-import volmdlr.primitives3d as p3d
-from dessia_common.core import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject
 from dessia_common.decorators import plot_data_view, cad_view
 from scipy.optimize import minimize
 
@@ -162,7 +161,7 @@ class Mesh(DessiaObject):
 # =============================================================================
 
 
-class Reductor(PhysicalObject):
+class Reductor(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, motor: Motor, shafts: List[Shaft], meshes: List[Mesh], number_solution: int = 0, name: str = ''):

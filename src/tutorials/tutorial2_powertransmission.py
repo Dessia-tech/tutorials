@@ -15,7 +15,7 @@ import plot_data
 import volmdlr as vm
 from volmdlr.core import VolumeModel
 from volmdlr.shapes import Solid
-from dessia_common.core import PhysicalObject
+from dessia_common.core import DessiaObject
 from dessia_common.decorators import plot_data_view, cad_view
 
 from scipy.optimize import minimize
@@ -23,7 +23,7 @@ from scipy.optimize import minimize
 # =============================================================================
 
 
-class Shaft(PhysicalObject):
+class Shaft(DessiaObject):
 
     def __init__(self, pos_x: float, pos_y: float, length: float, name: str = ''):
 
@@ -33,7 +33,7 @@ class Shaft(PhysicalObject):
         self.length = length
         self.diameter = 0.04
         self.z_position = self.length/2
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     @plot_data_view(selector="Shaft")
     def plot_data(self):
@@ -64,7 +64,7 @@ class Shaft(PhysicalObject):
 # =============================================================================
 
 
-class Motor(PhysicalObject):
+class Motor(DessiaObject):
 
     def __init__(self, diameter: float, length: float, speed: float, name: str = ''):
 
@@ -75,7 +75,7 @@ class Motor(PhysicalObject):
         self.z_position = self.length/2
         self.pos_x = 0
         self.pos_y = 0
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     @plot_data_view(selector="Motor")
     def plot_data(self):
@@ -103,7 +103,7 @@ class Motor(PhysicalObject):
 # =============================================================================
 
 
-class Gear(PhysicalObject):
+class Gear(DessiaObject):
 
     def __init__(self, diameter: float, length: float, shaft: Shaft, name: str = ''):
         self.diameter = diameter
@@ -111,7 +111,7 @@ class Gear(PhysicalObject):
         self.name = name
         self.shaft = shaft
         self.z_position = 0
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     @plot_data_view(selector='Gear')
     def plot_data(self):
@@ -142,20 +142,20 @@ class Gear(PhysicalObject):
 # =============================================================================
 
 
-class Mesh(PhysicalObject):
+class Mesh(DessiaObject):
 
     def __init__(self, gear1: Gear, gear2: Gear, name: str = ''):
         self.gear1 = gear1
         self.gear2 = gear2
         self.gears = [gear1, gear2]
         self.name = name
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
 
 # =============================================================================
 
 
-class Reductor(PhysicalObject):
+class Reductor(DessiaObject):
     _standalone_in_db = True
 
     def __init__(self, motor: Motor, shafts: List[Shaft], meshes: List[Mesh], number_solution: int = 0, name: str = ''):
@@ -166,7 +166,7 @@ class Reductor(PhysicalObject):
         self.offset = 0.02
         self.number_solution = number_solution
         self.mass_reductor = self.mass()
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     def speed_output(self):
 
@@ -250,14 +250,14 @@ class Reductor(PhysicalObject):
         return mass
 
 
-class Optimizer(PhysicalObject):
+class Optimizer(DessiaObject):
     def __init__(self, reductor: Reductor, speed_output: float, x_min_max: Tuple[float, float],
                  y_min_max: Tuple[float, float], name: str = ''):
         self.reductor = reductor
         self.x_min_max = x_min_max
         self.y_min_max = y_min_max
         self.speed_output = speed_output
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
         bounds = []
         for shaft in reductor.shafts:
@@ -344,13 +344,13 @@ class Optimizer(PhysicalObject):
         return list_reductor
 
 
-class InstanciateReductor(PhysicalObject):
+class InstanciateReductor(DessiaObject):
 
     def __init__(self, motor: Motor, length_gears: float = 0.01, name: str = ''):
         self.motor = motor
 
         self.length_gears = length_gears
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     def instanciate(self):
         shafts = [Shaft(pos_x=0, pos_y=0, length=0.1),

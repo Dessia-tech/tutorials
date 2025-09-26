@@ -7,9 +7,10 @@ from dessia_common.files import BinaryFile
 from datatools.dataset import Dataset
 from dessia_common.decorators import cad_view, plot_data_view, markdown_view
 from dessia_common.models.decorators import modelclass, model_property
-from plot_data.core import PrimitiveGroup, SurfaceStyle, Text, TextStyle
+from plot_data import PrimitiveGroup, SurfaceStyle, Text, TextStyle
 from plot_data.colors import BLACK, Color
-from volmdlr.core import VolumeModel, O3D, X3D, Y3D, Z3D, Frame3D, Point2D
+from volmdlr import O3D, X3D, Y3D, Z3D, Frame3D, Point2D
+from volmdlr.core import VolumeModel
 from volmdlr.shapes import Solid
 import volmdlr.step as vms
 from volmdlr.wires import ClosedPolygon2D
@@ -271,8 +272,8 @@ class ListKnapsackPackages(Model):
     @markdown_view("Generator markdown")
     def to_markdown(self, *args, **kwargs) -> str:
         """Render a markdown of the object output type: string."""
-        dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages, name=self.name)
-        return dataset.Dataset.to_markdown(dataset_object, *args, **kwargs)
+        dataset_object = Dataset(dessia_objects=self.knapsack_packages, name=self.name)
+        return Dataset.to_markdown(dataset_object, *args, **kwargs)
 
 
 @modelclass
