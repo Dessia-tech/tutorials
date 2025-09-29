@@ -307,7 +307,7 @@ class Generator(Model):
         print("Item combinations in Knapsack are created and compared to imposed filtering values.")
         for i in range(1, len(self.items) + 1):
             for combination in combinations(self.items, i):
-                items_object = Items(combination)
+                items_object = Items(items=combination)
                 solution = KnapsackPackage(
                     items=items_object,
                     allowed_mass=self.knapsack.allowed_mass,
@@ -348,4 +348,5 @@ class Generator(Model):
             sum_masses = sum(item.mass for item in self.items)
 
         print(f"The knapsack finally contains {len(self.items)} items for global mass of {sum_masses} kg")
-        return KnapsackPackage(items=Items(self.items), allowed_mass=self.knapsack.allowed_mass)
+        items = Items(self.items)
+        return KnapsackPackage(items=items, allowed_mass=self.knapsack.allowed_mass)
