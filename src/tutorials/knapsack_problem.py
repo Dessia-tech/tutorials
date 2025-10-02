@@ -200,7 +200,7 @@ class Items(Model):
             z_offset += item.mass / 2 + 0.05
         for i, item in enumerate(self.items2):
             z_offset = - item.price_per_kg / 2 + 0.05
-            item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path=f"{reference_path}/items/{i}")
+            item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path=f"{reference_path}/items2/{i}")
             primitives.extend(item_primitives)
         return primitives
 
