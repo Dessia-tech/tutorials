@@ -101,6 +101,83 @@ class Item(Model):
                           multi_lines=False)
         return PrimitiveGroup(primitives=[primitive1, primitive2, primitive3])
 
+@modelclass
+class Item2(Model):
+    """
+    Class used to define an Item for Knapsack filling
+
+    :param mass: Item mass in [kg]
+    :param price: Item price
+    """
+    mass: float
+    price: float
+    variable: float
+
+    _standalone_in_db: ClassVar[bool] = True
+
+    @model_property
+    def price_per_kg(self) -> float:
+        return self.variable * self.price / self.mass
+
+    @model_property
+    def color_frame(self) -> ItemColor:
+        if self.price_per_kg <= 5:
+            return "bronze"
+        if 5 < self.price_per_kg < 15:
+            return "silver"
+        return "gold"
+
+    @model_property
+    def rgb(self) -> tuple[float, float, float]:  # Would be awesome to compute type from constant values
+        return ITEM_COLORS[self.color]
+
+    def volmdlr_primitives(self, z_offset: float = 0., reference_path: str = "#", **kwargs):
+        height_vector = self.price_per_kg * Z3D / 2
+        frame = Frame3D(origin=O3D + height_vector / 2 + z_offset * Z3D,
+                        u=X3D,
+                        v=Y3D,
+                        w=Z3D,
+                        name=f"frame {self.name}")
+        solid = Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame,
+                                     frame_centered=True, name=f"block {self.name}")
+        solid.reference_path = reference_path
+        solid.color = self.rgb
+        return [solid]
+
+    @cad_view("Item CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
+    @plot_data_view("2D display for Item")
+    def display_2d(self, y_offset: float = 0., reference_path: str = "#"):
+        contour = ClosedPolygon2D([
+            Point2D(-0.5, -0.5 + y_offset),
+            Point2D(0.5, -0.5 + y_offset),
+            Point2D(0.5, 0.5 + y_offset),
+            Point2D(-0.5, 0.5 + y_offset)])
+        contour.reference_path = reference_path
+        surface_style = SurfaceStyle(color_fill=Color(red=self.rgb[0],green=self.rgb[1], blue=self.rgb[2]))
+        primitive1 = contour.plot_data(surface_style=surface_style)
+        text_style = TextStyle(text_color=BLACK,
+                               font_size=None,
+                               text_align_x="center",
+                               text_align_y="middle")
+        primitive2 = Text(comment=f"{self.mass} kg",
+                          position_x=0,
+                          position_y=0.4 + y_offset,
+                          text_style=text_style,
+                          text_scaling=True,
+                          max_width=0.5,
+                          multi_lines=False)
+        primitive3 = Text(comment=f"{self.price} €",
+                          position_x=0,
+                          position_y=-0.1 + y_offset,
+                          text_style=text_style,
+                          text_scaling=True,
+                          max_width=0.5,
+                          multi_lines=False)
+        return PrimitiveGroup(primitives=[primitive1, primitive2, primitive3])
+
 
 @modelclass
 class Items(Model):
@@ -110,6 +187,7 @@ class Items(Model):
     :param items: List of the items contained in the KnapsackPackage
     """
     items: list[Item]
+    items2: list[Item2]
 
     _standalone_in_db: ClassVar[bool] = True
 
@@ -120,6 +198,10 @@ class Items(Model):
             item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path=f"{reference_path}/items/{i}")
             primitives.extend(item_primitives)
             z_offset += item.mass / 2 + 0.05
+        for i, item in enumerate(self.items2):
+            z_offset = - item.price_per_kg / 2 + 0.05
+            item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path=f"{reference_path}/items/{i}")
+            primitives.extend(item_primitives)
         return primitives
 
     @cad_view("Knapsack CAD")
