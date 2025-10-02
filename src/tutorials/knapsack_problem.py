@@ -129,7 +129,7 @@ class Item2(Model):
 
     @model_property
     def rgb(self) -> tuple[float, float, float]:  # Would be awesome to compute type from constant values
-        return ITEM_COLORS[self.color]
+        return ITEM_COLORS[self.color_frame]
 
     def volmdlr_primitives(self, z_offset: float = 0., reference_path: str = "#", **kwargs):
         height_vector = self.price_per_kg * Z3D / 2
