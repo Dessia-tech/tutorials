@@ -35,7 +35,6 @@ class Item(Model):
     """
     mass: float
     price: float
-
     _standalone_in_db: ClassVar[bool] = True
 
     @model_property
@@ -290,7 +289,7 @@ class Generator(Model):
 
     _standalone_in_db = True
 
-    def generate(self, min_mass: float, max_gold: int = None, max_iter: int = None):
+    def generate(self, min_mass: float, max_gold: int = None, max_iter: int = None) -> ListKnapsackPackages:
         """
         Method for generation of filled Knapsack with restriction parameters for generation.
 
@@ -298,8 +297,6 @@ class Generator(Model):
         :param max_gold: Maximal number of gold items not to be exceeded for a solution to be generated
         :param max_iter: Maximum number of solutions generated (when the algorithm reaches this maximum iteration
             number, generation stops)
-
-        :rtype: ListKnapsackPackages
         """
         solutions = []
         count = 0
