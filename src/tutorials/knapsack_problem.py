@@ -1,7 +1,8 @@
 from __future__ import annotations
 from itertools import combinations
-from typing import ClassVar
+from typing import ClassVar, Literal
 
+from dessia_common.core import DessiaObject
 from dessia_common.models.core import Model
 from dessia_common.files import BinaryFile
 from datatools.dataset import Dataset
@@ -92,6 +93,90 @@ class Item(Model):
                           max_width=0.5,
                           multi_lines=False)
         primitive3 = Text(comment=f"{self.price} €",
+                          position_x=0,
+                          position_y=-0.1 + y_offset,
+                          text_style=text_style,
+                          text_scaling=True,
+                          max_width=0.5,
+                          multi_lines=False)
+        return PrimitiveGroup(primitives=[primitive1, primitive2, primitive3])
+
+
+class LegacyItem(DessiaObject):
+    """
+    Class used to define an Item for Knapsack filling
+
+    :param mass: Item mass in [kg]
+    :type mass: float
+
+    :param price: Item price
+    :type price: float
+    """
+
+    _standalone_in_db = True
+
+    __declared_properties__ = {
+        "price_per_kg": float,
+        "color": Literal["bronze", "silver", "gold"],
+        "rgb": tuple[float, float, float]
+    }
+
+    def __init__(self, mass: float, price: float, name: str = ''):
+        self.mass = mass
+        self.price = price
+        DessiaObject.__init__(self, name=name)
+
+        self.price_per_kg = price / mass
+        if self.price_per_kg <= 5:
+            self.color = 'bronze'
+            self.rgb = (97 / 255, 78 / 255, 26 / 255)  # Bronze color
+        elif 5 < self.price_per_kg < 15:
+            self.color = 'silver'
+            self.rgb = (192 / 255, 192 / 255, 192 / 255)  # Silver color
+        else:
+            self.color = 'gold'
+            self.rgb = (255 / 255, 215 / 255, 0 / 255)  # Gold color
+
+    def volmdlr_primitives(self, z_offset: float = 0., reference_path: str = "#", **kwargs):
+        height_vector = self.mass * Z3D / 2
+        frame = Frame3D(origin=O3D + height_vector / 2 + z_offset * Z3D,
+                        u=X3D,
+                        v=Y3D,
+                        w=Z3D,
+                        name='frame ' + self.name)
+        solid = Solid.make_box(length=1, width=1, height=height_vector.norm(), frame=frame,
+                               frame_centered=True, name='block ' + self.name)
+        solid.reference_path = reference_path
+        solid.color = self.rgb
+        return [solid]
+
+    @cad_view("Item CAD")
+    def cadview(self):
+        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+
+    @plot_data_view("2D display for Item")
+    def display_2d(self, y_offset: float = 0., reference_path: str = "#"):
+        contour = ClosedPolygon2D([
+            Point2D(-0.5, -0.5 + y_offset),
+            Point2D(0.5, -0.5 + y_offset),
+            Point2D(0.5, 0.5 + y_offset),
+            Point2D(-0.5, 0.5 + y_offset)])
+        contour.reference_path = reference_path
+        surface_style = SurfaceStyle(
+            color_fill=Color(red=self.rgb[0], green=self.rgb[1], blue=self.rgb[2]))
+        primitive1 = contour.plot_data(surface_style=surface_style)
+        text_style = TextStyle(text_color=BLACK,
+                               font_size=None,
+                               text_align_x='center',
+                               text_align_y='middle')
+        primitive2 = Text(comment=f'{self.mass} kg',
+                          position_x=0,
+                          position_y=0.4 + y_offset,
+                          text_style=text_style,
+                          text_scaling=True,
+                          max_width=0.5,
+                          multi_lines=False)
+        primitive3 = Text(comment=f'{self.price} €',
                           position_x=0,
                           position_y=-0.1 + y_offset,
                           text_style=text_style,
