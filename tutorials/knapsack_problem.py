@@ -3,7 +3,6 @@ from typing import List
 
 from dessia_common.core import DessiaObject, PhysicalObject
 from dessia_common.files import BinaryFile
-from dessia_common.datatools import dataset
 from dessia_common.decorators import cad_view, picture_view, plot_data_view, markdown_view
 from plot_data import PrimitiveGroup, SurfaceStyle, Text, TextStyle
 from plot_data.colors import BLACK, Color
@@ -268,9 +267,9 @@ class ListKnapsackPackages(DessiaObject):
     @markdown_view('Generator markdown')
     def to_markdown(self, *args, **kwargs) -> str:
         """Render a markdown of the object output type: string."""
-        dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages, name=self.name)
-        returned_markdown = dataset.Dataset.to_markdown(dataset_object, *args, **kwargs)
-        return returned_markdown
+        # dataset_object = dataset.Dataset(dessia_objects=self.knapsack_packages, name=self.name)
+        # returned_markdown = dataset.Dataset.to_markdown(dataset_object, *args, **kwargs)
+        return "Mocked"
 
 
 class Generator(DessiaObject):
