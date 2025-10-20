@@ -68,8 +68,8 @@ class Item(Model):
         return [solid]
 
     @cad_view("Item CAD")
-    def cadview(self):
-        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+    def cadview(self, reference_path: str = "#"):
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
     @plot_data_view("2D display for Item")
     def display_2d(self, y_offset: float = 0., reference_path: str = "#"):
@@ -151,8 +151,8 @@ class LegacyItem(DessiaObject):
         return [solid]
 
     @cad_view("Item CAD")
-    def cadview(self):
-        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+    def cadview(self, reference_path: str = "#"):
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
     @plot_data_view("2D display for Item")
     def display_2d(self, y_offset: float = 0., reference_path: str = "#"):
@@ -235,7 +235,7 @@ class Knapsack(Model):
 
     _standalone_in_db = True
 
-    def volmdlr_primitives(self):
+    def volmdlr_primitives(self, reference_path: str = "#"):
         height_vector = (self.allowed_mass + 0.5) * Z3D / 2
         frame = Frame3D(origin=O3D + height_vector / 2,
                         u=X3D,
@@ -245,6 +245,7 @@ class Knapsack(Model):
         primitives = [Solid.make_box(length=1.1, width=1.1, height=height_vector.norm(), frame=frame,
                                      frame_centered=True, name=f"block {self.name}")]
         primitives[0].alpha = 0.4
+        primitives[0].reference_path = reference_path
         return primitives
 
     @classmethod
@@ -260,8 +261,8 @@ class Knapsack(Model):
         return cls(allowed_mass=allowed_mass)
 
     @cad_view("Knapsack CAD")
-    def cadview(self):
-        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+    def cadview(self, reference_path: str = "#"):
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
 @modelclass
 class KnapsackPackage(Knapsack):
@@ -297,18 +298,18 @@ class KnapsackPackage(Knapsack):
     def golds(self) -> int:
         return len([i for i in self.items.items if i.color == "gold"])
 
-    def volmdlr_primitives(self):
+    def volmdlr_primitives(self, reference_path: str = "#"):
         primitives = super().volmdlr_primitives()
         z_offset = 0
-        for item in self.items.items:
-            item_primitives = item.volmdlr_primitives(z_offset=z_offset)
+        for i, item in enumerate(self.items.items):
+            item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path=f"{reference_path}/items/{i}")
             primitives.extend(item_primitives)
             z_offset += item.mass / 2 + 0.05
         return primitives
 
     @cad_view("Knapsack Package CAD")
-    def cadview(self):
-        return VolumeModel(self.volmdlr_primitives()).babylon_data()
+    def cadview(self, reference_path: str = "#"):
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
     @plot_data_view("2D display for KnapsackPackage", picture=True)
     def display_2d(self):
