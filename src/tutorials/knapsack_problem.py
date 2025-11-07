@@ -284,7 +284,7 @@ class KnapsackPackage(Knapsack):
 
     @model_property
     def price(self) -> float:
-        return sum(item.mass for item in self.items.items)
+        return sum(item.price for item in self.items.items)
 
     @model_property
     def bronzes(self) -> int:
@@ -431,5 +431,5 @@ class Generator(Model):
             sum_masses = sum(item.mass for item in self.items)
 
         print(f"The knapsack finally contains {len(self.items)} items for global mass of {sum_masses} kg")
-        items = Items(self.items)
+        items = Items(items=self.items)
         return KnapsackPackage(items=items, allowed_mass=self.knapsack.allowed_mass)
