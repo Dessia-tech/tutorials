@@ -8,9 +8,9 @@ description = "tutorials for DessIA platform"
 authors = [
     {name = "Dessia Technologies sAS", email = "ringhausen@dessia.io"}
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.12"
 dependencies = [
-    "dessia_common>=0.20.0"
+    "dessia_common>=1.0.0rc1"
     # "plot_data",
     # "volmdlr>=0.18.0"
 ]
