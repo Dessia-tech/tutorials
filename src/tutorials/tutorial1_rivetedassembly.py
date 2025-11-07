@@ -5,8 +5,7 @@ from typing import List
 import plot_data.core as plot_data
 import volmdlr as vm
 import volmdlr.primitives2d as p2d
-import volmdlr.primitives3d as p3d
-from dessia_common.core import DessiaObject, PhysicalObject
+from dessia_common.core import DessiaObject
 from dessia_common.decorators import cad_view, plot_data_view
 from plot_data.colors import *
 from volmdlr.model import VolumeModel
@@ -27,7 +26,7 @@ class Color(DessiaObject):
         return (self.red, self.green, self.blue)
 
 
-class Panel(PhysicalObject):
+class Panel(DessiaObject):
     """ 
     :param length: A value corresponding to the panel length.
     :type length: float
@@ -49,7 +48,7 @@ class Panel(PhysicalObject):
         self.mass = 7800 * (thickness * height * length)  # If you want to change the volumic mass, change the '7800'.
         self.color = color
         self.alpha = alpha
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     def contour(self):
         p0 = vm.Point2D(-self.length / 2, -self.height / 2)
@@ -99,7 +98,7 @@ class Panel(PhysicalObject):
         return plot_data.PrimitiveGroup(primitives=[plot_datas])
 
 
-class PanelCombination(PhysicalObject):
+class PanelCombination(DessiaObject):
     """ 
     :param panels: List of Panel representing a combination of panels.
     :type panels: List[Panel]
@@ -115,7 +114,7 @@ class PanelCombination(PhysicalObject):
         self.grids = grids
         self.panels = panels
         self.mass = sum([p.mass for p in panels])
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     @plot_data_view(selector="PanelCombination")
     def plot_data(self):
@@ -190,7 +189,7 @@ class PanelCombination(PhysicalObject):
         return VolumeModel(primitives=primitives).babylon_data()
 
 
-class Rivet(PhysicalObject):
+class Rivet(DessiaObject):
     """ 
     :param rivet_diameter: A value corresponding to the rivet body diameter.
     :type rivet_diameter: float
@@ -215,7 +214,7 @@ class Rivet(PhysicalObject):
         self.mass = 7800 * (math.pi * (head_diameter ** 2) / 4 * head_length + math.pi * (
                 rivet_diameter ** 2) / 4 * rivet_length)
 
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
     def contour(self, full_contour=False):
         if full_contour:
@@ -327,7 +326,7 @@ class Rule(DessiaObject):
         return all_possibilities
 
 
-class PanelAssembly(PhysicalObject):
+class PanelAssembly(DessiaObject):
     """ 
     :param panel_combination: The PanelCombination used as work base.
     :type panel_combination: PanelCombination
@@ -355,7 +354,7 @@ class PanelAssembly(PhysicalObject):
         self.panel_combination = panel_combination
         self.rivet = rivet
         self.grids = grids
-        PhysicalObject.__init__(self, name=name)
+        DessiaObject.__init__(self, name=name)
 
         self.number_rivet = number_rivet1 * number_rivet2
         self.mass = rivet.mass * self.number_rivet + panel_combination.mass

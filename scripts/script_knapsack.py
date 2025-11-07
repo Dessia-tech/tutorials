@@ -9,7 +9,8 @@ items = [
     Item(mass=3, price=25, name='item 6'),
     Item(mass=1, price=5, name='item 7'),
     Item(mass=2, price=10, name='item 8'),
-    Item(mass=3, price=40, name='item 9')]
+    Item(mass=3, price=40, name='item 9')
+]
 
 knapsack = Knapsack(allowed_mass=10, name='knapsack 10kg')
 
