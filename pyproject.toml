@@ -10,9 +10,10 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "dessia_common>=1.0.0rc1"
+    # "dessia_common>=1.0.0rc1"
     # "plot_data",
     # "volmdlr>=0.18.0"
+    # "datatools",
 ]
 dynamic = ["version"]
 

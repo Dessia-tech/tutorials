@@ -5,7 +5,7 @@ from typing import ClassVar, Literal
 from dessia_common.core import DessiaObject
 from dessia_common.models.core import Model
 from dessia_common.files import BinaryFile
-from datatools.dataset import Dataset
+#from datatools.dataset import Dataset
 from dessia_common.decorators import cad_view, plot_data_view, markdown_view
 from dessia_common.models.decorators import modelclass, model_property
 from plot_data import PrimitiveGroup, SurfaceStyle, Text, TextStyle
@@ -354,11 +354,11 @@ class ListKnapsackPackages(Model):
 
     _standalone_in_db = True
 
-    @markdown_view("Generator markdown")
-    def to_markdown(self, *args, **kwargs) -> str:
-        """Render a markdown of the object output type: string."""
-        dataset_object = Dataset(dessia_objects=self.knapsack_packages, name=self.name)
-        return Dataset.to_markdown(dataset_object, *args, **kwargs)
+    # @markdown_view("Generator markdown")
+    # def to_markdown(self, *args, **kwargs) -> str:
+    #     """Render a markdown of the object output type: string."""
+    #     dataset_object = Dataset(dessia_objects=self.knapsack_packages, name=self.name)
+    #     return Dataset.to_markdown(dataset_object, *args, **kwargs)
 
 
 @modelclass
