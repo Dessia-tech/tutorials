@@ -9,7 +9,7 @@ import copy
 import math
 from typing import List, Tuple
 
-import dectree as dt
+import dectree.dectree as dt
 
 import numpy as npy
 import plot_data

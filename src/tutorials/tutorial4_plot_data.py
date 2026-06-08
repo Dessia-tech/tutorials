@@ -147,7 +147,7 @@ class MultiPlot(DessiaObject):
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
         objects.append(plot_data.ParallelPlot(elements=self.points,
                                               edge_style=edge_style,
-                                              disposition='vertical',
+                                              vertical=True,
                                               axes=['x', 'y', 'z', 'm'],
                                               rgbs=rgbs))
 

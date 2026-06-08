@@ -49,7 +49,7 @@ list_piping = as1.analyze_graph(g)
 
 opt1 = tuto.Optimizer(as1, objective_length=1.1)
 sol = opt1.optimize()
-opt1.assembly.babylonjs()
+vm.model.VolumeModel(opt1.assembly.volmdlr_primitives()).babylonjs()
 print('Optimum with length {} with an objective at {}'.format(opt1.assembly.length(), opt1.objective_length))
 
 graph = as1.graph()

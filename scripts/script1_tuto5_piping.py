@@ -27,7 +27,7 @@ vol = vm.core.VolumeModel([face1, face2])
 vol.babylonjs()
 
 housing = tuto.Housing(faces=[face1, face2], origin=vm.Point3D(0, 0, 0))
-housing.babylonjs()
+vm.model.VolumeModel(housing.volmdlr_primitives()).babylonjs()
 
 p1 = vm.Point3D(0, 0.1, 0.01)
 p2 = vm.Point3D(0.05, 0.1, 0.01)
@@ -67,7 +67,7 @@ for solution in solutions:
     #     if prim.__class__.__name__ == 'volmdlr.primitives3d.Sweep':
     #         for face in prim.faces:
     #             face.color = color
-    solution.babylonjs()
+    vm.model.VolumeModel(solution.volmdlr_primitives()).babylonjs()
 
 
 primitives = solutions[0].volmdlr_primitives()

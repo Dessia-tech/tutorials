@@ -11,7 +11,7 @@ from itertools import product
 from statistics import mean
 from typing import Any, Dict, List, Tuple
 
-import dectree as dt
+import dectree.dectree as dt
 import matplotlib.pyplot as plt
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import plot_data
 import plot_data.graph
-from dessia_common.core import DessiaObject, DisplayObject
+from dessia_common.core import DessiaObject
 from dessia_common.decorators import plot_data_view
 from plot_data.colors import *
 from scipy.interpolate import interp2d
@@ -943,7 +943,7 @@ class Clustering(DessiaObject):
 
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
         plots.append(plot_data.ParallelPlot(edge_style=edge_style,
-                                            disposition='vertical',
+                                            vertical=True,
                                             axes=all_attributes,
                                             rgbs=rgbs))
         clusters = plot_data.MultiplePlots(plots=plots,

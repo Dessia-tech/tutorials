@@ -14,7 +14,7 @@ import plot_data
 from dessia_common.core import DessiaObject
 from dessia_common.decorators import plot_data_view
 from plot_data.colors import *
-from scipy.interpolate import interp2d
+from scipy.interpolate import RegularGridInterpolator
 from scipy.optimize import minimize
 
 
@@ -61,21 +61,30 @@ class Engine(DessiaObject):
         self.setpoint_speed = setpoint_speed
         self.setpoint_torque = setpoint_torque
 
-        DessiaObject.__init__(self,name=name)
-    
-    def efficiency(self, speed:float, torque:float):
-        interpolate = interp2d(self.efficiency_map.engine_torques,
-                               self.efficiency_map.engine_speeds,
-                               self.efficiency_map.efficiencies)
-        interpolate_efficiency = interpolate(torque, speed)
-        return interpolate_efficiency[0]
-    
-    def consumption_efficiency(self, speed:float, torque: float):
-        interpolate = interp2d(self.efficiency_map.engine_torques,
-                               self.efficiency_map.engine_speeds,
-                               self.efficiency_map.bsfc)
-        interpolate_consumption_efficiency = interpolate(torque, speed)
-        return interpolate_consumption_efficiency[0]
+        DessiaObject.__init__(self, name=name)
+
+        grid_points = (
+            efficiency_map.engine_torques,
+            efficiency_map.engine_speeds,
+        )
+        self._efficiency_interpolator = RegularGridInterpolator(
+            grid_points,
+            np.array(efficiency_map.efficiencies).T,
+            bounds_error=False,
+            fill_value=None,
+        )
+        self._bsfc_interpolator = RegularGridInterpolator(
+            grid_points,
+            np.array(efficiency_map.bsfc).T,
+            bounds_error=False,
+            fill_value=None,
+        )
+
+    def efficiency(self, speed: float, torque: float):
+        return float(self._efficiency_interpolator([torque, speed]))
+
+    def consumption_efficiency(self, speed: float, torque: float):
+        return float(self._bsfc_interpolator([torque, speed]))
 
 
 class WLTPCycle(DessiaObject):
@@ -218,7 +227,7 @@ class GearBoxResults(DessiaObject):
         rgbs = [[192, 11, 11], [14, 192, 11], [11, 11, 192]]
         objects.append(plot_data.ParallelPlot(elements=points,
                                               edge_style=edge_style,
-                                              disposition='vertical',
+                                              vertical=True,
                                               axes=attributes,
                                               rgbs=rgbs))
 

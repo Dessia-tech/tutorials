@@ -1,7 +1,7 @@
 import tutorials.tutorial1_rivetedassembly as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
-
+from volmdlr.model import VolumeModel
 p1 = tuto.Panel(1, 1, 0.01, color=tuto.Color(1, 0, 0), alpha = 0.3)
 p2 = tuto.Panel(1.1, 1, 0.01, color=tuto.Color(1, 1, 0), alpha = 0.3)
 # p1.babylonjs()
@@ -28,7 +28,7 @@ all_possibilities = rule1.define_number_rivet(sol, r1)
 g1 = tuto.Generator(pc1, r1, rule1)
 solutions = g1.generate()
 
-solutions[-1].babylonjs()
+VolumeModel(solutions[-1].volmdlr_primitives()).babylonjs()
 
 cs = solutions[-1].plot_data()
 plot_data.plot_canvas(cs, canvas_id='canvas')

@@ -4,7 +4,7 @@ import tutorials.pattern_generator as patterns
 from dessia_common.workflow.core import Pipe, Workflow
 from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, MultiPlot
 
-from dessia_api_client.users import PlatformUser
+# from dessia_api_client.users import PlatformUser
 from dessia_common.typings import MethodType
 
 block_generator = InstantiateModel(patterns.PatternGenerator,

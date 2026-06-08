@@ -50,6 +50,9 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+cover/
+.ruff_cache
+src/tutorials/_version.py
 
 # Translations
 *.mo
