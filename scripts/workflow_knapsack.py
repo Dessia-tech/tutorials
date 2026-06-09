@@ -4,7 +4,7 @@ from tutorials.knapsack_problem import Knapsack, Generator, Item, KnapsackPackag
 from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, ModelAttribute, MultiPlot, Markdown, Unpacker, \
     PlotData, CadView
 from dessia_common.typings import MethodType
-from dessia_common.datatools.dataset import Dataset
+from datatools.dataset import Dataset
 from dessia_common.workflow.core import Variable, Pipe, Workflow
 from dessia_common.typings import MethodType, MarkdownType, PlotDataType, CadViewType
 

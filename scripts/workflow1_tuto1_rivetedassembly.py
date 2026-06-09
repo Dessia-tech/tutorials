@@ -8,7 +8,6 @@ Created on Mon Nov 23 12:36:10 2020
 import tutorials.tutorial1_rivetedassembly as tuto
 import plot_data.core as plot_data
 import volmdlr as vm
-from dessia_api_client.users import PlatformUser
 from dessia_common.workflow.blocks import InstantiateModel, ModelMethod, MethodType, MultiPlot
 from dessia_common.workflow.core import Workflow, Pipe
 
@@ -27,7 +26,7 @@ pipe_worflow = [Pipe(block_generator.outputs[0], block_generate.inputs[0]),
                 Pipe(block_generate.outputs[0], display_reductor.inputs[0])]
 
 workflow = Workflow(block_workflow, pipe_worflow, block_generate.outputs[0])
-workflow.plot()
+
 p1 = tuto.Panel(1, 1, 0.01)
 p2 = tuto.Panel(1.1, 1, 0.01)
 r1 = tuto.Rivet(0.01, 0.05, 0.012, 0.005)

@@ -10,6 +10,7 @@ Created on Mon Nov 23 12:36:10 2020
 import tutorials.tutorial5_piping as tuto
 # import plot_data.core as plot_data
 import volmdlr as vm
+from volmdlr.model import VolumeModel
 from dessia_common.workflow.core import Pipe, Workflow
 from dessia_common.workflow.blocks import MethodType, InstantiateModel, MultiPlot, ModelMethod
 # from dessia_api_client import Client
@@ -96,7 +97,7 @@ pipe_worflow = [Pipe(block_optimizer.outputs[0], block_optimize.inputs[0]),
                 Pipe(block_optimize.outputs[0], display_reductor.inputs[0])]
 
 workflow = Workflow(block_workflow, pipe_worflow, block_optimize.outputs[0], name="workflow pipe")
-workflow.plot()
+
 
 input_values = {workflow.input_index(block_optimize.inputs[1]): assemblies,
                 workflow.input_index(block_optimize.inputs[2]): 1,
@@ -104,7 +105,7 @@ input_values = {workflow.input_index(block_optimize.inputs[1]): assemblies,
 
 workflow_run = workflow.run(input_values)
 solution = workflow_run.output_value[0]
-solution.babylonjs()
+Volumemodel(solution.volmdlr_primitives()).babylonjs()
 
 # c = Client(api_url='https://api.platform-dev.dessia.tech')
 # r = c.create_object_from_python_object(workflow_run)

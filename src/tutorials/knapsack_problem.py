@@ -17,6 +17,7 @@ import volmdlr.step as vms
 from volmdlr.wires import ClosedPolygon2D
 
 from dessia_common.typings import KeyOf
+from dessia_common.utils.helpers import get_in_object_from_path
 
 ITEM_COLORS = {
     "bronze": (97/255, 78/255, 26/255),
@@ -277,6 +278,18 @@ class KnapsackPackage(Knapsack):
 
     _standalone_in_db = True
     _vector_features = ["mass", "price", "golds", "silvers", "bronzes"]
+
+    @classmethod
+    def vector_features(cls) -> list[str]:
+        """Return attributes used to build dataset vectors."""
+        return cls._vector_features
+
+    def to_vector(self) -> list[float | int]:
+        """Compute vector from object for Dataset markdown export."""
+        return [
+            get_in_object_from_path(self, feature.lower())
+            for feature in self.vector_features()
+        ]
 
     @model_property
     def mass(self) -> float:
