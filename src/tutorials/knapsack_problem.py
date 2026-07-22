@@ -6,12 +6,12 @@ from dessia_common.core import DessiaObject
 from dessia_common.models.core import Model
 from dessia_common.files import BinaryFile
 from datatools.dataset import Dataset
-from dessia_common.decorators import cad_view, plot_data_view, markdown_view
+from dessia_common.decorators import cad_view, volmdlr_view, plot_data_view, markdown_view
 from dessia_common.models.decorators import modelclass, model_property
 from plot_data import PrimitiveGroup, SurfaceStyle, Text, TextStyle
 from plot_data.colors import BLACK, Color
 from volmdlr import O3D, X3D, Y3D, Z3D, Frame3D, Point2D
-from volmdlr.core import VolumeModel
+from volmdlr.model import VolumeModel
 from volmdlr.shapes import Solid
 import volmdlr.step as vms
 from volmdlr.wires import ClosedPolygon2D
@@ -70,6 +70,11 @@ class Item(Model):
     @cad_view("Item CAD")
     def cadview(self, reference_path: str = "#"):
         return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
+
+    @volmdlr_view("Item view")
+    def volmdlr_view(self, reference_path: str = "#") -> str:
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path), name=self.name).volmdlr_view(
+            reference_path=reference_path)
 
     @plot_data_view("2D display for Item")
     def display_2d(self, y_offset: float = 0., reference_path: str = "#"):
@@ -154,6 +159,11 @@ class LegacyItem(DessiaObject):
     def cadview(self, reference_path: str = "#"):
         return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
+    @volmdlr_view("Item view")
+    def volmdlr_view(self, reference_path: str = "#") -> str:
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path), name=self.name).volmdlr_view(
+            reference_path=reference_path)
+
     @plot_data_view("2D display for Item")
     def display_2d(self, y_offset: float = 0., reference_path: str = "#"):
         contour = ClosedPolygon2D([
@@ -210,6 +220,11 @@ class Items(Model):
     def cadview(self, reference_path: str = "#"):
         return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
+    @volmdlr_view("Knapsack view")
+    def volmdlr_view(self, reference_path: str = "#") -> str:
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path), name=self.name).volmdlr_view(
+            reference_path=reference_path)
+
     @plot_data_view("2D display for KnapsackPackage")
     def display_2d(self, reference_path: str = "#"):
         primitives = []
@@ -264,6 +279,11 @@ class Knapsack(Model):
     def cadview(self, reference_path: str = "#"):
         return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
 
+    @volmdlr_view("Knapsack view")
+    def volmdlr_view(self, reference_path: str = "#") -> str:
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path), name=self.name).volmdlr_view(
+            reference_path=reference_path)
+
 @modelclass
 class KnapsackPackage(Knapsack):
     """
@@ -299,17 +319,19 @@ class KnapsackPackage(Knapsack):
         return len([i for i in self.items.items if i.color == "gold"])
 
     def volmdlr_primitives(self, reference_path: str = "#"):
-        knapsack_primitives = Knapsack.volmdlr_primitives(self, reference_path=reference_path)
-        z_offset = 0
-        for i, item in enumerate(self.items.items):
-            item_primitives = item.volmdlr_primitives(z_offset=z_offset, reference_path=f"{reference_path}/items/{i}")
-            knapsack_primitives.extend(item_primitives)
-            z_offset += item.mass / 2 + 0.05
-        return knapsack_primitives
+        # self.items is an Items wrapper -> anchor one level deeper so item paths resolve.
+        primitives = Knapsack.volmdlr_primitives(self, reference_path=reference_path)
+        primitives += self.items.volmdlr_primitives(reference_path=f"{reference_path}/items")
+        return primitives
 
     @cad_view("Knapsack Package CAD")
     def cadview(self, reference_path: str = "#"):
         return VolumeModel(self.volmdlr_primitives(reference_path=reference_path)).babylon_data()
+
+    @volmdlr_view("Knapsack Package view")
+    def volmdlr_view(self, reference_path: str = "#") -> str:
+        return VolumeModel(self.volmdlr_primitives(reference_path=reference_path), name=self.name).volmdlr_view(
+            reference_path=reference_path)
 
     @plot_data_view("2D display for KnapsackPackage", picture=True)
     def display_2d(self):
